@@ -20,7 +20,7 @@ from bbss import ad
 logger = logging.getLogger('bbss.data')
 
 
-class Student:
+class Student(object):
     def __init__(self, surname, firstname, classname, birthday):
         self.surname = surname
         self.firstname = firstname
@@ -71,3 +71,13 @@ def replace_illegal_characters(string):
 def replace_class_name(string):
     """replace class names that have to be changed for generating user names"""
     return config.class_map[string] if string in config.class_map else string
+
+
+class ChangeSet(object):
+    def __init__(self):
+        self.students_added = []
+        self.students_removed = []
+        self.students_changed = []
+    
+    def temp(self):
+        pass

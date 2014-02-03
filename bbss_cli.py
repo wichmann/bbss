@@ -32,13 +32,13 @@ def parse_command_line():
                         help='defines whether to store imported student data in database')
     # create parser for import
     import_parser = subparsers.add_parser('import', description='import student list into bbss', help='')
-    import_parser.add_argument('filename_import', type=argparse.FileType('r'), help='file name to import student data from')
+    import_parser.add_argument('filename_import', help='file name to import student data from')
     import_choices = ['csv', 'excel']
     import_parser.add_argument('-f', '--format', default=import_choices[0], help='input student list from a given file format', choices=import_choices)
     #import_parser.set_defaults(func=import_student_data)
     # create parser for export
     export_parser = subparsers.add_parser('export', description='export student list from bbss', help='')
-    export_parser.add_argument('filename_export', type=argparse.FileType('w'),
+    export_parser.add_argument('filename_export',
                                help='file name to export student data to')
     export_choices = ['logodidact', 'ad']
     export_parser.add_argument('-f', '--format', default=export_choices[0], help='file format in which to export student data', choices=export_choices)
@@ -81,12 +81,11 @@ if __name__ == '__main__':
     # evaluate given command line options
     if options.format == 'csv':
         # read file into list of students
-        bbss.read_csv_file(options.filename_import, not options.dontReplaceClassNames)
-        # check for double entries in student list
-        bbss.check_for_doubles()
+        # TODO use options.dontReplaceClassNames when importing
+        bbss.read_csv_file(options.filename_import)
         if not options.dontStoreInDB:
             # store newly imported student list in database
-            bbss.store_students_db(options.filename_import.name)
+            bbss.store_students_db(options.filename_import)
     if options.format == 'excel':
         logger.error('Import from excel files is not yet supported!')
     if options.format == 'logodidact':
