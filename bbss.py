@@ -5,7 +5,7 @@
 #
 # Reads student data from csv files and stores them in a database. Data
 # can be exported to be used by other systems like AD or RADIUS servers.
-# 
+#
 # Author: Christian Wichmann
 # Date: 2013-09-15
 #####
@@ -27,9 +27,10 @@ USER_BASE = 'ou=Schueler,ou=BBSBS,DC=SN,DC=BBSBS,DC=LOCAL'
 student_list = []
 
 ### correlation between columns in the csv file and their attributes
-column_map = {'surname'  : 0,
+column_map = {'surname': 0,
               'firstname': 1,
               'classname': 2}
+
 
 class Student:
     def __init__(self, surname, firstname, classname):
@@ -38,19 +39,19 @@ class Student:
         self.classname = classname
         # TODO get birthday from csv file
         self.birthday = "2013-09-15"
-        
+
     def get_class_name(self):
         return replace_class_name(self.classname)
 
     def get_class_determinator(self):
         return replace_class_name(self.classname).rstrip('1234567890')
-    
+
     def get_department(self):
         for department in config.department_map:
             if self.get_class_determinator() in department:
                 return config.department_map[department]
         return ''
-      
+
     def generateUserID(self):
         """generates a user id for this student"""
         s = '%s.%s%s' % (self.get_class_name(), self.surname[0:4].upper(), self.firstname[0:4].upper())
@@ -60,13 +61,13 @@ class Student:
         # password generation: http://stackoverflow.com/questions/3854692/generate-password-in-python
         # import string
         # from random import sample, choice
-        # chars = string.letters + string.digits 
+        # chars = string.letters + string.digits
         # length = 8
         # return ''.join(sample(chars,length))
-        return 'A##' + str(random.randint(1000,9999))
+        return 'A##' + str(random.randint(1000, 9999))
 
     def generateOU(self):
-        s  = 'ou=' + self.get_class_name() + ',' 
+        s = 'ou=' + self.get_class_name() + ','
         s += 'ou=' + self.get_class_determinator() + ','
         s += 'ou=' + self.get_department() + ',' + USER_BASE
         return s
@@ -75,11 +76,11 @@ class Student:
 def read_csv_file(input_file):
     """reads a csv file and adds student to list"""
     logger.info('Importing student from file...')
-    
+
     student_count = 0
     student_file_reader = csv.reader(input_file)
     # TODO set dialect for csv.reader?
-    
+
     # find columns from file
     for column, name in enumerate(next(student_file_reader)):
         if name == 'KL_NAME':
@@ -88,7 +89,7 @@ def read_csv_file(input_file):
             column_map['surname'] = column
         elif name == 'VNAME':
             column_map['firstname'] = column
-    
+
     for row in student_file_reader:
         class_of_student = replace_illegal_characters(row[column_map['classname']])
         name_of_student = replace_illegal_characters(row[column_map['surname']])
@@ -143,7 +144,7 @@ def output_csv_file(output_file):
 def check_for_doubles():
     """checks for students with the same generated user name"""
     logger.info('Checking student list for doubles...')
-    
+
     seen = set()
     for student in student_list:
         if student.generateUserID() in seen:
@@ -154,25 +155,25 @@ def check_for_doubles():
 def store_students_db():
     """storing student data into database"""
     logger.info('Storing student data into database...')
-    
+
     # connecting to database
     db_file = 'students.db'
     conn = sqlite3.connect(db_file)
     # change the row factory to use Row to allow access via column name
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    
+
     # create tables if they not already exist
     cur.execute("CREATE TABLE IF NOT EXISTS Imports(id INTEGER PRIMARY KEY AUTOINCREMENT, filename TEXT NOT NULL, date DATE NOT NULL)")
     cur.execute("CREATE TABLE IF NOT EXISTS Students(id INTEGER PRIMARY KEY AUTOINCREMENT, surname TEXT NOT NULL, firstname TEXT NOT NULL, classname TEXT NOT NULL, birthday DATE NOT NULL)")
     cur.execute("CREATE TABLE IF NOT EXISTS StudentsInImports(student_id INT NOT NULL, import_id INT NOT NULL, FOREIGN KEY(student_id) REFERENCES Students(id), FOREIGN KEY(import_id) REFERENCES Imports(id))")
     conn.commit()
-    
+
     # storing new data in database
     cur.execute("INSERT INTO Imports VALUES(NULL,?,?)", (options.filename_import.name, datetime.date.today()))
     import_id = cur.lastrowid
     conn.commit()
-    
+
     # storing all students in database
     for student in student_list:
         # check if student is already in database
@@ -191,28 +192,28 @@ def store_students_db():
             student_id = data[0]
             cur.execute('INSERT INTO StudentsInImports VALUES (?,?)', (student_id, import_id))
     conn.commit()
-    
+
     # get statistics
     cur.execute('SELECT MAX(id) FROM Imports')
     data = cur.fetchone()
     last_import_id = data['max(id)']
     cur.execute("""SELECT import_id, COUNT(*)
                    FROM (
-		     SELECT student_id, COUNT(import_id) as cd, import_id
-		     FROM StudentsInImports
-		     WHERE import_id = %s OR import_id = %s
-		     GROUP BY student_id
-		   )
-		   WHERE cd = 1
-		   GROUP BY import_id
-		   ORDER BY import_id;""" % (last_import_id, last_import_id - 1))
+                SELECT student_id, COUNT(import_id) as cd, import_id
+             FROM StudentsInImports
+             WHERE import_id = %s OR import_id = %s
+             GROUP BY student_id
+           )
+           WHERE cd = 1
+           GROUP BY import_id
+           ORDER BY import_id;""" % (last_import_id, last_import_id - 1))
     data = cur.fetchall()
     for element in list(data):
         if element[0] == last_import_id:
             logger.info('%s students added.' % element['count(*)'])
         if element[0] == last_import_id - 1:
             logger.info('%s students removed.' % element['count(*)'])
-        
+
     # get student count
     cur.execute('SELECT COUNT(*) FROM Students')
     data = cur.fetchone()
@@ -263,7 +264,7 @@ if __name__ == '__main__':
     # parse command line options
     global options
     options = parse_command_line()
-    
+
     # use default config file (config.py) or a given file in directory
     # where this file lies
     try:
@@ -278,10 +279,10 @@ if __name__ == '__main__':
     except ImportError:
         logger.error("Could not load config file.")
         exit()
-        
+
     # init random number generator for password generation
     random.seed()
-    
+
     # evaluate given command line options
     if options.format == 'csv':
         # read file into list of students
@@ -300,4 +301,3 @@ if __name__ == '__main__':
         logger.info("Exported student data for use in logodidact.")
     if options.format == 'ad':
         setup_ad()
-
