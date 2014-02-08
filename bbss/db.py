@@ -132,7 +132,6 @@ class StudentDatabase(object):
                              student['classname'],
                              student['birthday'])
             change_set.students_added.append(s)
-            print(s)
         return change_set
 
     def close_connection(self):

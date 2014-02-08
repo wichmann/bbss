@@ -46,8 +46,9 @@ class Student(object):
 
     def generateUserID(self):
         """generates a user id for this student"""
-        s = '%s.%s%s' % (self.get_class_name(), self.surname[0:4].upper(),
-                         self.firstname[0:4].upper())
+        s = '%s.%s%s' % (self.get_class_name(),
+                         replace_illegal_characters(self.surname)[0:4].upper(),
+                         replace_illegal_characters(self.firstname)[0:4].upper())
         return s
 
     def generatePassword(self):

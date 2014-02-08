@@ -4,7 +4,7 @@
 #
 # Reads student data from csv files and stores them in a database. Data
 # can be exported to be used by other systems like AD or RADIUS servers.
-# 
+#
 # Author: Christian Wichmann
 # Date: 2013-09-15
 #####
@@ -58,7 +58,7 @@ char_map = {'ä': 'ae',
 ### map translating class names as used to class names a necessary for
 ### generating user names
 class_map = {'SGOX': 'SGO',
-	     'SGSX': 'SGO',
+             'SGSX': 'SGO',
              'STEX': 'STE',
              'CPHY': 'CPWY',
              'MMGX': 'MMG',
@@ -68,18 +68,17 @@ class_map = {'SGOX': 'SGO',
              'MAFX': 'MAF'}
 
 
-### map translating a class determinator (without the identifier for a 
+### map translating a class determinator (without the identifier for a
 ### specific class) to a department to which this class belongs to
-department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX') : 'Elektrotechnik',
-		  ('BGT', 'BGTA', 'BGTB', 'BGTC', 'BGT12', 'BGT13') : 'Berufliches Gymnasium',
-		  ('FOSS', 'FOSW', 'FSAE', 'FSAM', 'FSE', 'FSM') : 'Fachschule',
-		  ('BFIA', 'IFA', 'IFI', 'ISE') : 'IT-Berufe',
-		  ('KBK', 'KFZ', 'KKB', 'KZM', 'KZO', 'KZU', 'KZF') : 'Kraftfahrzeugtechnik',
-		  ('FSAME', 'SME') : 'Mechatronik',
-		  ('BEKM', 'BFSM', 'MAF', 'MAKM', 'MII', 'MIM', 'MIP', 'MMB', 'MME','MMG', 'MPV', 'MTL', 'MWM', 'MZD', 'MZM') : 'Metalltechnik',
-		  ('STZ', 'STZH', 'STPS', 'STP', 'STSV', 'STZE', 'STEX') : 'Technische Zeichner',
-		  ('CCL', 'CPWY', 'SAO', 'SGO') : 'Sonstige Berufe',
-		  ('VAM') : 'Versorgungstechnik',
-		  ('IHK', 'ITW') : 'Gäste',
-		  ('OWS', 'OWH') : 'Osnabrücker Werkstätten'}
-
+department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
+                  ('BGT', 'BGTA', 'BGTB', 'BGTC', 'BGT12', 'BGT13'): 'Berufliches Gymnasium',
+                  ('FOSS', 'FOSW', 'FSAE', 'FSAM', 'FSE', 'FSM'): 'Fachschule',
+                  ('BFIA', 'IFA', 'IFI', 'ISE'): 'IT-Berufe',
+                  ('KBK', 'KFZ', 'KKB', 'KZM', 'KZO', 'KZU', 'KZF'): 'Kraftfahrzeugtechnik',
+                  ('FSAME', 'SME'): 'Mechatronik',
+                  ('BEKM', 'BFSM', 'MAF', 'MAKM', 'MII', 'MIM', 'MIP', 'MMB', 'MME', 'MMG', 'MPV', 'MTL', 'MWM', 'MZD', 'MZM'): 'Metalltechnik',
+                  ('STZ', 'STZH', 'STPS', 'STP', 'STSV', 'STZE', 'STEX'): 'Technische Zeichner',
+                  ('CCL', 'CPWY', 'SAO', 'SGO'): 'Sonstige Berufe',
+                  ('VAM'): 'Versorgungstechnik',
+                  ('IHK', 'ITW'): 'Gäste',
+                  ('OWS', 'OWH'): 'Osnabrücker Werkstätten'}

@@ -19,19 +19,24 @@ from bbss import bbss
 
 
 def parse_command_line():
-    """Parse command line arguments and return values as dictionary for evaluation."""
-    parser = argparse.ArgumentParser(description='A tool to manage student data...')
+    """Parse command line arguments and return values as dictionary for
+       evaluation."""
+    PROGRAM_DESCRIPTION = 'bbss - BBS Student Management - A tool to store and manage student data'
+    parser = argparse.ArgumentParser(description=PROGRAM_DESCRIPTION)
     subparsers = parser.add_subparsers()
      # general options
     parser.add_argument('-c', '--config', dest='config_file',
                         help='config file in local directory')
     parser.add_argument('-drc', dest='dontReplaceClassNames',
                         action='store_true',
-                        help='defines whether to replace class names')
+                        help='whether to replace class names')
+    parser.add_argument('-dric', dest='dontReplaceIllegalCharacters',
+                        action='store_true',
+                        help='whether to replace illegal characters in student names')
     parser.add_argument('-dsdb', dest='dontStoreInDB', action='store_true',
-                        help='defines whether to store imported student data in database')
+                        help='whether to store imported student data in database')
     # create parser for import
-    import_parser = subparsers.add_parser('import', 
+    import_parser = subparsers.add_parser('import',
                                           description='import student list into bbss',
                                           help='')
     import_parser.add_argument('filename_import', help='file name to import student data from')
@@ -45,6 +50,8 @@ def parse_command_line():
     export_choices = ['logodidact', 'ad']
     export_parser.add_argument('-f', '--format', dest="format_choice", default=export_choices[0], help='file format in which to export student data', choices=export_choices)
     #export_parser.set_defaults(func=export_student_data)
+    clear_parser = subparsers.add_parser('clear', description='clear database', help='')
+    clear_parser.add_argument('--clear_database', default=True)
     return parser.parse_args()
 
 
@@ -80,6 +87,12 @@ if __name__ == '__main__':
         logger.error("Could not load config file.")
         exit()
 
+    # clear database
+    if 'clear_database' in options:
+        if options.clear_database:
+            logger.info('Deleted database file.')
+            bbss.clear_database()
+
     # evaluate given command line options
     if 'format_choice' in options:
         if options.format_choice == 'csv':
@@ -94,7 +107,8 @@ if __name__ == '__main__':
         if options.format_choice == 'logodidact':
             # write csv file for use in logodidact
             logger.info("Exporting student data for use in logodidact...")
-            bbss.output_csv_file(options.filename_export)
+            bbss.output_csv_file(options.filename_export,
+                                 not options.dontReplaceIllegalCharacters)
             logger.info("Exported student data for use in logodidact.")
         if options.format_choice == 'ad':
             logger.error('Export into active directory is not yet supported!')

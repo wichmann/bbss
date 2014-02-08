@@ -53,22 +53,20 @@ def read_csv_file(input_file):
             column_map['birthday'] = column
 
     for row in student_file_reader:
-        class_of_student = data.replace_illegal_characters(row[column_map['classname']])
-        name_of_student = data.replace_illegal_characters(row[column_map['surname']])
-        firstname_of_student = data.replace_illegal_characters(row[column_map['firstname']])
+        class_of_student = row[column_map['classname']]
+        name_of_student = row[column_map['surname']]
+        firstname_of_student = row[column_map['firstname']]
         birthday_of_student = row[column_map['birthday']]
-        if class_of_student in config.class_blacklist:
+        if is_class_blacklisted(class_of_student):
+            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                        .format(firstname_of_student, name_of_student, class_of_student))
+            continue
+        if class_of_student[:2] == 'ZZ':
+            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                        .format(firstname_of_student, name_of_student, class_of_student))
             continue
         if name_of_student[-1:] == '_':
             continue
-        try:
-            # check for non ascii characters in string
-            class_of_student.encode('ascii')
-            name_of_student.encode('ascii')
-            firstname_of_student.encode('ascii')
-            birthday_of_student.encode('ascii')
-        except UnicodeEncodeError:
-            logger.warning('Non ascii characters in %s %s in %s' % (firstname_of_student, name_of_student, class_of_student))
         student_list.append(data.Student(name_of_student,
                                          firstname_of_student,
                                          class_of_student,
@@ -79,7 +77,13 @@ def read_csv_file(input_file):
     check_for_doubles()
 
 
-def output_csv_file(output_file):
+def is_class_blacklisted(class_name):
+    for blacklisted_class in config.class_blacklist:
+            if blacklisted_class in class_name:
+                return True
+    return False
+
+def output_csv_file(output_file, replace_illegal_characters=True):
     """Outputs a csv file with all information for all students for the AD."""
     logger.info('Writing student data to csv file...')
     if os.path.exists(output_file):
@@ -90,9 +94,30 @@ def output_csv_file(output_file):
     global student_database
     change_set = student_database.generate_changeset()
     for student in change_set.students_added:
-        output_file_writer.writerow((student.get_class_name(),
-                                     student.surname,
-                                     student.firstname,
+        # get data from change set
+        class_of_student = student.get_class_name()
+        surname_of_student = student.surname
+        firstname_of_student = student.firstname
+        # replace illegal characters if needed
+        if replace_illegal_characters:
+            class_of_student, surname_of_student, firstname_of_student = map(
+                data.replace_illegal_characters, (class_of_student,
+                                                  surname_of_student,
+                                                  firstname_of_student))
+            # check for non ascii characters in string
+            try:
+                class_of_student.encode('ascii')
+                surname_of_student.encode('ascii')
+                firstname_of_student.encode('ascii')
+            except UnicodeEncodeError:
+                logger.warning('Non ascii characters in %s %s in %s' %
+                               (firstname_of_student,
+                                surname_of_student,
+                                class_of_student))
+        # output student data for change set into file
+        output_file_writer.writerow((class_of_student,
+                                     surname_of_student,
+                                     firstname_of_student,
                                      student.generateUserID(),
                                      student.generatePassword(),
                                      student.generateOU()))
@@ -116,3 +141,7 @@ def store_students_db(importfile_name):
     global student_database
     student_database.store_students_db(importfile_name, student_list)
     student_database.print_statistics()
+
+
+def clear_database():
+    os.remove(db.DB_FILENAME)
