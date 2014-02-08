@@ -24,7 +24,7 @@ logger = logging.getLogger('bbss.main')
 
 
 student_list = []
-student_database = None
+student_database = db.StudentDatabase()
 
 ### correlation between columns in the csv file and their attributes
 column_map = {'surname': 0,
@@ -36,7 +36,7 @@ column_map = {'surname': 0,
 def read_csv_file(input_file):
     """reads a csv file and adds student to list"""
     logger.info('Importing students from file...')
-
+    global student_list
     student_count = 0
     student_file_reader = csv.reader(open(input_file, 'r'))
     # TODO Set dialect for csv.reader?
@@ -87,7 +87,9 @@ def output_csv_file(output_file):
     output_file_writer = csv.writer(open(output_file, 'w'), delimiter=';')
     output_file_writer.writerow(('Class', 'Name', 'Firstname', 'UserID',
                                  'Password', 'OU'))
-    for student in student_list:
+    global student_database
+    change_set = student_database.generate_changeset()
+    for student in change_set.students_added:
         output_file_writer.writerow((student.get_class_name(),
                                      student.surname,
                                      student.firstname,
@@ -100,7 +102,7 @@ def output_csv_file(output_file):
 def check_for_doubles():
     """Checks for students with the same generated user name."""
     logger.info('Checking student list for doubles...')
-
+    global student_list
     seen = set()
     for student in student_list:
         if student.generateUserID() in seen:
@@ -112,7 +114,5 @@ def store_students_db(importfile_name):
     """Stores a new set of student data in student database. The database is
        initialized the first time it is used."""
     global student_database
-    if not student_database:
-        student_database = db.StudentDatabase()
     student_database.store_students_db(importfile_name, student_list)
     student_database.print_statistics()

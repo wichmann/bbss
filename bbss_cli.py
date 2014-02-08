@@ -31,17 +31,19 @@ def parse_command_line():
     parser.add_argument('-dsdb', dest='dontStoreInDB', action='store_true',
                         help='defines whether to store imported student data in database')
     # create parser for import
-    import_parser = subparsers.add_parser('import', description='import student list into bbss', help='')
+    import_parser = subparsers.add_parser('import', 
+                                          description='import student list into bbss',
+                                          help='')
     import_parser.add_argument('filename_import', help='file name to import student data from')
     import_choices = ['csv', 'excel']
-    import_parser.add_argument('-f', '--format', default=import_choices[0], help='input student list from a given file format', choices=import_choices)
+    import_parser.add_argument('-f', '--format', dest="format_choice", default=import_choices[0], help='input student list from a given file format', choices=import_choices)
     #import_parser.set_defaults(func=import_student_data)
     # create parser for export
     export_parser = subparsers.add_parser('export', description='export student list from bbss', help='')
     export_parser.add_argument('filename_export',
                                help='file name to export student data to')
     export_choices = ['logodidact', 'ad']
-    export_parser.add_argument('-f', '--format', default=export_choices[0], help='file format in which to export student data', choices=export_choices)
+    export_parser.add_argument('-f', '--format', dest="format_choice", default=export_choices[0], help='file format in which to export student data', choices=export_choices)
     #export_parser.set_defaults(func=export_student_data)
     return parser.parse_args()
 
@@ -79,20 +81,20 @@ if __name__ == '__main__':
         exit()
 
     # evaluate given command line options
-    if options.format == 'csv':
-        # read file into list of students
-        # TODO use options.dontReplaceClassNames when importing
-        bbss.read_csv_file(options.filename_import)
-        if not options.dontStoreInDB:
-            # store newly imported student list in database
-            bbss.store_students_db(options.filename_import)
-    if options.format == 'excel':
-        logger.error('Import from excel files is not yet supported!')
-    if options.format == 'logodidact':
-        # write csv file for use in logodidact
-        logger.info("Exporting student data for use in logodidact...")
-        bbss.output_csv_file(options.filename_export)
-        logger.info("Exported student data for use in logodidact.")
-    if options.format == 'ad':
-        pass
-        #setup_ad()
+    if 'format_choice' in options:
+        if options.format_choice == 'csv':
+            # read file into list of students
+            # TODO use options.dontReplaceClassNames when importing
+            bbss.read_csv_file(options.filename_import)
+            if not options.dontStoreInDB:
+                # store newly imported student list in database
+                bbss.store_students_db(options.filename_import)
+        if options.format_choice == 'excel':
+            logger.error('Import from excel files is not yet supported!')
+        if options.format_choice == 'logodidact':
+            # write csv file for use in logodidact
+            logger.info("Exporting student data for use in logodidact...")
+            bbss.output_csv_file(options.filename_export)
+            logger.info("Exported student data for use in logodidact.")
+        if options.format_choice == 'ad':
+            logger.error('Export into active directory is not yet supported!')

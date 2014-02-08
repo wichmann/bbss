@@ -27,6 +27,11 @@ class Student(object):
         self.classname = classname
         self.birthday = birthday
 
+    def __str__(self):
+        return "<{0} {1} from {2}>".format(self.firstname,
+                                           self.surname,
+                                           self.classname)
+
     def get_class_name(self):
         return replace_class_name(self.classname)
 
@@ -65,7 +70,8 @@ def replace_illegal_characters(string):
     """Replaces illegal characters from a given string with values from char
        map (see bbss.config)."""
     characters = list(string)
-    return ''.join([config.char_map[char] if char in config.char_map else char for char in characters])
+    return ''.join([config.char_map[char] if char in config.char_map
+                   else char for char in characters])
 
 
 def replace_class_name(string):
@@ -78,6 +84,6 @@ class ChangeSet(object):
         self.students_added = []
         self.students_removed = []
         self.students_changed = []
-    
+
     def temp(self):
         pass

@@ -14,8 +14,9 @@ import sqlite3
 import datetime
 import logging
 
+from bbss import data
 
-logger = logging.getLogger('bbss.data')
+logger = logging.getLogger('bbss.db')
 
 DB_FILENAME = 'students.db'
 
@@ -92,27 +93,47 @@ class StudentDatabase(object):
                 logger.info('%s students added.' % element['count(*)'])
             if element[0] == last_import_id - 1:
                 logger.info('%s students removed.' % element['count(*)'])
-
         # get student count
         self.cur.execute('SELECT COUNT(*) FROM Students')
         result_data = self.cur.fetchone()
         logger.info('%s students currently stored in database.' % result_data['count(*)'])
         self.conn.commit()
 
-    def generate_last_changeset(self):
-        last_import_id = self.get_last_import_id()
-        # get added students
-        self.cur.execute("""SELECT import_id, COUNT(*)
-                       FROM (
-                    SELECT student_id, COUNT(import_id) as cd, import_id
-                 FROM StudentsInImports
-                 WHERE import_id = %s OR import_id = %s
-                 GROUP BY student_id
-               )
-               WHERE cd = 1
-               GROUP BY import_id
-               ORDER BY import_id;""" % (last_import_id, last_import_id - 1))
-        result_data = self.cur.fetchall()
+    def generate_changeset(self, old_import_id=0, new_import_id=0):
+        """Generates a changeset with all added, deleted and changed student
+           data between two specific imports. If no """
+
+        if old_import_id == 0 and new_import_id == 0:
+            logger.debug('Getting student data between first and last import.')
+            # get last import id from database if no id was given
+            new_import_id = self.get_last_import_id()
+            # get added students from database
+            sql_for_all_students = """SELECT import_id,
+            student_id, firstname, surname,
+            classname, birthday
+            FROM StudentsInImports, Students
+            WHERE student_id = student_id
+            AND import_id = "{0}"; """.format(new_import_id)
+            self.cur.execute(sql_for_all_students)
+            result_data = self.cur.fetchall()
+            # build change set and return it
+            change_set = data.ChangeSet()
+            for student in result_data:
+                s = data.Student(student['surname'],
+                                 student['firstname'],
+                                 student['classname'],
+                                 student['birthday'])
+                change_set.students_added.append(s)
+                print(s)
+            return change_set
+
+        elif old_import_id == 0 and new_import_id != 0:
+            logger.debug('Getting student data between first import and import no. {0}.'.format(new_import_id))
+            return data.ChangeSet()
+
+        else:
+            logger.debug('Getting student data between imports no. {0} and no. {1}'.format(old_import_id, new_import_id))
+            return data.ChangeSet()
 
     def close_connection(self):
         """Closes connection to database."""
