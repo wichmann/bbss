@@ -1,13 +1,14 @@
 
-#####
-# bbss - BBS Student Management - Configuration File
-#
-# Reads student data from csv files and stores them in a database. Data
-# can be exported to be used by other systems like AD or RADIUS servers.
-#
-# Author: Christian Wichmann
-# Date: 2013-09-15
-#####
+"""
+bbss - BBS Student Management
+
+Configuration file containing information for blacklisting class names,
+translating illegal characters and mapping class names to departments.
+
+Created on Mon Feb  3 15:08:56 2013
+
+@author: Christian Wichmann
+"""
 
 
 ### black list of classes not to load

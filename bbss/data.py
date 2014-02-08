@@ -80,6 +80,13 @@ def replace_class_name(string):
     return config.class_map[string] if string in config.class_map else string
 
 
+def is_class_blacklisted(class_name):
+    for blacklisted_class in config.class_blacklist:
+            if blacklisted_class in class_name:
+                return True
+    return False
+
+
 class ChangeSet(object):
     def __init__(self):
         self.students_added = []

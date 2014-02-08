@@ -54,19 +54,20 @@ Options:
 
     # use default config file (config.py) or a given file in directory
     # where this file lies
-    try:
-        if options['--config'] is None:
-            from bbss import config
-        else:
-            import os.path
-            import imp
-            config_module_name = os.path.splitext(os.path.split(options['--config'])[1])[0]
-            f, filename, description = imp.find_module(config_module_name)
-            config = imp.load_module(config_module_name, f, filename,
-                                     description)
-    except ImportError:
-        logger.error("Could not load config file.")
-        exit()
+    #try:
+    #    if options['--config'] is None:
+    #        from bbss import config
+    #    else:
+    #        logger.error('Use of config files other than the default not yet implemented.')
+    #        import os.path
+    #        import imp
+    #        config_module_name = os.path.splitext(os.path.split(options['--config'])[1])[0]
+    #        f, filename, description = imp.find_module(config_module_name)
+    #        config = imp.load_module(config_module_name, f, filename,
+    #                                 description)
+    #except ImportError:
+    #    logger.error("Could not load config file.")
+    #    exit()
 
     # clear database
     if options['clear']:
