@@ -10,49 +10,12 @@ Created on Mon Feb  3 15:08:56 2014
 @author: Christian Wichmann
 """
 
-import argparse
 import logging
 import logging.handlers
 import sys
+from docopt import docopt
 
 from bbss import bbss
-
-
-def parse_command_line():
-    """Parse command line arguments and return values as dictionary for
-       evaluation."""
-    PROGRAM_DESCRIPTION = 'bbss - BBS Student Management - A tool to store and manage student data'
-    parser = argparse.ArgumentParser(description=PROGRAM_DESCRIPTION)
-    subparsers = parser.add_subparsers()
-     # general options
-    parser.add_argument('-c', '--config', dest='config_file',
-                        help='config file in local directory')
-    parser.add_argument('-drc', dest='dontReplaceClassNames',
-                        action='store_true',
-                        help='whether to replace class names')
-    parser.add_argument('-dric', dest='dontReplaceIllegalCharacters',
-                        action='store_true',
-                        help='whether to replace illegal characters in student names')
-    parser.add_argument('-dsdb', dest='dontStoreInDB', action='store_true',
-                        help='whether to store imported student data in database')
-    # create parser for import
-    import_parser = subparsers.add_parser('import',
-                                          description='import student list into bbss',
-                                          help='')
-    import_parser.add_argument('filename_import', help='file name to import student data from')
-    import_choices = ['csv', 'excel']
-    import_parser.add_argument('-f', '--format', dest="format_choice", default=import_choices[0], help='input student list from a given file format', choices=import_choices)
-    #import_parser.set_defaults(func=import_student_data)
-    # create parser for export
-    export_parser = subparsers.add_parser('export', description='export student list from bbss', help='')
-    export_parser.add_argument('filename_export',
-                               help='file name to export student data to')
-    export_choices = ['logodidact', 'ad']
-    export_parser.add_argument('-f', '--format', dest="format_choice", default=export_choices[0], help='file format in which to export student data', choices=export_choices)
-    #export_parser.set_defaults(func=export_student_data)
-    clear_parser = subparsers.add_parser('clear', description='clear database', help='')
-    clear_parser.add_argument('--clear_database', default=True)
-    return parser.parse_args()
 
 
 if __name__ == '__main__':
@@ -68,47 +31,69 @@ if __name__ == '__main__':
     logger.addHandler(handler)
 
     # parse command line options
-    global options
-    options = parse_command_line()
+    docopt_string = """
+bbss - BBS Student Management - A tool to store and manage student data
+
+Usage:
+  bbss_cli clear
+  bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
+  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | ad)] [--drc] [--dric]
+
+Options:
+  -h, --help            Show this help message and exit.
+  --version             Show version information.
+  --import-format       Import file format for student data. [default: csv]
+  --export-format       Export file format for student data. [default: logodidact]
+  -c CONFIG_FILE --config CONFIG_FILE
+                        Config file in local directory.
+  --drc                  Do not replace class names.
+  --dric                 Do not replace illegal characters in student names.
+  --dsdb                 Do not store imported student data in database.
+"""
+    options = docopt(docopt_string, version='bbss 0.0.1')
 
     # use default config file (config.py) or a given file in directory
     # where this file lies
     try:
-        if not options.config_file:
+        if options['--config'] is None:
             from bbss import config
         else:
             import os.path
             import imp
-            comfig_module_name = os.path.splitext(os.path.split(options.config_file)[1])[0]
-            f, filename, description = imp.find_module(comfig_module_name)
-            config = imp.load_module(comfig_module_name, f, filename,
+            config_module_name = os.path.splitext(os.path.split(options['--config'])[1])[0]
+            f, filename, description = imp.find_module(config_module_name)
+            config = imp.load_module(config_module_name, f, filename,
                                      description)
     except ImportError:
         logger.error("Could not load config file.")
         exit()
 
     # clear database
-    if 'clear_database' in options:
-        if options.clear_database:
-            logger.info('Deleted database file.')
-            bbss.clear_database()
+    if options['clear']:
+        logger.info('Deleted database file.')
+        bbss.clear_database()
 
     # evaluate given command line options
-    if 'format_choice' in options:
-        if options.format_choice == 'csv':
+    if options['import']:
+        if not options['csv'] and not options['excel']:
+            options['csv'] = True
+        if options['csv']:
             # read file into list of students
             # TODO use options.dontReplaceClassNames when importing
-            bbss.read_csv_file(options.filename_import)
-            if not options.dontStoreInDB:
+            bbss.read_csv_file(options['<IMPORT_FILENAME>'])
+            if not options['--dsdb']:
                 # store newly imported student list in database
-                bbss.store_students_db(options.filename_import)
-        if options.format_choice == 'excel':
+                bbss.store_students_db(options['<IMPORT_FILENAME>'])
+        if options['excel']:
             logger.error('Import from excel files is not yet supported!')
-        if options.format_choice == 'logodidact':
+    if options['export']:
+        if not options['logodidact'] and not options['ad']:
+            options['logodidact'] = True
+        if options['logodidact']:
             # write csv file for use in logodidact
             logger.info("Exporting student data for use in logodidact...")
-            bbss.output_csv_file(options.filename_export,
-                                 not options.dontReplaceIllegalCharacters)
+            bbss.output_csv_file(options['<EXPORT_FILENAME>'],
+                                 not options['--dric'])
             logger.info("Exported student data for use in logodidact.")
-        if options.format_choice == 'ad':
+        if options['ad']:
             logger.error('Export into active directory is not yet supported!')
