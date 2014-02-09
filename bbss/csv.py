@@ -102,6 +102,6 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
         output_file_writer.writerow((class_of_student,
                                      surname_of_student,
                                      firstname_of_student,
-                                     student.generateUserID(),
-                                     student.generatePassword(),
-                                     student.generateOU()))
+                                     student.generate_user_id(),
+                                     student.generate_password(),
+                                     student.generate_ou()))

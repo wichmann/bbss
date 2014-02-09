@@ -34,9 +34,18 @@ class StudentDatabase(object):
 
     def create_tables(self):
         """Creates tables for database, if they not already exist."""
-        self.cur.execute("CREATE TABLE IF NOT EXISTS Imports(id INTEGER PRIMARY KEY AUTOINCREMENT, filename TEXT NOT NULL, date DATE NOT NULL)")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS Students(id INTEGER PRIMARY KEY AUTOINCREMENT, surname TEXT NOT NULL, firstname TEXT NOT NULL, classname TEXT NOT NULL, birthday DATE NOT NULL)")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS StudentsInImports(student_id INT NOT NULL, import_id INT NOT NULL, FOREIGN KEY(student_id) REFERENCES Students(id), FOREIGN KEY(import_id) REFERENCES Imports(id))")
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Imports(
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            filename TEXT NOT NULL, date DATE NOT NULL)""")
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Students(
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            surname TEXT NOT NULL, firstname TEXT NOT NULL,
+                            classname TEXT NOT NULL, birthday DATE NOT NULL,
+                            username TEXT NOT NULL, password TEXT NOT NULL)""")
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS StudentsInImports(
+                            student_id INT NOT NULL, import_id INT NOT NULL,
+                            FOREIGN KEY(student_id) REFERENCES Students(id),
+                            FOREIGN KEY(import_id) REFERENCES Imports(id))""")
         self.conn.commit()
 
     def get_last_import_id(self):
@@ -44,31 +53,56 @@ class StudentDatabase(object):
         self.cur.execute('SELECT MAX(id) FROM Imports')
         result_data = self.cur.fetchone()
         return result_data['max(id)']
-        
+
     def store_students_db(self, importfile_name, student_list):
         """Stores a new complete set of students in the databse. Already
            imported students will only be referenced and their user name and
            password information will not be altered."""
 
         # storing new data in database
-        self.cur.execute("INSERT INTO Imports VALUES(NULL,?,?)", (importfile_name, datetime.date.today()))
+        self.cur.execute("INSERT INTO Imports VALUES(NULL,?,?)",
+                         (importfile_name, datetime.date.today()))
         import_id = self.cur.lastrowid
         self.conn.commit()
 
         # storing all students in database
         for student in student_list:
             # check if student is already in database
-            self.cur.execute('SELECT * FROM Students WHERE surname=? AND firstname=? AND birthday=?', (student.surname, student.firstname, student.birthday))
+            sql = """SELECT * FROM Students
+                     WHERE surname="{0}" AND firstname="{1}"
+                     AND birthday="{2}" """.format(student.surname,
+                                                   student.firstname,
+                                                   student.birthday)
+            self.cur.execute(sql)
             if not self.cur.fetchone():
                 # insert student in database
-                self.cur.execute('INSERT INTO Students VALUES (NULL,?,?,?,?)', (student.surname, student.firstname, student.classname, student.birthday))
+                self.cur.execute("""INSERT INTO Students
+                                    VALUES (NULL,?,?,?,?,?,?)""",
+                                 (student.surname, student.firstname,
+                                  student.classname, student.birthday,
+                                  student.generate_user_id(),
+                                  student.generate_password()))
                 # insert connection between new student and this import
                 student_id = self.cur.lastrowid
-                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)', (student_id, import_id))
+                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)',
+                                 (student_id, import_id))
             else:
                 # change already stored student
-                self.cur.execute('UPDATE Students SET classname=? WHERE surname=? AND firstname=? AND birthday=?', (student.classname, student.surname, student.firstname, student.birthday))
-                self.cur.execute('SELECT * FROM Students WHERE surname=? AND firstname=? AND birthday=?', (student.surname, student.firstname, student.birthday))
+                self.cur.execute("""UPDATE Students SET classname=?,
+                                    username=?, password=?
+                                    WHERE surname=? AND firstname=?
+                                    AND birthday=? """,
+                                 (student.classname,
+                                  student.generate_user_id(),
+                                  student.generate_password(),
+                                  student.surname,
+                                  student.firstname,
+                                  student.birthday))
+                self.cur.execute("""SELECT * FROM Students WHERE surname=?
+                                    AND firstname=? AND birthday=?""",
+                                 (student.surname,
+                                  student.firstname,
+                                  student.birthday))
                 result_data = self.cur.fetchone()
                 student_id = result_data[0]
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)', (student_id, import_id))
@@ -77,16 +111,15 @@ class StudentDatabase(object):
     def print_statistics(self):
         # get statistics
         last_import_id = self.get_last_import_id()
-        self.cur.execute("""SELECT import_id, COUNT(*)
-                       FROM (
-                    SELECT student_id, COUNT(import_id) as cd, import_id
-                 FROM StudentsInImports
-                 WHERE import_id = %s OR import_id = %s
-                 GROUP BY student_id
-               )
-               WHERE cd = 1
-               GROUP BY import_id
-               ORDER BY import_id;""" % (last_import_id, last_import_id - 1))
+        self.cur.execute("""SELECT import_id, COUNT(*) FROM (
+                            SELECT student_id,
+                            COUNT(import_id) as cd, import_id
+                            FROM StudentsInImports
+                            WHERE import_id = {0} OR import_id = {1}
+                            GROUP BY student_id )
+                            WHERE cd = 1 GROUP BY import_id
+                            ORDER BY import_id;"""
+                         .format(last_import_id, last_import_id - 1))
         result_data = self.cur.fetchall()
         for element in list(result_data):
             if element[0] == last_import_id:
@@ -133,7 +166,7 @@ class StudentDatabase(object):
         else:
             logger.debug('Getting student data between imports no. {0} and no. {1}'.format(old_import_id, new_import_id))
             return data.ChangeSet()
-            
+
     def get_added_students_from_db(self, new_import_id):
         sql_for_all_students = """SELECT import_id,
             student_id, firstname, surname,

@@ -44,14 +44,14 @@ class Student(object):
                 return config.department_map[department]
         return ''
 
-    def generateUserID(self):
+    def generate_user_id(self):
         """generates a user id for this student"""
         s = '%s.%s%s' % (self.get_class_name(),
                          replace_illegal_characters(self.surname)[0:4].upper(),
                          replace_illegal_characters(self.firstname)[0:4].upper())
         return s
 
-    def generatePassword(self):
+    def generate_password(self):
         # password generation:
         #http://stackoverflow.com/questions/3854692/generate-password-in-python
         # import string
@@ -61,7 +61,7 @@ class Student(object):
         # return ''.join(sample(chars,length))
         return 'A##' + str(random.randint(1000, 9999))
 
-    def generateOU(self):
+    def generate_ou(self):
         return ad.generateOU(self.get_class_name(),
                              self.get_class_determinator(),
                              self.get_department())

@@ -52,9 +52,9 @@ def _check_for_doubles():
     global student_list
     seen = set()
     for student in student_list:
-        if student.generateUserID() in seen:
+        if student.generate_user_id() in seen:
             logger.warning('Double entry ' + student.generateUserID())
-        seen.add(student.generateUserID())
+        seen.add(student.generate_user_id())
 
 
 def store_students_db(importfile_name):
