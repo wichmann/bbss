@@ -96,8 +96,26 @@ class StudentDatabase(object):
         # get student count
         self.cur.execute('SELECT COUNT(*) FROM Students')
         result_data = self.cur.fetchone()
-        logger.info('%s students currently stored in database.' % result_data['count(*)'])
+        logger.info('{0} students currently stored in database.'
+                    .format(result_data['count(*)']))
         self.conn.commit()
+
+    def search_for_student(self, search_string):
+        select_stmt = """SELECT * FROM Students
+                         WHERE surname LIKE "%{0}%"
+                         OR firstname LIKE "%{0}%"
+                         OR classname LIKE "%{0}%"
+                         OR birthday LIKE "%{0}%" """
+        student_list = []
+        self.cur.execute(select_stmt.format(search_string))
+        result_data = self.cur.fetchall()
+        for student in result_data:
+            s = data.Student(student['surname'],
+                             student['firstname'],
+                             student['classname'],
+                             student['birthday'])
+            student_list.append(s)
+        return student_list
 
     def generate_changeset(self, old_import_id=0, new_import_id=0):
         """Generates a changeset with all added, deleted and changed student
@@ -108,7 +126,8 @@ class StudentDatabase(object):
                 logger.debug('Getting student data between first and last import.')
                 new_import_id = self.get_last_import_id()
             else:
-                logger.debug('Getting student data between first import and import no. {0}.'.format(new_import_id))
+                logger.debug('Getting student data between first import and import no. {0}.'
+                             .format(new_import_id))
             # get added students from database
             return self.get_added_students_from_db(new_import_id)
         else:

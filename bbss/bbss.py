@@ -65,5 +65,9 @@ def store_students_db(importfile_name):
     student_database.print_statistics()
 
 
+def search_student_in_database(search_string):
+    return student_database.search_for_student(search_string)
+
+
 def clear_database():
     os.remove(bbss.db.DB_FILENAME)

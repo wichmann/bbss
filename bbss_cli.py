@@ -38,6 +38,7 @@ Usage:
   bbss_cli clear
   bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
   bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | ad)] [--drc] [--dric]
+  bbss_cli search <SEARCH_STRING>
 
 Options:
   -h, --help            Show this help message and exit.
@@ -74,8 +75,19 @@ Options:
         logger.info('Deleted database file.')
         bbss.clear_database()
 
+    elif options['search']:
+        logger.info('Searching for student...')
+        l = bbss.search_student_in_database(options['<SEARCH_STRING>'])
+        if l:
+            print('{:>18} {:>18} {:>12} {:>12}'
+                  .format('Surname', 'First name', 'Class', 'Birthday'))
+            for s in l:
+                print('{:>18} {:>18} {:>12} {:>12}'
+                      .format(s.surname, s.firstname, s.classname, s.birthday))
+        print('{0} students found.'.format(len(l)))
+
     # evaluate given command line options
-    if options['import']:
+    elif options['import']:
         if not options['csv'] and not options['excel']:
             options['csv'] = True
         if options['csv']:
@@ -87,7 +99,8 @@ Options:
                 bbss.store_students_db(options['<IMPORT_FILENAME>'])
         if options['excel']:
             logger.error('Import from excel files is not yet supported!')
-    if options['export']:
+
+    elif options['export']:
         if not options['logodidact'] and not options['ad']:
             options['logodidact'] = True
         if options['logodidact']:
