@@ -34,7 +34,7 @@ def only_on_windows(f):
     if is_windows():
         return f
     else:
-        def print_warning():
+        def print_warning(*args):
             print('Active directory can only be used under windows.')
         return print_warning
 
