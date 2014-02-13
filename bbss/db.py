@@ -105,7 +105,8 @@ class StudentDatabase(object):
                                   student.birthday))
                 result_data = self.cur.fetchone()
                 student_id = result_data[0]
-                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)', (student_id, import_id))
+                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)',
+                                 (student_id, import_id))
         self.conn.commit()
 
     def print_statistics(self):

@@ -3,30 +3,27 @@ bbss - BBS Student Management
 
 DESCRIPTION
 -----------
-A tool to manage student data...                                                                                                                                  
+A tool to store and manage student data.
 
 
 USAGE
 -----
 
-bbss_cli.py [-h] [-c CONFIG_FILE] [-drc] [-dsdb] {import,export} ...                                                                                       
-                                                                                                                                                                                                                                                                                                                                
-positional arguments:
-  {import,export}
-    import
-    export
+  bbss_cli clear
+  bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
+  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | ad)] [--drc] [--dric]
+  bbss_cli search <SEARCH_STRING>
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -c CONFIG_FILE, --config CONFIG_FILE
-                        config file in local directory
-  -drc                  defines whether to replace class names
-  -dsdb                 defines whether to store imported student data in
-                        database
-
-bbss_cli.py import [-h] [-f {csv,excel}] filename_import
-
-bbss_cli.py export [-h] [-f {logodidact,ad}] filename_export
+Options:
+  -h, --help            Show this help message and exit.
+  --version             Show version information.
+  --import-format       Import file format for student data. [default: csv]
+  --export-format       Export file format for student data. [default: logodidact]
+  -c CONFIG_FILE --config CONFIG_FILE
+                        Config file in local directory.
+  --drc                  Do not replace class names.
+  --dric                 Do not replace illegal characters in student names.
+  --dsdb                 Do not store imported student data in database.
 
 
 LICENSE
