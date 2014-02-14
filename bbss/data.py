@@ -12,6 +12,8 @@ Created on Mon Feb  3 15:08:56 2014
 
 import random
 import logging
+import string
+import datetime
 
 from bbss import config
 from bbss import ad
@@ -26,6 +28,7 @@ class Student(object):
         self.firstname = firstname
         self.classname = classname
         self.birthday = birthday
+        self.user_id = None
 
     def __str__(self):
         return "<{0} {1} from {2}>".format(self.firstname,
@@ -46,25 +49,31 @@ class Student(object):
 
     def generate_user_id(self):
         """generates a user id for this student"""
-        s = '%s.%s%s' % (self.get_class_name(),
-                         replace_illegal_characters(self.surname)[0:4].upper(),
-                         replace_illegal_characters(self.firstname)[0:4].upper())
-        return s
+        if not self.user_id:
+            self.user_id = '%s.%s%s' % (self.get_class_name(),
+                                        replace_illegal_characters(self.surname)[0:4].upper(),
+                                        replace_illegal_characters(self.firstname)[0:4].upper())
+        return self.user_id
 
     def generate_password(self):
-        # password generation:
-        #http://stackoverflow.com/questions/3854692/generate-password-in-python
-        # import string
-        # from random import sample, choice
-        # chars = string.letters + string.digits
-        # length = 8
-        # return ''.join(sample(chars,length))
-        return 'A##' + str(random.randint(1000, 9999))
+        return generate_simple_password()
 
     def generate_ou(self):
         return ad.generateOU(self.get_class_name(),
                              self.get_class_determinator(),
                              self.get_department())
+
+
+def generate_simple_password():
+    return 'A##' + str(random.randint(1000, 9999))
+
+
+def generate_good_password():
+    # generate a good password
+    # http://stackoverflow.com/questions/3854692/generate-password-in-python
+    chars = string.ascii_letters + string.digits
+    length = 8
+    return ''.join(random.sample(chars, length))
 
 
 def replace_illegal_characters(string):
@@ -77,7 +86,9 @@ def replace_illegal_characters(string):
 
 def replace_class_name(string):
     """replace class names that have to be changed for generating user names"""
-    return config.class_map[string] if string in config.class_map else string
+    new = config.class_map[string] if string in config.class_map else string
+    #logger.debug("old class: {} new class: {}".format(string, new))
+    return new
 
 
 def is_class_blacklisted(class_name):
