@@ -55,7 +55,7 @@ class StudentDatabase(object):
         return result_data['max(id)']
 
     def store_students_db(self, importfile_name, student_list):
-        """Stores a new complete set of students in the databse. Already
+        """Stores a new complete set of students in the database. Already
            imported students will only be referenced and their user name and
            password information will not be altered."""
 

@@ -3,7 +3,8 @@
 bbss - BBS Student Management
 
 Helper functions for reading data from and storing data in an active
-directory.
+directory. This functions call COM+ objects and work correctly only
+under Microsoft Windows!
 
 Created on Mon Feb  3 15:08:56 2014
 
@@ -13,7 +14,8 @@ Created on Mon Feb  3 15:08:56 2014
 ###
 # More information:
 # - http://www.selfadsi.de/read.htm
-# - http://www.activexperts.com/network-monitor/windowsmanagement/adminscripts/usersgroups/ous/#CreateOU.htm
+# - http://www.activexperts.com/network-monitor/windowsmanagement/
+#   adminscripts/usersgroups/ous/#CreateOU.htm
 ###
 
 
