@@ -66,7 +66,12 @@ class_map = {'SGOX': 'SGO',
              'EIEX': 'EIE',
              'KZMX': 'KZM',
              'MKMX': 'MKM',
-             'MAFX': 'MAF'}
+             'MAFX': 'MAF',
+             'BGT11A': 'BGT',
+             'BGT11B': 'BGT',
+             'BGT11C': 'BGT',
+             'BGT12': 'BGT',
+             'BGT13': 'BGT'}
 
 
 ### map translating a class determinator (without the identifier for a
