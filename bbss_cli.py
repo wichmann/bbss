@@ -5,6 +5,11 @@ bbss - BBS Student Management
 
 Command line interface for bbss.
 
+Python dependencies:
+ - docopt
+ - win32com (for Active Directory export)
+ -
+
 Created on Mon Feb  3 15:08:56 2014
 
 @author: Christian Wichmann
@@ -75,6 +80,7 @@ Options:
         logger.info('Deleted database file.')
         bbss.clear_database()
 
+    # search in student database
     elif options['search']:
         logger.info('Searching for student...')
         l = bbss.search_student_in_database(options['<SEARCH_STRING>'])
@@ -86,7 +92,7 @@ Options:
                       .format(s.surname, s.firstname, s.classname, s.birthday))
         print('{0} students found.'.format(len(l)))
 
-    # evaluate given command line options
+    # evaluate import and export command line options
     elif options['import']:
         if not options['csv'] and not options['excel']:
             options['csv'] = True
@@ -94,11 +100,11 @@ Options:
             # read file into list of students
             # TODO use options.dontReplaceClassNames when importing
             bbss.read_csv_file(options['<IMPORT_FILENAME>'])
-            if not options['--dsdb']:
-                # store newly imported student list in database
-                bbss.store_students_db(options['<IMPORT_FILENAME>'])
-        if options['excel']:
-            logger.error('Import from excel files is not yet supported!')
+        elif options['excel']:
+            bbss.read_excel_file(options['<IMPORT_FILENAME>'])
+        # store newly imported student list in database
+        if not options['--dsdb']:
+            bbss.store_students_db(options['<IMPORT_FILENAME>'])
 
     elif options['export']:
         if not options['logodidact'] and not options['ad']:
@@ -109,5 +115,5 @@ Options:
             bbss.output_csv_file(options['<EXPORT_FILENAME>'],
                                  not options['--dric'])
             logger.info("Exported student data for use in logodidact.")
-        if options['ad']:
+        elif options['ad']:
             logger.error('Export into active directory is not yet supported!')

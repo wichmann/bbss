@@ -13,6 +13,7 @@ Created on Mon Feb  3 15:08:56 2014
 import csv
 import os
 import logging
+import datetime
 
 from bbss import data
 
@@ -52,6 +53,7 @@ def import_data(import_file):
         name_of_student = row[column_map['surname']]
         firstname_of_student = row[column_map['firstname']]
         birthday_of_student = row[column_map['birthday']]
+        # check if student or class is blacklisted
         if data.is_class_blacklisted(class_of_student):
             logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
                         .format(firstname_of_student, name_of_student, class_of_student))
@@ -62,6 +64,9 @@ def import_data(import_file):
             continue
         if name_of_student[-1:] == '_':
             continue
+        # convert date of birth
+        birthday_of_student = datetime.datetime.strptime(birthday_of_student,
+                                                         '%d.%m.%Y').date()
         student_list.append(data.Student(name_of_student,
                                          firstname_of_student,
                                          class_of_student,

@@ -15,6 +15,7 @@ import os
 
 import bbss.db
 import bbss.csv
+import bbss.xls
 
 
 __all__ = ['read_csv_file', 'output_csv_file',
@@ -30,15 +31,23 @@ student_database = bbss.db.StudentDatabase()
 
 
 def read_csv_file(input_file):
-    """reads a csv file and adds student to list"""
+    """Reads a csv file and adds student to list."""
     logger.info('Importing students from file...')
     global student_list
     student_list = bbss.csv.import_data(input_file)
     _check_for_doubles()
 
 
+def read_excel_file(input_file):
+    """Reads a Microsoft Excel file and adds student to list."""
+    logger.info('Importing students from file...')
+    global student_list
+    student_list = bbss.xls.import_data(input_file)
+    _check_for_doubles()
+
+
 def output_csv_file(output_file, replace_illegal_characters=True):
-    """Outputs a csv file with all information for all students for the AD."""
+    """Writes a csv file with student data stored in the database."""
     logger.info('Writing student data to csv file...')
     global student_database
     change_set = student_database.generate_changeset()
@@ -58,8 +67,12 @@ def _check_for_doubles():
 
 
 def store_students_db(importfile_name):
-    """Stores a new set of student data in student database. The database is
-       initialized the first time it is used."""
+    """Stores a set of student data in student database.
+
+    The database is initialized the first time it is used. By calling this
+    function a newly imported student list will be added to the database.
+    In the database the name of the imported file is also stored for future
+    reference."""
     global student_database
     student_database.store_students_db(importfile_name, student_list)
     student_database.print_statistics()
@@ -70,4 +83,9 @@ def search_student_in_database(search_string):
 
 
 def clear_database():
+    """Clears database by removing its file from the filesystem.
+
+    All student data is stored in a database file on the filesystem in the
+    directory the main application is started. By calilng this function this
+    file will be deleted without a additional confirmation!"""
     os.remove(bbss.db.DB_FILENAME)
