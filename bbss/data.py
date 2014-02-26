@@ -67,6 +67,7 @@ class Student(object):
         return self.password
 
     def generate_ou(self):
+        # TODO move to bbss.ad
         return ad.generateOU(self.get_class_name(),
                              self.get_class_determinator(),
                              self.get_department())
@@ -86,19 +87,22 @@ def generate_good_password():
 
 def replace_illegal_characters(string):
     """Replaces illegal characters from a given string with values from char
-       map (see bbss.config)."""
+       map. (See bbss.config)"""
     characters = list(string)
     return ''.join([config.char_map[char] if char in config.char_map
                    else char for char in characters])
 
 
-def replace_class_name(string):
-    """replace class names that have to be changed for generating user names"""
+def replace_class_name(old_class_name):
+    """Replaces class names that have to be changed for generating user
+       names. (See bbss.config)"""
+    new_class_name = old_class_name
     for old, new in config.class_map.items():
-        string = string.replace(old, new)
-    #new = config.class_map[string] if string in config.class_map else string
-    #logger.debug("old class: {} new class: {}".format(string, new))
-    return string
+        new_class_name = new_class_name.replace(old, new)
+    if old_class_name != new_class_name:
+        logger.debug("old class: {} -> new class: {}".format(old_class_name,
+                                                             new_class_name))
+    return new_class_name
 
 
 def is_class_blacklisted(class_name):

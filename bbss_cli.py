@@ -28,12 +28,14 @@ if __name__ == '__main__':
     LOG_FILENAME = 'bbss.log'
     logger = logging.getLogger('bbss')
     logger.setLevel(logging.DEBUG)
-    handler = logging.handlers.RotatingFileHandler(LOG_FILENAME,
-                                                   maxBytes=262144,
-                                                   backupCount=5)
-    logger.addHandler(handler)
-    handler = logging.StreamHandler(sys.stdout)
-    logger.addHandler(handler)
+    log_to_file = logging.handlers.RotatingFileHandler(LOG_FILENAME,
+                                                       maxBytes=262144,
+                                                       backupCount=5)
+    log_to_file.setLevel(logging.DEBUG)
+    logger.addHandler(log_to_file)
+    log_to_screen = logging.StreamHandler(sys.stdout)
+    log_to_screen.setLevel(logging.INFO)
+    logger.addHandler(log_to_screen)
 
     # parse command line options
     docopt_string = """

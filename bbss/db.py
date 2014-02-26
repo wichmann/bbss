@@ -22,6 +22,7 @@ DB_FILENAME = 'students.db'
 
 
 class StudentDatabase(object):
+    """Connects to database and allows to store and get student data."""
     def __init__(self):
         """Initializes a new database to store student information."""
         logger.info('Storing student data into database...')
@@ -32,17 +33,20 @@ class StudentDatabase(object):
         self.cur = self.conn.cursor()
         self.create_tables()
 
+    def __del__(self):
+        self.close_connection()
+
     def create_tables(self):
         """Creates tables for database, if they not already exist."""
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Imports(
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Imports (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             filename TEXT NOT NULL, date DATE NOT NULL)""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Students(
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS Students (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             surname TEXT NOT NULL, firstname TEXT NOT NULL,
                             classname TEXT NOT NULL, birthday DATE NOT NULL,
                             username TEXT NOT NULL, password TEXT NOT NULL)""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS StudentsInImports(
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS StudentsInImports (
                             student_id INT NOT NULL, import_id INT NOT NULL,
                             FOREIGN KEY(student_id) REFERENCES Students(id),
                             FOREIGN KEY(import_id) REFERENCES Imports(id))""")
@@ -178,7 +182,7 @@ class StudentDatabase(object):
            """
         if old_import_id < 0 or new_import_id < 0:
             raise ValueError
-
+        # fill in not given IDs
         if new_import_id == 0:
             # get lastest import ID from database if no ID was given
             new_import_id = self.get_last_import_id()
@@ -187,14 +191,63 @@ class StudentDatabase(object):
             # set old import ID to new import ID minus one if no ID was given
             old_import_id = new_import_id - 1
             logger.debug('Old import ID set to {0}.'.format(old_import_id))
-            # TODO check if more than one import is present in DB
-        logger.debug('Getting student data between imports no. {0} and no. {1}'
-                     .format(old_import_id, new_import_id))
+        # check for implausible import IDs
+        if self._import_ids_are_wrong(old_import_id, new_import_id):
+            return data.ChangeSet()
         # get student data from database
-        # TODO implement diffs between arbitrary imports!
-        return self.get_added_students_from_db(new_import_id)
+        logger.info('Getting student data between imports no. {0} and no. {1}'
+                    .format(old_import_id, new_import_id))
+        if old_import_id == 1:
+            return self._get_all_students_of_import(new_import_id)
+        else:
+            return self._get_difference_between_imports(old_import_id,
+                                                        new_import_id)
 
-    def get_added_students_from_db(self, new_import_id):
+    def _import_ids_are_wrong(self, old_import_id, new_import_id):
+        return (old_import_id >= new_import_id or
+                new_import_id > self.get_last_import_id() or
+                old_import_id > self.get_last_import_id())
+
+    def _get_difference_between_imports(self, old_import_id, new_import_id):
+        # TODO handle changed students
+        sql = """SELECT * FROM
+                 (
+                 SELECT student_id FROM StudentsInImports
+                 WHERE import_id = {0}
+                 EXCEPT
+                 SELECT student_id FROM StudentsInImports
+                 WHERE import_id = {1}
+                 )
+                 JOIN Students ON student_id = id"""
+        change_set = data.ChangeSet()
+
+        # get added students and store them in list
+        self.cur.execute(sql.format(old_import_id, new_import_id))
+        result_data = self.cur.fetchall()
+        logger.debug('Added students are: ')
+        for student in result_data:
+            s = data.Student(student['surname'],
+                             student['firstname'],
+                             student['classname'],
+                             student['birthday'])
+            logger.debug('\t' + str(s))
+            change_set.students_added.append(s)
+
+        # get removed students and store them in list
+        self.cur.execute(sql.format(new_import_id, old_import_id))
+        result_data = self.cur.fetchall()
+        logger.debug('Removed students are: ')
+        for student in result_data:
+            s = data.Student(student['surname'],
+                             student['firstname'],
+                             student['classname'],
+                             student['birthday'])
+            logger.debug('\t' + str(s))
+            change_set.students_removed.append(s)
+
+        return change_set
+
+    def _get_all_students_of_import(self, new_import_id):
         sql_for_all_students = """SELECT import_id,
             student_id, firstname, surname,
             classname, birthday
@@ -216,6 +269,3 @@ class StudentDatabase(object):
     def close_connection(self):
         """Closes connection to database."""
         self.conn.close()
-
-    def __del__(self):
-        self.close_connection()

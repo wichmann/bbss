@@ -52,8 +52,8 @@ def export_csv_file(output_file, replace_illegal_characters=True):
     """Writes a csv file with student data stored in the database."""
     logger.info('Writing student data to csv file...')
     global student_database
-    change_set = student_database.generate_changeset(old_import_id=1)
-    bbss.csv.export_data(output_file, change_set, replace_illegal_characters)
+    changes = student_database.generate_changeset(old_import_id=1)
+    bbss.csv.export_data(output_file, changes, replace_illegal_characters)
     logger.info('Student list written to file.')
 
 
@@ -62,7 +62,8 @@ def export_radius_file(output_file, replace_illegal_characters=True):
     logger.info('Writing student data to radius file...')
     global student_database
     change_set = student_database.generate_changeset()
-    bbss.radius.export_data(output_file, change_set, replace_illegal_characters)
+    bbss.radius.export_data(output_file, change_set,
+                            replace_illegal_characters)
     logger.info('Student list written to file.')
 
 

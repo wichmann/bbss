@@ -55,12 +55,12 @@ def import_data(import_file):
         birthday_of_student = row[column_map['birthday']]
         # check if student or class is blacklisted
         if data.is_class_blacklisted(class_of_student):
-            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
-                        .format(firstname_of_student, name_of_student, class_of_student))
+            logger.debug('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                         .format(firstname_of_student, name_of_student, class_of_student))
             continue
         if class_of_student[:2] == 'ZZ':
-            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
-                        .format(firstname_of_student, name_of_student, class_of_student))
+            logger.debug('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                         .format(firstname_of_student, name_of_student, class_of_student))
             continue
         if name_of_student[-1:] == '_':
             continue
