@@ -15,12 +15,14 @@ import os
 
 import bbss.db
 import bbss.csv
+import bbss.radius
 import bbss.xls
 
 
-__all__ = ['read_csv_file', 'output_csv_file',
-           'store_students_db', 'clear_database']
-__version__ = '0.0.1'
+__all__ = ['import_csv_file', 'import_excel_file', 'export_csv_file',
+           'export_radius_file', 'store_students_db', 'clear_database',
+           'search_student_in_database']
+#__version__ = '0.0.1'
 
 
 logger = logging.getLogger('bbss.main')
@@ -30,7 +32,7 @@ student_list = []
 student_database = bbss.db.StudentDatabase()
 
 
-def read_csv_file(input_file):
+def import_csv_file(input_file):
     """Reads a csv file and adds student to list."""
     logger.info('Importing students from file...')
     global student_list
@@ -38,7 +40,7 @@ def read_csv_file(input_file):
     _check_for_doubles()
 
 
-def read_excel_file(input_file):
+def import_excel_file(input_file):
     """Reads a Microsoft Excel file and adds student to list."""
     logger.info('Importing students from file...')
     global student_list
@@ -46,12 +48,21 @@ def read_excel_file(input_file):
     _check_for_doubles()
 
 
-def output_csv_file(output_file, replace_illegal_characters=True):
+def export_csv_file(output_file, replace_illegal_characters=True):
     """Writes a csv file with student data stored in the database."""
     logger.info('Writing student data to csv file...')
     global student_database
     change_set = student_database.generate_changeset()
     bbss.csv.export_data(output_file, change_set, replace_illegal_characters)
+    logger.info('Student list written to file.')
+
+
+def export_radius_file(output_file, replace_illegal_characters=True):
+    """Writes a file for use in FreeRadius server."""
+    logger.info('Writing student data to radius file...')
+    global student_database
+    change_set = student_database.generate_changeset()
+    bbss.radius.export_data(output_file, change_set, replace_illegal_characters)
     logger.info('Student list written to file.')
 
 

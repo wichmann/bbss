@@ -42,7 +42,7 @@ bbss - BBS Student Management - A tool to store and manage student data
 Usage:
   bbss_cli clear
   bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
-  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | ad)] [--drc] [--dric]
+  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | radius | ad)] [--drc] [--dric]
   bbss_cli search <SEARCH_STRING>
 
 Options:
@@ -92,28 +92,33 @@ Options:
                       .format(s.surname, s.firstname, s.classname, s.birthday))
         print('{0} students found.'.format(len(l)))
 
-    # evaluate import and export command line options
+    # evaluate import command line options
     elif options['import']:
         if not options['csv'] and not options['excel']:
             options['csv'] = True
         if options['csv']:
             # read file into list of students
             # TODO use options.dontReplaceClassNames when importing
-            bbss.read_csv_file(options['<IMPORT_FILENAME>'])
+            bbss.import_csv_file(options['<IMPORT_FILENAME>'])
         elif options['excel']:
-            bbss.read_excel_file(options['<IMPORT_FILENAME>'])
+            bbss.import_excel_file(options['<IMPORT_FILENAME>'])
         # store newly imported student list in database
         if not options['--dsdb']:
             bbss.store_students_db(options['<IMPORT_FILENAME>'])
 
+    # evaluate import and export command line options
     elif options['export']:
-        if not options['logodidact'] and not options['ad']:
+        if not options['logodidact'] and not options['ad'] and not options['radius']:
             options['logodidact'] = True
         if options['logodidact']:
-            # write csv file for use in logodidact
             logger.info("Exporting student data for use in logodidact...")
-            bbss.output_csv_file(options['<EXPORT_FILENAME>'],
+            bbss.export_csv_file(options['<EXPORT_FILENAME>'],
                                  not options['--dric'])
             logger.info("Exported student data for use in logodidact.")
         elif options['ad']:
             logger.error('Export into active directory is not yet supported!')
+        elif options['radius']:
+            logger.info("Exporting student data for use in radius server...")
+            bbss.export_radius_file(options['<EXPORT_FILENAME>'],
+                                    not options['--dric'])
+            logger.info("Exported student data for use in radius server.")
