@@ -52,7 +52,7 @@ def export_csv_file(output_file, replace_illegal_characters=True):
     """Writes a csv file with student data stored in the database."""
     logger.info('Writing student data to csv file...')
     global student_database
-    change_set = student_database.generate_changeset()
+    change_set = student_database.generate_changeset(old_import_id=1)
     bbss.csv.export_data(output_file, change_set, replace_illegal_characters)
     logger.info('Student list written to file.')
 
