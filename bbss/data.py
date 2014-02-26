@@ -13,7 +13,7 @@ Created on Mon Feb  3 15:08:56 2014
 import random
 import logging
 import string
-import datetime
+#import datetime
 
 from bbss import config
 from bbss import ad
@@ -23,12 +23,18 @@ logger = logging.getLogger('bbss.data')
 
 
 class Student(object):
+    """Holds all information of a single student.
+
+    If an user_id and password has already been assigned to a student this
+    data has to be stored. Otherwise these data has to be generated when
+    it is first needed, e.g. for exporting or storing in the database."""
     def __init__(self, surname, firstname, classname, birthday):
         self.surname = surname
         self.firstname = firstname
         self.classname = classname
         self.birthday = birthday
         self.user_id = None
+        self.password = None
 
     def __str__(self):
         return "<{0} {1} from {2}>".format(self.firstname,
@@ -56,7 +62,9 @@ class Student(object):
         return self.user_id
 
     def generate_password(self):
-        return generate_simple_password()
+        if not self.password:
+            self.password = generate_simple_password()
+        return self.password
 
     def generate_ou(self):
         return ad.generateOU(self.get_class_name(),
@@ -86,9 +94,11 @@ def replace_illegal_characters(string):
 
 def replace_class_name(string):
     """replace class names that have to be changed for generating user names"""
-    new = config.class_map[string] if string in config.class_map else string
+    for old, new in config.class_map.items():
+        string = string.replace(old, new)
+    #new = config.class_map[string] if string in config.class_map else string
     #logger.debug("old class: {} new class: {}".format(string, new))
-    return new
+    return string
 
 
 def is_class_blacklisted(class_name):
@@ -99,6 +109,12 @@ def is_class_blacklisted(class_name):
 
 
 class ChangeSet(object):
+    """Defines all changes between two imports of student data.
+
+    After importing student data it is stored into the database. For some uses
+    it is necessary to get all changed students. That includes all added,
+    removed and changed student entities. This diff is stored by a ChangeSet
+    and can be used for exporting this data into various formats."""
     def __init__(self):
         self.students_added = []
         self.students_removed = []
