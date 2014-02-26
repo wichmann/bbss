@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BBSS_Main_Window</class>
+ <widget class="QMainWindow" name="BBSS_Main_Window">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>660</width>
+    <height>505</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>BBSS</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="TaskTabbedPane">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>641</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>641</width>
+      <height>451</height>
+     </size>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="import_tab">
+     <attribute name="title">
+      <string>Daten importieren</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>611</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="3" column="0" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="load_file_button">
+         <property name="text">
+          <string>Datei laden...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QTableView" name="import_data_tableview"/>
+       </item>
+       <item row="3" column="1" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="import_data_button">
+         <property name="text">
+          <string>Daten importieren...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QLineEdit" name="import_filter_text"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="export_tab">
+     <attribute name="title">
+      <string>Daten exportieren</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>611</width>
+        <height>411</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="2" column="1" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="export_ad_button">
+         <property name="text">
+          <string>Daten in AD schreiben...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="search_button">
+         <property name="text">
+          <string>Suchen...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="export_data_button">
+         <property name="text">
+          <string>Daten exportieren...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QTableView" name="export_data_tableview"/>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QLineEdit" name="export_filter_text"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="options_tab">
+     <attribute name="title">
+      <string>Optionen</string>
+     </attribute>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>611</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+       <property name="spacing">
+        <number>-1</number>
+       </property>
+       <property name="leftMargin">
+        <number>25</number>
+       </property>
+       <property name="rightMargin">
+        <number>25</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="replace_classnames_checkbox">
+         <property name="text">
+          <string>Klassennamen ersetzen</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="replace_characters_checkbox">
+         <property name="text">
+          <string>Illegale Zeichen in Namen ersetzen</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="store_in_db_checkbox">
+         <property name="text">
+          <string>Daten in Datenbank ablegen</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="bonus_function_checkbox">
+         <property name="text">
+          <string>Super-Duper-Funktion aktivieren</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>660</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuDatei">
+    <property name="title">
+     <string>Datei</string>
+    </property>
+    <addaction name="menu_exit"/>
+   </widget>
+   <addaction name="menuDatei"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="menu_exit">
+   <property name="text">
+    <string>Beenden</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>menu_exit</sender>
+   <signal>activated()</signal>
+   <receiver>BBSS_Main_Window</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>329</x>
+     <y>252</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
