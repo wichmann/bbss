@@ -28,11 +28,23 @@ logger = logging.getLogger('bbss.gui')
 APP_NAME = "BBSS"
 
 
+class StudentTableFilterProxyModel(QtGui.QSortFilterProxyModel):
+    """Filters student table for regular expression in all columns."""
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        index0 = self.sourceModel().index(sourceRow, 0, sourceParent)
+        index1 = self.sourceModel().index(sourceRow, 1, sourceParent)
+        index2 = self.sourceModel().index(sourceRow, 2, sourceParent)
+        return (self.filterRegExp().indexIn(self.sourceModel().data(index0)) >= 0
+                or self.filterRegExp().indexIn(self.sourceModel().data(index1)) >= 0
+                or self.filterRegExp().indexIn(self.sourceModel().data(index2)) >= 0)  
+
+
 class StudentTableModel(QtCore.QAbstractTableModel):
     def __init__(self, student_list, parent=None):
         super(StudentTableModel, self).__init__()
         self.student_list = student_list
         self.column_list = ('surname', 'firstname', 'classname', 'birthday')
+        self.column_list_i18n = ('Nachname', 'Vorname', 'Klasse', 'Geburtstag')
 
     def update(self, student_list):
         self.student_list = student_list
@@ -52,18 +64,19 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         return '{0}'.format(getattr(student,
                                     self.column_list[index.column()]))
 
-    def headerData(self, col, orientation, role):
-        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return self.column_list[col]
-        #elif orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-        #    return str(col)
-        #return ''
+    def headerData(self, count, orientation, role):
+        if role == QtCore.Qt.DisplayRole:
+            if orientation == QtCore.Qt.Horizontal:
+                return self.column_list_i18n[count]
+            elif orientation == QtCore.Qt.Vertical:
+                return str(count+1)
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
         logger.warn('Updating of student data not yet implemented.')
         #print "setData", index.row(), index.column(), value
 
     def flags(self, index):
+        return QtCore.Qt.ItemIsEnabled
         if (index.column() == 0):
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
         else:
@@ -73,17 +86,38 @@ class StudentTableModel(QtCore.QAbstractTableModel):
 class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     """Main window for bbss"""
 
+    FILENAME = 'schueler_20140213.csv'
+
     def __init__(self, parent=None):
         """Initialize main window for bbss."""
         logger.info('Building main window of bbss...')
         QtGui.QMainWindow.__init__(self, parent)
-        self.FILENAME = 'schueler_20140213.csv'
-        # Set up the user interface from Designer.
         self.setupUi(self)
-        #uic.loadUi('bbss_tabbed_gui.ui', self)
         #self.resize(QtCore.QSize(1000, 800))
+        self.setup_table_models()
+        self.setup_combo_boxes()
         self.center_on_screen()
         self.set_signals_and_slots()
+
+    def setup_table_models(self):
+        """Sets up table view and its models."""
+        # set up import table view
+        self.import_table_model = StudentTableModel(bbss.student_list)
+        self.proxy_import_table_model = StudentTableFilterProxyModel()
+        self.proxy_import_table_model.setSourceModel(self.import_table_model)
+        self.proxy_import_table_model.setDynamicSortFilter(True)
+        self.import_data_tableview.setModel(self.proxy_import_table_model)
+        self.import_data_tableview.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Stretch)
+        # set up export table views
+        self.added_students_table_model = StudentTableModel(list())
+        self.removed_students_table_model = StudentTableModel(list())
+        self.added_students_tableview.setModel(self.added_students_table_model)
+        self.removed_students_tableview.setModel(self.removed_students_table_model)
+
+    def setup_combo_boxes(self):
+        export_formats = ('LogoDidact', 'Radius Server', 'Active Directory')
+        self.export_format_combobox.addItems(export_formats)
 
     def center_on_screen(self):
         """Centers the window on the screen."""
@@ -97,18 +131,25 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.import_data_button.clicked.connect(self.on_import_data)
         self.load_file_button.clicked.connect(self.on_load_file)
         self.delete_database_button.clicked.connect(self.on_delete_database)
+        self.import_filter_text.textEdited.connect(self.on_import_filter)
+        self.old_import_number.textEdited.connect(self.on_update_export_changeset)
+        self.new_import_number.textEdited.connect(self.on_update_export_changeset)
+        self.export_data_button.clicked.connect(self.on_export_data)
 
     @QtCore.pyqtSlot()
     def on_load_file(self):
         logger.info('Loading file with student data...')
         filename = QtGui.QFileDialog.getOpenFileName(self,
                                                      'Open student data file',
-                                                     '.')
+                                                     '.',
+                                                     'CSV-Files (*.csv);;'
+                                                     'Excel-Files (*.xls)')
         logger.info('Student data file chosen: "{0}".'.format(filename))
         self.FILENAME = filename
         bbss.import_csv_file(self.FILENAME)
-        self.import_table_model = StudentTableModel(bbss.student_list)
-        self.import_data_tableview.setModel(self.import_table_model)
+        self.import_table_model.update(bbss.student_list)
+        self.proxy_import_table_model.setSourceModel(self.import_table_model)
+        self.import_data_tableview.resizeColumnsToContents()
 
     @QtCore.pyqtSlot()
     def on_import_data(self):
@@ -130,6 +171,63 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         if reply == QtGui.QMessageBox.Yes:
             bbss.clear_database()
 
+    @QtCore.pyqtSlot(str)
+    def on_import_filter(self, filter_string):
+        logger.debug('Filtering for {0}...'.format(filter_string))
+        syntax = QtCore.QRegExp.PatternSyntax(QtCore.QRegExp.Wildcard)
+        caseSensitivity = QtCore.Qt.CaseInsensitive
+        regExp = QtCore.QRegExp(filter_string, caseSensitivity, syntax)
+        self.proxy_import_table_model.setFilterRegExp(regExp)
+        #self.proxy_import_table_model.setFilterFixedString(filter_string)
+
+    @QtCore.pyqtSlot()
+    def on_update_export_changeset(self):
+        self.update_changeset_from_database()
+
+    def update_changeset_from_database(self):
+        """Updates import IDs and changeset based on currently set values in
+           user interface."""
+        try:
+            old_id = int(self.old_import_number.text())
+        except:
+            logger.warn('Import IDs must be integer values.')
+            old_id = 0
+        try:
+            new_id = int(self.new_import_number.text())
+        except:
+            logger.warn('Import IDs must be integer values.')
+            new_id = 0
+        self.changeset = bbss.generate_changeset(old_import_id=old_id,
+                                                 new_import_id=new_id)
+        logger.debug('{} added, {} removed'
+                     .format(len(self.changeset.students_added),
+                             len(self.changeset.students_removed)))
+        self.added_students_table_model = StudentTableModel(
+            self.changeset.students_added)
+        self.removed_students_table_model = StudentTableModel(
+            self.changeset.students_removed)
+        self.added_students_tableview.setModel(
+            self.added_students_table_model)
+        self.removed_students_tableview.setModel(
+            self.removed_students_table_model)
+
+    @QtCore.pyqtSlot()
+    def on_export_data(self):
+        self.update_changeset_from_database()
+        export_format = self.export_format_combobox.currentText()
+        if export_format == 'LogoDidact':
+            bbss.export_csv_file(self.get_filename_for_export(),
+                                 self.changeset)
+        elif export_format == 'Radius Server':
+            bbss.export_radius_file(self.get_filename_for_export(),
+                                    self.changeset)
+        else:
+            logger.warn('Export format not yet implemented.')
+
+    def get_filename_for_export(self):
+        """Gets filename for export of student data from user."""
+        return 'temp.txt'
+
 
 def start_gui():
     import sys
@@ -138,7 +236,6 @@ def start_gui():
     app.setApplicationName(APP_NAME)
 
     main = BbssGui()
-    #main = uic.loadUi('bbss_tabbed_gui.ui')
     main.show()
 
     sys.exit(app.exec_())
