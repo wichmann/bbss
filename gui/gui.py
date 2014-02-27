@@ -16,6 +16,7 @@ import logging
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from gui.main import Ui_BBSS_Main_Window
+from bbss import bbss
 
 
 __all__ = ['start_gui']
@@ -27,25 +28,107 @@ logger = logging.getLogger('bbss.gui')
 APP_NAME = "BBSS"
 
 
-class Bbss_Gui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
+class StudentTableModel(QtCore.QAbstractTableModel):
+    def __init__(self, student_list, parent=None):
+        super(StudentTableModel, self).__init__()
+        self.student_list = student_list
+        self.column_list = ('surname', 'firstname', 'classname', 'birthday')
+
+    def update(self, student_list):
+        self.student_list = student_list
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        return len(self.student_list)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return len(self.column_list)
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if not index.isValid():
+            return ''
+        elif role != QtCore.Qt.DisplayRole:
+            return ''
+        student = self.student_list[index.row()]
+        return '{0}'.format(getattr(student,
+                                    self.column_list[index.column()]))
+
+    def headerData(self, col, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self.column_list[col]
+        #elif orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
+        #    return str(col)
+        #return ''
+
+    def setData(self, index, value, role=QtCore.Qt.DisplayRole):
+        logger.warn('Updating of student data not yet implemented.')
+        #print "setData", index.row(), index.column(), value
+
+    def flags(self, index):
+        if (index.column() == 0):
+            return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
+        else:
+            return QtCore.Qt.ItemIsEnabled
+
+
+class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     """Main window for bbss"""
 
     def __init__(self, parent=None):
         """Initialize main window for bbss."""
-        logger.info('Starting main window of bbss...')
+        logger.info('Building main window of bbss...')
         QtGui.QMainWindow.__init__(self, parent)
+        self.FILENAME = 'schueler_20140213.csv'
         # Set up the user interface from Designer.
         self.setupUi(self)
         #uic.loadUi('bbss_tabbed_gui.ui', self)
+        #self.resize(QtCore.QSize(1000, 800))
+        self.center_on_screen()
         self.set_signals_and_slots()
+
+    def center_on_screen(self):
+        """Centers the window on the screen."""
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width() - size.width()) / 2,
+                  (screen.height() - size.height()) / 2)
 
     def set_signals_and_slots(self):
         """Sets all signals and slots for main window."""
-        self.import_data_button.clicked.connect(self.on_load_data)
+        self.import_data_button.clicked.connect(self.on_import_data)
+        self.load_file_button.clicked.connect(self.on_load_file)
+        self.delete_database_button.clicked.connect(self.on_delete_database)
 
     @QtCore.pyqtSlot()
-    def on_load_data(self):
-        logger.info('Loading data from file into gui...')
+    def on_load_file(self):
+        logger.info('Loading file with student data...')
+        filename = QtGui.QFileDialog.getOpenFileName(self,
+                                                     'Open student data file',
+                                                     '.')
+        logger.info('Student data file chosen: "{0}".'.format(filename))
+        self.FILENAME = filename
+        bbss.import_csv_file(self.FILENAME)
+        self.import_table_model = StudentTableModel(bbss.student_list)
+        self.import_data_tableview.setModel(self.import_table_model)
+
+    @QtCore.pyqtSlot()
+    def on_import_data(self):
+        logger.info('Importing data into database...')
+        bbss.store_students_db(self.FILENAME)
+        message = "Student data from file {0} was sucessfully imported."\
+                  .format(self.FILENAME)
+        QtGui.QMessageBox.information(self, 'Student data imported.',
+                                      message, QtGui.QMessageBox.Ok)
+
+    @QtCore.pyqtSlot()
+    def on_delete_database(self):
+        logger.info('Deleting database file...')
+        message = "Do you really want to delete the database file? "\
+                  "All stored data will be lost!"
+        reply = QtGui.QMessageBox.question(self, 'Delete database file?',
+                                           message, QtGui.QMessageBox.Yes,
+                                           QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            bbss.clear_database()
 
 
 def start_gui():
@@ -54,7 +137,7 @@ def start_gui():
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
 
-    main = Bbss_Gui()
+    main = BbssGui()
     #main = uic.loadUi('bbss_tabbed_gui.ui')
     main.show()
 

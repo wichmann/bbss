@@ -88,6 +88,7 @@ def store_students_db(importfile_name):
     global student_database
     student_database.store_students_db(importfile_name, student_list)
     student_database.print_statistics()
+    # TODO return statistics values for gui
 
 
 def search_student_in_database(search_string):
