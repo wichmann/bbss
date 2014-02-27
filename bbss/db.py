@@ -56,7 +56,11 @@ class StudentDatabase(object):
         """Gets index of last import from database."""
         self.cur.execute('SELECT MAX(id) FROM Imports')
         result_data = self.cur.fetchone()
-        return result_data['max(id)']
+        last_import_id = result_data['max(id)']
+        if last_import_id:
+            return last_import_id
+        else:
+            return 0
 
     def store_students_db(self, importfile_name, student_list):
         """Stores a new complete set of students in the database. Already
