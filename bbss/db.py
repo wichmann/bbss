@@ -25,7 +25,7 @@ class StudentDatabase(object):
     """Connects to database and allows to store and get student data."""
     def __init__(self):
         """Initializes a new database to store student information."""
-        logger.info('Storing student data into database...')
+        logger.info('Initializing student database...')
         # connecting to database
         self.conn = sqlite3.connect(DB_FILENAME)
         # change the row factory to use Row to allow access via column name

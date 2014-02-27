@@ -116,6 +116,7 @@ Options:
         if options['logodidact']:
             logger.info("Exporting student data for use in logodidact...")
             bbss.export_csv_file(options['<EXPORT_FILENAME>'],
+                                 bbss.generate_changeset(old_import_id=1),
                                  not options['--dric'])
             logger.info("Exported student data for use in logodidact.")
         elif options['ad']:
@@ -123,5 +124,6 @@ Options:
         elif options['radius']:
             logger.info("Exporting student data for use in radius server...")
             bbss.export_radius_file(options['<EXPORT_FILENAME>'],
+                                    bbss.generate_changeset(),
                                     not options['--dric'])
             logger.info("Exported student data for use in radius server.")
