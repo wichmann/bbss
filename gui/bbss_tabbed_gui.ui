@@ -46,16 +46,6 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="3" column="0" alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="load_file_button">
-         <property name="text">
-          <string>Datei laden...</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QTableView" name="import_data_tableview"/>
-       </item>
        <item row="3" column="1" alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="import_data_button">
          <property name="text">
@@ -63,7 +53,24 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="load_file_button">
+         <property name="text">
+          <string>Datei laden...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2" alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="delete_database_button">
+         <property name="text">
+          <string>Delete Database...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QTableView" name="import_data_tableview"/>
+       </item>
+       <item row="2" column="0" colspan="3">
         <widget class="QLineEdit" name="import_filter_text"/>
        </item>
       </layout>

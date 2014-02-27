@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Wed Feb 26 20:56:53 2014
+# Created: Thu Feb 27 11:27:26 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,18 +41,21 @@ class Ui_BBSS_Main_Window(object):
         self.gridLayout = QtGui.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setMargin(0)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.load_file_button = QtGui.QPushButton(self.gridLayoutWidget)
-        self.load_file_button.setObjectName(_fromUtf8("load_file_button"))
-        self.gridLayout.addWidget(self.load_file_button, 3, 0, 1, 1, QtCore.Qt.AlignHCenter)
-        self.import_data_tableview = QtGui.QTableView(self.gridLayoutWidget)
-        self.import_data_tableview.setObjectName(_fromUtf8("import_data_tableview"))
-        self.gridLayout.addWidget(self.import_data_tableview, 1, 0, 1, 2)
         self.import_data_button = QtGui.QPushButton(self.gridLayoutWidget)
         self.import_data_button.setObjectName(_fromUtf8("import_data_button"))
         self.gridLayout.addWidget(self.import_data_button, 3, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.load_file_button = QtGui.QPushButton(self.gridLayoutWidget)
+        self.load_file_button.setObjectName(_fromUtf8("load_file_button"))
+        self.gridLayout.addWidget(self.load_file_button, 3, 0, 1, 1, QtCore.Qt.AlignHCenter)
+        self.delete_database_button = QtGui.QPushButton(self.gridLayoutWidget)
+        self.delete_database_button.setObjectName(_fromUtf8("delete_database_button"))
+        self.gridLayout.addWidget(self.delete_database_button, 3, 2, 1, 1, QtCore.Qt.AlignHCenter)
+        self.import_data_tableview = QtGui.QTableView(self.gridLayoutWidget)
+        self.import_data_tableview.setObjectName(_fromUtf8("import_data_tableview"))
+        self.gridLayout.addWidget(self.import_data_tableview, 1, 0, 1, 3)
         self.import_filter_text = QtGui.QLineEdit(self.gridLayoutWidget)
         self.import_filter_text.setObjectName(_fromUtf8("import_filter_text"))
-        self.gridLayout.addWidget(self.import_filter_text, 2, 0, 1, 2)
+        self.gridLayout.addWidget(self.import_filter_text, 2, 0, 1, 3)
         self.TaskTabbedPane.addTab(self.import_tab, _fromUtf8(""))
         self.export_tab = QtGui.QWidget()
         self.export_tab.setObjectName(_fromUtf8("export_tab"))
@@ -122,8 +125,9 @@ class Ui_BBSS_Main_Window(object):
 
     def retranslateUi(self, BBSS_Main_Window):
         BBSS_Main_Window.setWindowTitle(_translate("BBSS_Main_Window", "BBSS", None))
-        self.load_file_button.setText(_translate("BBSS_Main_Window", "Datei laden...", None))
         self.import_data_button.setText(_translate("BBSS_Main_Window", "Daten importieren...", None))
+        self.load_file_button.setText(_translate("BBSS_Main_Window", "Datei laden...", None))
+        self.delete_database_button.setText(_translate("BBSS_Main_Window", "Delete Database...", None))
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.import_tab), _translate("BBSS_Main_Window", "Daten importieren", None))
         self.export_ad_button.setText(_translate("BBSS_Main_Window", "Daten in AD schreiben...", None))
         self.search_button.setText(_translate("BBSS_Main_Window", "Suchen...", None))
