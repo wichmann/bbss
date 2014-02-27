@@ -65,13 +65,16 @@ def import_data(import_file):
         if name_of_student[-1:] == '_':
             continue
         # convert date of birth
-        birthday_of_student = datetime.datetime.strptime(birthday_of_student,
-                                                         '%d.%m.%Y').date()
-        student_list.append(data.Student(name_of_student,
-                                         firstname_of_student,
-                                         class_of_student,
-                                         birthday_of_student))
-        student_count += 1
+        try:
+            birthday_of_student = datetime.datetime.strptime(birthday_of_student,
+                                                             '%d.%m.%Y').date()
+            student_list.append(data.Student(name_of_student,
+                                             firstname_of_student,
+                                             class_of_student,
+                                             birthday_of_student))
+            student_count += 1
+        except:
+            logger.warn('Could not import student because data not valid.')
     logger.info('%s student imported.' % student_count)
     return student_list
 
