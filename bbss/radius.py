@@ -29,8 +29,8 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
         count = 0
         for student in change_set.students_added:
             count += 1
-            line = '"{0}"\t\tCleartext-Password := "{1}"\n'
-            export_file.write(line.format(student.generate_user_id(),
+            line = '{:20}\t\tCleartext-Password := "{}"\n'
+            export_file.write(line.format('"'+student.generate_user_id()+'"',
                                           student.generate_password()))
         logger.debug('{0} students exported to radius file format.'
                      .format(count))
