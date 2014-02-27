@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 
 from cx_Freeze import setup, Executable
 #try:
@@ -7,10 +8,11 @@ from cx_Freeze import setup, Executable
 
 
 # Dependencies are automatically detected, but it might need fine tuning.
-buildOptions = dict(packages = [], excludes = [])
+buildOptions = dict(packages=[], excludes=[])
 
 executables = [
-    Executable('bbss_cli.py', 'Console')
+    Executable('bbss_cli.py'),
+    Executable('bbss_gui.py')
 ]
 
 setup(
@@ -18,11 +20,11 @@ setup(
     version='0.1',
     author='Christian Wichmann',
     author_email='wichmann@bbs-os-brinkstr.de',
-    packages=['bbss'],
+    packages=['bbss', 'gui'],
     url='',
     license='LICENSE',
-    description='Management software for students of german vocational colleges.',
-    test_suite='bbss.tests.get_suite'
-    options = dict(build_exe = buildOptions),
-    executables = executables
+    description='Management software for students of german vocational colleges',
+    #test_suite='bbss.tests.get_suite',
+    options=dict(build_exe=buildOptions),
+    executables=executables
 )

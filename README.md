@@ -3,7 +3,7 @@ bbss - BBS Student Management
 
 DESCRIPTION
 -----------
-A tool to store and manage student data.
+bbss is a management software for students of german vocational colleges.
 
 
 USAGE
@@ -24,6 +24,15 @@ Options:
   --drc                  Do not replace class names.
   --dric                 Do not replace illegal characters in student names.
   --dsdb                 Do not store imported student data in database.
+
+
+KNOWN PROBLEMS AND BUGS
+-----------------------
+bbss was written for use under Linux and Windows Vista and higher. Under older
+systems like Windows XP where the default encoding is not UTF-8 problems can
+occur.
+
+The encoding of data files has to match the default OS encoding (mostly UTF-8).
 
 
 LICENSE
