@@ -195,8 +195,8 @@ class StudentDatabase(object):
         if self._import_ids_are_wrong(old_import_id, new_import_id):
             return data.ChangeSet()
         # get student data from database
-        logger.info('Getting student data between imports no. {0} and no. {1}'
-                    .format(old_import_id, new_import_id))
+        logger.debug('Getting student data between imports no. {0} and no. {1}'
+                     .format(old_import_id, new_import_id))
         if old_import_id == 1:
             return self._get_all_students_of_import(new_import_id)
         else:
