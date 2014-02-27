@@ -155,7 +155,7 @@ class StudentDatabase(object):
             student_list.append(s)
         return student_list
 
-    def generate_changeset(self, old_import_id=0, new_import_id=0):
+    def generate_changeset(self, old_import_id=-1, new_import_id=0):
         """Generates a changeset with all added, deleted and changed student
            data between two specific imports.
 
@@ -180,14 +180,14 @@ class StudentDatabase(object):
            generate_changeset(old_import_id=3, new_import_id=5)
                                 -> changes between import 3 and 5
            """
-        if old_import_id < 0 or new_import_id < 0:
+        if old_import_id < -1 or new_import_id < 0:
             raise ValueError
         # fill in not given IDs
         if new_import_id == 0:
             # get lastest import ID from database if no ID was given
             new_import_id = self.get_last_import_id()
             logger.debug('New import ID set to {0}.'.format(new_import_id))
-        if old_import_id == 0:
+        if old_import_id == -1:
             # set old import ID to new import ID minus one if no ID was given
             old_import_id = new_import_id - 1
             logger.debug('Old import ID set to {0}.'.format(old_import_id))
@@ -197,7 +197,7 @@ class StudentDatabase(object):
         # get student data from database
         logger.debug('Getting student data between imports no. {0} and no. {1}'
                      .format(old_import_id, new_import_id))
-        if old_import_id == 1:
+        if old_import_id == 0:
             return self._get_all_students_of_import(new_import_id)
         else:
             return self._get_difference_between_imports(old_import_id,
@@ -222,7 +222,7 @@ class StudentDatabase(object):
         change_set = data.ChangeSet()
 
         # get added students and store them in list
-        self.cur.execute(sql.format(old_import_id, new_import_id))
+        self.cur.execute(sql.format(new_import_id, old_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Added students are: ')
         for student in result_data:
@@ -234,7 +234,7 @@ class StudentDatabase(object):
             change_set.students_added.append(s)
 
         # get removed students and store them in list
-        self.cur.execute(sql.format(new_import_id, old_import_id))
+        self.cur.execute(sql.format(old_import_id, new_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Removed students are: ')
         for student in result_data:
