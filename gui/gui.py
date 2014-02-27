@@ -15,6 +15,7 @@ Created on Mon Feb  23 15:08:56 2014
 import logging
 from PyQt4 import QtGui
 from PyQt4 import QtCore
+
 from gui.main import Ui_BBSS_Main_Window
 from bbss import bbss
 
@@ -36,7 +37,7 @@ class StudentTableFilterProxyModel(QtGui.QSortFilterProxyModel):
         index2 = self.sourceModel().index(sourceRow, 2, sourceParent)
         return (self.filterRegExp().indexIn(self.sourceModel().data(index0)) >= 0
                 or self.filterRegExp().indexIn(self.sourceModel().data(index1)) >= 0
-                or self.filterRegExp().indexIn(self.sourceModel().data(index2)) >= 0)  
+                or self.filterRegExp().indexIn(self.sourceModel().data(index2)) >= 0)
 
 
 class StudentTableModel(QtCore.QAbstractTableModel):
@@ -144,12 +145,13 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             self.on_update_export_changeset)
         self.export_data_button.clicked.connect(self.on_export_data)
         self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
+        self.menu_exit.triggered.connect(self.close)
 
     @QtCore.pyqtSlot()
     def on_load_file(self):
         logger.info('Loading file with student data...')
         self.FILENAME = QtGui.QFileDialog\
-            .getOpenFileName(self, 'Öffne Schülerdatendatei', '.',
+            .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
                              'CSV-Dateien (*.csv);;Excel-Dateien (*.xls)')
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
         import os
@@ -176,9 +178,9 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     @QtCore.pyqtSlot()
     def on_delete_database(self):
         logger.info('Deleting database file...')
-        message = "Do you really want to delete the database file? "\
-                  "All stored data will be lost!"
-        reply = QtGui.QMessageBox.question(self, 'Delete database file?',
+        message = "Soll die Datenbankdatei wirklich gelöscht werden? "\
+                  "Alle gespeicherten Informationen gehen dabei verloren!"
+        reply = QtGui.QMessageBox.question(self, 'Datenbank löschen?',
                                            message, QtGui.QMessageBox.Yes,
                                            QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
@@ -228,21 +230,24 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     def on_export_data(self):
         self.update_changeset_from_database()
         export_format = self.export_format_combobox.currentText()
-        if export_format == 'LogoDidact':
-            bbss.export_csv_file(self.get_filename_for_export(),
-                                 self.changeset)
-        elif export_format == 'Radius Server':
-            bbss.export_radius_file(self.get_filename_for_export(),
-                                    self.changeset)
-        else:
-            logger.warn('Export format not yet implemented.')
-            message = 'Export zu "Active Directory" noch nicht implementiert.'
-            QtGui.QMessageBox.information(self, 'Fehler bei Export',
-                                          message, QtGui.QMessageBox.Ok)
+        export_file = self.get_filename_for_export()
+        if export_file:
+            if export_format == 'LogoDidact':
+                bbss.export_csv_file(export_file, self.changeset)
+            elif export_format == 'Radius Server':
+                bbss.export_radius_file(export_file, self.changeset)
+            else:
+                logger.warn('Export format not yet implemented.')
+                message = 'Export zu "Active Directory" noch nicht implementiert.'
+                QtGui.QMessageBox.information(self, 'Fehler bei Export',
+                                              message, QtGui.QMessageBox.Ok)
 
     def get_filename_for_export(self):
         """Gets filename for export of student data from user."""
-        return 'temp.txt'
+        filename = QtGui.QFileDialog.getSaveFileName(self,
+                                                     'Speichere Datei...')
+        logger.info('Export file chosen: "{0}".'.format(filename))
+        return filename
 
     @QtCore.pyqtSlot()
     def on_tab_changed(self):
