@@ -17,7 +17,7 @@ import xlrd
 from bbss import data
 
 
-__all__ = ['import_data', 'export_data']
+__all__ = ['import_data']
 
 
 logger = logging.getLogger('bbss.xls')
@@ -59,12 +59,16 @@ def import_data(import_file):
         birthday_of_student = datetime.datetime(*excel_date).date()
         # check if student or class is blacklisted
         if data.is_class_blacklisted(class_of_student):
-            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
-                        .format(firstname_of_student, name_of_student, class_of_student))
+            logger.debug('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                         .format(firstname_of_student,
+                                 name_of_student,
+                                 class_of_student))
             continue
         if class_of_student[:2] == 'ZZ':
-            logger.info('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
-                        .format(firstname_of_student, name_of_student, class_of_student))
+            logger.debug('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
+                         .format(firstname_of_student,
+                                 name_of_student,
+                                 class_of_student))
             continue
         if name_of_student[-1:] == '_':
             continue
@@ -76,7 +80,3 @@ def import_data(import_file):
         student_count += 1
     logger.info('%s student imported.' % student_count)
     return student_list
-
-
-def export_data(output_file, change_set, replace_illegal_characters=True):
-    pass
