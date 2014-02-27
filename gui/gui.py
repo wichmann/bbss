@@ -60,7 +60,7 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         if not index.isValid():
             return ''
         elif role != QtCore.Qt.DisplayRole:
-            return ''
+            return None
         student = self.student_list[index.row()]
         return '{0}'.format(getattr(student,
                                     self.column_list[index.column()]))
@@ -78,10 +78,10 @@ class StudentTableModel(QtCore.QAbstractTableModel):
 
     def flags(self, index):
         return QtCore.Qt.ItemIsEnabled
-        if (index.column() == 0):
-            return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
-        else:
-            return QtCore.Qt.ItemIsEnabled
+        #if (index.column() == 0):
+        #    return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
+        #else:
+        #    return QtCore.Qt.ItemIsEnabled
 
 
 class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
