@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Thu Feb 27 14:32:46 2014
+# Created: Thu Feb 27 15:47:52 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,12 +86,6 @@ class Ui_BBSS_Main_Window(object):
         self.removed_students_tableview.setMinimumSize(QtCore.QSize(0, 150))
         self.removed_students_tableview.setObjectName(_fromUtf8("removed_students_tableview"))
         self.verticalLayout.addWidget(self.removed_students_tableview)
-        self.label_2 = QtGui.QLabel(self.gridLayoutWidget_2)
-        self.label_2.setObjectName(_fromUtf8("label_2"))
-        self.verticalLayout.addWidget(self.label_2)
-        self.export_filter_text = QtGui.QLineEdit(self.gridLayoutWidget_2)
-        self.export_filter_text.setObjectName(_fromUtf8("export_filter_text"))
-        self.verticalLayout.addWidget(self.export_filter_text)
         self.export_group = QtGui.QGroupBox(self.gridLayoutWidget_2)
         self.export_group.setMinimumSize(QtCore.QSize(0, 150))
         self.export_group.setObjectName(_fromUtf8("export_group"))
@@ -174,7 +168,6 @@ class Ui_BBSS_Main_Window(object):
         self.label_8.setBuddy(self.import_data_tableview)
         self.label_6.setBuddy(self.added_students_tableview)
         self.label_7.setBuddy(self.removed_students_tableview)
-        self.label_2.setBuddy(self.export_filter_text)
         self.label_3.setBuddy(self.old_import_number)
         self.label_4.setBuddy(self.new_import_number)
         self.label_5.setBuddy(self.export_format_combobox)
@@ -194,7 +187,6 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.import_tab), _translate("BBSS_Main_Window", "Daten importieren", None))
         self.label_6.setText(_translate("BBSS_Main_Window", "Hinzugefügte Schüler:", None))
         self.label_7.setText(_translate("BBSS_Main_Window", "Gelöschte Schüler:", None))
-        self.label_2.setText(_translate("BBSS_Main_Window", "Suche:", None))
         self.export_group.setTitle(_translate("BBSS_Main_Window", "Exportieren...", None))
         self.export_data_button.setText(_translate("BBSS_Main_Window", "Daten exportieren...", None))
         self.label_3.setText(_translate("BBSS_Main_Window", "von", None))

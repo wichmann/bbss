@@ -112,8 +112,14 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         # set up export table views
         self.added_students_table_model = StudentTableModel(list())
         self.removed_students_table_model = StudentTableModel(list())
-        self.added_students_tableview.setModel(self.added_students_table_model)
-        self.removed_students_tableview.setModel(self.removed_students_table_model)
+        self.added_students_tableview.setModel(
+            self.added_students_table_model)
+        self.removed_students_tableview.setModel(
+            self.removed_students_table_model)
+        self.added_students_tableview.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Stretch)
+        self.removed_students_tableview.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Stretch)
 
     def setup_combo_boxes(self):
         export_formats = ('LogoDidact', 'Radius Server', 'Active Directory')
@@ -132,21 +138,28 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.load_file_button.clicked.connect(self.on_load_file)
         self.delete_database_button.clicked.connect(self.on_delete_database)
         self.import_filter_text.textEdited.connect(self.on_import_filter)
-        self.old_import_number.textEdited.connect(self.on_update_export_changeset)
-        self.new_import_number.textEdited.connect(self.on_update_export_changeset)
+        self.old_import_number.textEdited.connect(
+            self.on_update_export_changeset)
+        self.new_import_number.textEdited.connect(
+            self.on_update_export_changeset)
         self.export_data_button.clicked.connect(self.on_export_data)
+        self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
 
     @QtCore.pyqtSlot()
     def on_load_file(self):
         logger.info('Loading file with student data...')
-        filename = QtGui.QFileDialog.getOpenFileName(self,
-                                                     'Open student data file',
-                                                     '.',
-                                                     'CSV-Files (*.csv);;'
-                                                     'Excel-Files (*.xls)')
-        logger.info('Student data file chosen: "{0}".'.format(filename))
-        self.FILENAME = filename
-        bbss.import_csv_file(self.FILENAME)
+        self.FILENAME = QtGui.QFileDialog\
+            .getOpenFileName(self, 'Öffne Schülerdatendatei', '.',
+                             'CSV-Dateien (*.csv);;Excel-Dateien (*.xls)')
+        logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
+        import os
+        _, ext = os.path.splitext(self.FILENAME)
+        if ext == '.csv':
+            bbss.import_csv_file(self.FILENAME)
+        elif ext == '.xls':
+            bbss.import_excel_file(self.FILENAME)
+        else:
+            logger.warn('Given file format can not be imported.')
         self.import_table_model.update(bbss.student_list)
         self.proxy_import_table_model.setSourceModel(self.import_table_model)
         self.import_data_tableview.resizeColumnsToContents()
@@ -155,9 +168,9 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     def on_import_data(self):
         logger.info('Importing data into database...')
         bbss.store_students_db(self.FILENAME)
-        message = "Student data from file {0} was sucessfully imported."\
+        message = "Schülerdaten aus Datei {0} wurden erfolgreich eingelesen."\
                   .format(self.FILENAME)
-        QtGui.QMessageBox.information(self, 'Student data imported.',
+        QtGui.QMessageBox.information(self, 'Schülerdaten importiert.',
                                       message, QtGui.QMessageBox.Ok)
 
     @QtCore.pyqtSlot()
@@ -223,10 +236,18 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
                                     self.changeset)
         else:
             logger.warn('Export format not yet implemented.')
+            message = 'Export zu "Active Directory" noch nicht implementiert.'
+            QtGui.QMessageBox.information(self, 'Fehler bei Export',
+                                          message, QtGui.QMessageBox.Ok)
 
     def get_filename_for_export(self):
         """Gets filename for export of student data from user."""
         return 'temp.txt'
+
+    @QtCore.pyqtSlot()
+    def on_tab_changed(self):
+        if self.TaskTabbedPane.currentIndex() == 1:
+            self.update_changeset_from_database()
 
 
 def start_gui():

@@ -154,19 +154,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Suche:</string>
-         </property>
-         <property name="buddy">
-          <cstring>export_filter_text</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="export_filter_text"/>
-       </item>
-       <item>
         <widget class="QGroupBox" name="export_group">
          <property name="minimumSize">
           <size>
