@@ -110,7 +110,8 @@ Options:
 
     # evaluate import and export command line options
     elif options['export']:
-        if not options['logodidact'] and not options['ad'] and not options['radius']:
+        if (not options['logodidact'] and not options['ad']
+           and not options['radius']):
             options['logodidact'] = True
         if options['logodidact']:
             logger.info("Exporting student data for use in logodidact...")
