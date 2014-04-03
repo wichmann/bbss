@@ -1,18 +1,21 @@
 #! /usr/bin/env python3
 
+import sys
 from cx_Freeze import setup, Executable
-#try:
-#    from setuptools.core import setup
-#except ImportError:
-#    from distutils.core import setup
 
 
 # Dependencies are automatically detected, but it might need fine tuning.
 buildOptions = dict(packages=[], excludes=[])
 
+# GUI applications require a different base on Windows (the default is for a
+# console application).
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
+
 executables = [
     Executable('bbss_cli.py'),
-    Executable('bbss_gui.py')
+    Executable('bbss_gui.py', base=base)
 ]
 
 setup(

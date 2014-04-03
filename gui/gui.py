@@ -123,6 +123,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             QtGui.QHeaderView.Stretch)
 
     def setup_combo_boxes(self):
+        # TODO get values from bbss package
         export_formats = ('LogoDidact', 'Radius Server', 'Active Directory')
         self.export_format_combobox.addItems(export_formats)
 
@@ -188,12 +189,18 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
 
     @QtCore.pyqtSlot(str)
     def on_import_filter(self, filter_string):
-        logger.debug('Filtering for {0}...'.format(filter_string))
-        syntax = QtCore.QRegExp.PatternSyntax(QtCore.QRegExp.Wildcard)
-        caseSensitivity = QtCore.Qt.CaseInsensitive
-        regExp = QtCore.QRegExp(filter_string, caseSensitivity, syntax)
-        self.proxy_import_table_model.setFilterRegExp(regExp)
-        #self.proxy_import_table_model.setFilterFixedString(filter_string)
+        if filter_string:
+            logger.debug('Filtering for {0}...'.format(filter_string))
+            syntax = QtCore.QRegExp.PatternSyntax(QtCore.QRegExp.Wildcard)
+            caseSensitivity = QtCore.Qt.CaseInsensitive
+            regExp = QtCore.QRegExp(filter_string, caseSensitivity, syntax)
+            self.proxy_import_table_model.setFilterRegExp(regExp)
+            #self.proxy_import_table_model.setFilterFixedString(filter_string)
+            count = self.proxy_import_table_model.rowCount()
+            self.search_result_label.setText('{} Schüler gefunden...'
+                                             .format(count))
+        else:
+            self.search_result_label.setText('')
 
     @QtCore.pyqtSlot()
     def on_update_export_changeset(self):
@@ -217,6 +224,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         logger.debug('{} added, {} removed'
                      .format(len(self.changeset.students_added),
                              len(self.changeset.students_removed)))
+        # update tables for added and removed students
         self.added_students_table_model = StudentTableModel(
             self.changeset.students_added)
         self.removed_students_table_model = StudentTableModel(
@@ -225,6 +233,11 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             self.added_students_table_model)
         self.removed_students_tableview.setModel(
             self.removed_students_table_model)
+        # update labels with student count
+        self.added_student_table_label.setText('Hinzugefügte Schüler ({}):'
+            .format(len(self.changeset.students_added)))
+        self.removed_student_table_label.setText('Entfernte Schüler ({}):'
+            .format(len(self.changeset.students_removed)))
 
     @QtCore.pyqtSlot()
     def on_export_data(self):
