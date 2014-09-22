@@ -36,7 +36,5 @@ nosetests.xml
 .pydevproject
 
 # student data not to be controlled by GIT
-schueler.xls
-schueler1.csv
-schueler2.csv
-schueler_20140213.csv
+*.xls
+*.csv
