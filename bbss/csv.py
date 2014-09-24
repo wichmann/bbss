@@ -94,7 +94,7 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Class', 'Name', 'Firstname', 'UserID',
                                      'Password', 'OU'))
-        for student in change_set.students_added:
+        for student in sorted(change_set.students_added):
             _write_student(student, output_file_writer,
                            replace_illegal_characters)
 

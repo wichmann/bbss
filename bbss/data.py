@@ -13,7 +13,7 @@ Created on Mon Feb  3 15:08:56 2014
 import random
 import logging
 import string
-#import datetime
+from functools import total_ordering
 
 from bbss import config
 from bbss import ad
@@ -25,6 +25,7 @@ logger = logging.getLogger('bbss.data')
 PASSWORD_LENGTH = 7
     
 
+@total_ordering
 class Student(object):
     """Holds all information of a single student.
 
@@ -43,6 +44,16 @@ class Student(object):
         return "<{0} {1} from {2}>".format(self.firstname,
                                            self.surname,
                                            self.classname)
+
+    def __eq__(self, other):
+        return ((self.surname, self.firstname, self.birthday) ==
+                (other.surname, other.firstname, other.birthday))
+
+    def __lt__(self, other):
+        # FIXME Check if different implementations of __eq__ and __lt__ result
+        # in problematic effects when sorting lists of students!
+        return ((self.classname, self.surname, self.firstname, self.birthday) <
+                (other.classname, other.surname, other.firstname, other.birthday))
 
     def get_class_name(self):
         return replace_class_name(self.classname)

@@ -27,9 +27,13 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
         logger.warn('Output file already exists, will be overwritten...')
     with open(output_file, 'w') as export_file:
         count = 0
-        for student in change_set.students_added:
+        class_of_student = ''
+        line = '{:20}\t\tCleartext-Password := "{}"\n'
+        for student in sorted(change_set.students_added):
             count += 1
-            line = '{:20}\t\tCleartext-Password := "{}"\n'
+            if class_of_student != student.classname:
+                export_file.write('# {}\n'.format(student.classname))
+                class_of_student = student.classname
             export_file.write(line.format('"'+student.generate_user_id()+'"',
                                           student.generate_password()))
         logger.debug('{0} students exported to radius file format.'
