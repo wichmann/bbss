@@ -234,6 +234,8 @@ class StudentDatabase(object):
                              student['firstname'],
                              student['classname'],
                              student['birthday'])
+            s.user_id = student['username']
+            s.password = student['password']
             logger.debug('\t' + str(s))
             change_set.students_added.append(s)
 
@@ -246,6 +248,8 @@ class StudentDatabase(object):
                              student['firstname'],
                              student['classname'],
                              student['birthday'])
+            s.user_id = student['username']
+            s.password = student['password']
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
 
@@ -254,7 +258,7 @@ class StudentDatabase(object):
     def _get_all_students_of_import(self, new_import_id):
         sql_for_all_students = """SELECT import_id,
             student_id, firstname, surname,
-            classname, birthday
+            classname, birthday, username, password
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
             AND import_id = "{0}"; """.format(new_import_id)
@@ -267,6 +271,8 @@ class StudentDatabase(object):
                              student['firstname'],
                              student['classname'],
                              student['birthday'])
+            s.user_id = student['username']
+            s.password = student['password']
             change_set.students_added.append(s)
         return change_set
 

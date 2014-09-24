@@ -42,7 +42,7 @@ bbss is released under the GNU General Public License v2 or newer.
 
 REQUIREMENTS
 ------------
-bbss requires Python 3. The following Python packages are necessary:
+bbss requires at least Python 3.2. The following Python packages are necessary:
 * xlrd for importing Microsoft Excel files
 * PyQt4 for graphical user interface
 * win32com for using Microsoft Active Directory under Windows
