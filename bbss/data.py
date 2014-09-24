@@ -22,6 +22,9 @@ from bbss import ad
 logger = logging.getLogger('bbss.data')
 
 
+PASSWORD_LENGTH = 7
+    
+
 class Student(object):
     """Holds all information of a single student.
 
@@ -63,7 +66,7 @@ class Student(object):
 
     def generate_password(self):
         if not self.password:
-            self.password = generate_simple_password()
+            self.password = generate_good_password()
         return self.password
 
     def generate_ou(self):
@@ -74,15 +77,30 @@ class Student(object):
 
 
 def generate_simple_password():
+    """Deprecated function for generating simple passwort by using a four digit
+    number and concatenating it to a fixed string."""
     return 'A##' + str(random.randint(1000, 9999))
 
 
-def generate_good_password():
+def generate_random_password():
     # generate a good password
     # http://stackoverflow.com/questions/3854692/generate-password-in-python
     chars = string.ascii_letters + string.digits
-    length = 8
-    return ''.join(random.sample(chars, length))
+    return ''.join(random.sample(chars, PASSWORD_LENGTH))
+
+
+def generate_good_password():
+    # load password with at least one lower case letter, one upper case letter
+    # and one digit
+    password = []
+    password += random.choice(string.ascii_uppercase)
+    password += random.choice(string.ascii_lowercase)
+    password += random.choice(string.digits)
+    # fill password up with more characters
+    chars = string.ascii_letters + string.digits
+    password += [random.choice(chars) for _ in range(PASSWORD_LENGTH-3)]
+    logger.debug('New password generated: ' + ''.join(password))
+    return ''.join(password)
 
 
 def replace_illegal_characters(string):

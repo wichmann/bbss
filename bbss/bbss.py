@@ -77,7 +77,7 @@ def _check_for_doubles():
     seen = set()
     for student in student_list:
         if student.generate_user_id() in seen:
-            logger.warning('Double entry ' + student.generateUserID())
+            logger.warning('Double entry ' + student.generate_user_id())
         seen.add(student.generate_user_id())
 
 
