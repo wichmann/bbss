@@ -39,4 +39,5 @@ nosetests.xml
 *.xls
 *.csv
 students.db
+*.log*
 
