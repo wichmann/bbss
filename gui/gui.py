@@ -49,6 +49,7 @@ class StudentTableModel(QtCore.QAbstractTableModel):
 
     def update(self, student_list):
         self.student_list = student_list
+        self.layoutChanged.emit()
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         return len(self.student_list)
@@ -64,6 +65,10 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         student = self.student_list[index.row()]
         return '{0}'.format(getattr(student,
                                     self.column_list[index.column()]))
+
+    def student_data(self, index, role=QtCore.Qt.DisplayRole):
+        student = self.student_list[index.row()]
+        return student
 
     def headerData(self, count, orientation, role):
         if role == QtCore.Qt.DisplayRole:
@@ -121,7 +126,17 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             QtGui.QHeaderView.Stretch)
         self.removed_students_tableview.horizontalHeader().setResizeMode(
             QtGui.QHeaderView.Stretch)
-
+        # set up search table views
+        self.search_students_table_model = StudentTableModel(list())
+        self.search_students_tableView.setModel(
+            self.search_students_table_model)
+        self.search_students_tableView.horizontalHeader().setResizeMode(
+            QtGui.QHeaderView.Stretch)
+        self.search_students_tableView.setSelectionBehavior(
+            QtGui.QAbstractItemView.SelectRows)
+        self.search_students_tableView.setSelectionMode(
+            QtGui.QAbstractItemView.SingleSelection)
+            
     def setup_combo_boxes(self):
         # TODO get values from bbss package
         export_formats = ('LogoDidact', 'Radius Server', 'Active Directory')
@@ -145,6 +160,9 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.new_import_number.textEdited.connect(
             self.on_update_export_changeset)
         self.export_data_button.clicked.connect(self.on_export_data)
+        self.search_student_text.textEdited.connect(self.on_search_student)
+        self.search_students_tableView.selectionModel().selectionChanged.connect(
+            self.on_select_student_from_search)
         self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
         self.menu_exit.triggered.connect(self.close)
 
@@ -201,6 +219,32 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
                                              .format(count))
         else:
             self.search_result_label.setText('')
+
+    @QtCore.pyqtSlot(str)
+    def on_search_student(self, search_string):
+        """Search database each time the search text field was edited. The
+        result is shown in the search table view.
+        """
+        logger.debug('Searching for "{}"...'.format(search_string))
+        result = bbss.search_student_in_database(search_string)
+        self.search_students_table_model.update(result)
+
+    @QtCore.pyqtSlot(QtGui.QItemSelection, QtGui.QItemSelection)
+    def on_select_student_from_search(self, selected, deselected):
+        """Show student information in text boxes when student was selected in
+        search table view."""
+        if selected:
+            # get selected student from model
+            model_index = selected[0].topLeft()
+            selected_student = self.search_students_table_model.student_data(model_index)
+            # fill in text boxes with student information
+            self.result_username_text.setText(selected_student.user_id)
+            self.result_imports_text.setText('Importe 1, 2, 4')
+            self.result_birthday_text.setText(selected_student.birthday)
+            self.result_name_text.setText(selected_student.firstname)
+            self.result_class_text.setText(selected_student.classname)
+            self.result_password_text.setText(selected_student.password)
+            self.result_surname_text.setText(selected_student.surname)
 
     @QtCore.pyqtSlot()
     def on_update_export_changeset(self):
