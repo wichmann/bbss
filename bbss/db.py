@@ -19,6 +19,7 @@ from bbss import data
 logger = logging.getLogger('bbss.db')
 
 DB_FILENAME = 'students.db'
+DO_OVERWRITE_PASSWORDS = False
 
 
 class StudentDatabase(object):
@@ -82,7 +83,8 @@ class StudentDatabase(object):
                                                    student.firstname,
                                                    student.birthday)
             self.cur.execute(sql)
-            if not self.cur.fetchone():
+            current_student = self.cur.fetchone()
+            if not current_student:
                 # insert student in database
                 self.cur.execute("""INSERT INTO Students
                                     VALUES (NULL,?,?,?,?,?,?)""",
@@ -96,24 +98,27 @@ class StudentDatabase(object):
                                  (student_id, import_id))
             else:
                 # change already stored student
-                # FIXME Do NOT overwrite existing user names and passwords!
-                self.cur.execute("""UPDATE Students SET classname=?,
-                                    username=?, password=?
-                                    WHERE surname=? AND firstname=?
-                                    AND birthday=? """,
-                                 (student.classname,
-                                  student.generate_user_id(),
-                                  student.generate_password(),
-                                  student.surname,
-                                  student.firstname,
-                                  student.birthday))
-                self.cur.execute("""SELECT * FROM Students WHERE surname=?
-                                    AND firstname=? AND birthday=?""",
-                                 (student.surname,
-                                  student.firstname,
-                                  student.birthday))
-                result_data = self.cur.fetchone()
-                student_id = result_data[0]
+                if DO_OVERWRITE_PASSWORDS:
+                    self.cur.execute("""UPDATE Students SET classname=?,
+                                        username=?, password=?
+                                        WHERE surname=? AND firstname=?
+                                        AND birthday=? """,
+                                     (student.classname,
+                                      student.generate_user_id(),
+                                      student.generate_password(),
+                                      student.surname,
+                                      student.firstname,
+                                      student.birthday))
+                # get student id...
+                #self.cur.execute("""SELECT * FROM Students WHERE surname=?
+                #                    AND firstname=? AND birthday=?""",
+                #                 (student.surname,
+                #                  student.firstname,
+                #                  student.birthday))
+                #result_data = self.cur.fetchone()
+                #student_id = result_data[0]
+                student_id = current_student['id']
+                # ...and include it in current import
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)',
                                  (student_id, import_id))
         self.conn.commit()
@@ -190,7 +195,9 @@ class StudentDatabase(object):
                                 -> changes between import 3 and 5
            """
         if old_import_id < -1 or new_import_id < 0:
-            raise ValueError
+            #raise ValueError
+            logger.error('Given import ids are not valid!')
+            return data.ChangeSet()
         # fill in not given IDs
         if new_import_id == 0:
             # get lastest import ID from database if no ID was given
