@@ -34,8 +34,8 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
             if class_of_student != student.classname:
                 export_file.write('# {}\n'.format(student.classname))
                 class_of_student = student.classname
-            formatted_line = line.format('"' + student.generate_user_id().lower() + '"',
-                                       student.generate_password())
+            formatted_line = line.format(student.generate_user_id().lower(),
+                                         student.generate_password())
             export_file.write(formatted_line)
         logger.debug('{0} students exported to radius file format.'
                      .format(count))

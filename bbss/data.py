@@ -68,7 +68,13 @@ class Student(object):
         return ''
 
     def generate_user_id(self):
-        """generates a user id for this student"""
+        """Generates a user id for a student if it does not exist already.
+        Otherwise the existing user id is returned!
+        
+        Currently the existing user id is NEVER replaced even when an existing
+        student is in the database and her class name changed! The database
+        functions call this method to get the user id. Changing user ids when
+        classes are changed, could be handled here?!"""
         if not self.user_id:
             self.user_id = '%s.%s%s' % (self.get_class_name(),
                                         replace_illegal_characters(self.surname)[0:4].upper(),
@@ -76,6 +82,9 @@ class Student(object):
         return self.user_id
 
     def generate_password(self):
+        """Generates a password for a student if it does not exist already.
+        Otherwise the existing password is returned!
+        """
         if not self.password:
             self.password = generate_good_password()
         return self.password

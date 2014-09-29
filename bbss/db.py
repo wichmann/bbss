@@ -96,6 +96,7 @@ class StudentDatabase(object):
                                  (student_id, import_id))
             else:
                 # change already stored student
+                # FIXME Do NOT overwrite existing user names and passwords!
                 self.cur.execute("""UPDATE Students SET classname=?,
                                     username=?, password=?
                                     WHERE surname=? AND firstname=?
@@ -152,10 +153,14 @@ class StudentDatabase(object):
         self.cur.execute(select_stmt.format(search_string))
         result_data = self.cur.fetchall()
         for student in result_data:
+            # get data for each and every found student into one list of
+            # Student objects
             s = data.Student(student['surname'],
                              student['firstname'],
                              student['classname'],
                              student['birthday'])
+            s.user_id = student['username']
+            s.password = student['password']
             student_list.append(s)
         return student_list
 
