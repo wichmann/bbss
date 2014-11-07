@@ -102,7 +102,7 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
 def _write_student(student, output_file_writer, replace_illegal_characters):
     """Writes a single student (her/his data) to file writer of csv file."""
     # get data from change set
-    class_of_student = student.get_class_name()
+    class_of_student = student.get_class_name_for_class_id()
     surname_of_student = student.surname
     firstname_of_student = student.firstname
     # replace illegal characters if needed

@@ -55,8 +55,17 @@ class Student(object):
         return ((self.classname, self.surname, self.firstname, self.birthday) <
                 (other.classname, other.surname, other.firstname, other.birthday))
 
-    def get_class_name(self):
+    def get_class_name_for_username(self):
+        """Returns class name after replacement map has been applied. All
+        relevant replacements can be found in config module."""
         return replace_class_name(self.classname)
+
+    def get_class_name_for_class_id(self):
+        """Returns class name for use in the class identifier in output formats.
+        Some replacements from config module are applied, but NOT ALL of
+        them!"""
+        exceptions = ['BGT11A', 'BGT11B', 'BGT11C', 'BGT12', 'BGT13']
+        return replace_class_name(self.classname, exceptions)
 
     def get_class_determinator(self):
         return replace_class_name(self.classname).rstrip('1234567890')
@@ -76,7 +85,7 @@ class Student(object):
         functions call this method to get the user id. Changing user ids when
         classes are changed, could be handled here?!"""
         if not self.user_id:
-            self.user_id = '%s.%s%s' % (self.get_class_name(),
+            self.user_id = '%s.%s%s' % (self.get_class_name_for_username(),
                                         replace_illegal_characters(self.surname)[0:4].upper(),
                                         replace_illegal_characters(self.firstname)[0:4].upper())
         return self.user_id
@@ -91,7 +100,7 @@ class Student(object):
 
     def generate_ou(self):
         # TODO move to bbss.ad
-        return ad.generateOU(self.get_class_name(),
+        return ad.generateOU(self.get_class_name_for_username(),
                              self.get_class_determinator(),
                              self.get_department())
 
@@ -131,12 +140,13 @@ def replace_illegal_characters(string):
                    else char for char in characters])
 
 
-def replace_class_name(old_class_name):
+def replace_class_name(old_class_name, exceptions=list()):
     """Replaces class names that have to be changed for generating user
        names. (See bbss.config)"""
     new_class_name = old_class_name
     for old, new in config.class_map.items():
-        new_class_name = new_class_name.replace(old, new)
+        if old not in exceptions:
+            new_class_name = new_class_name.replace(old, new)
     if old_class_name != new_class_name:
         logger.debug("old class: {} -> new class: {}".format(old_class_name,
                                                              new_class_name))
