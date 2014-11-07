@@ -37,7 +37,8 @@ nosetests.xml
 
 # student data not to be controlled by GIT
 *.xls
+*.xlsx
 *.csv
 students.db
 *.log*
-
+.idea
