@@ -171,13 +171,13 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         logger.info('Loading file with student data...')
         self.FILENAME = QtGui.QFileDialog\
             .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
-                             'CSV-Dateien (*.csv);;Excel-Dateien (*.xls)')
+                             'CSV-Dateien (*.csv);;Excel-Dateien (*.xls *.xlsx)')
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
         import os
         _, ext = os.path.splitext(self.FILENAME)
         if ext == '.csv':
             bbss.import_csv_file(self.FILENAME)
-        elif ext == '.xls':
+        elif ext == '.xls' or ext == '.xlsx':
             bbss.import_excel_file(self.FILENAME)
         else:
             logger.warn('Given file format can not be imported.')
