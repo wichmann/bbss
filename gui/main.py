@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Mon Sep 29 17:48:00 2014
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Fri Nov 21 15:19:28 2014
+#      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -125,14 +125,14 @@ class Ui_BBSS_Main_Window(object):
         self.old_import_number = QtGui.QLineEdit(self.horizontalLayoutWidget)
         self.old_import_number.setMaxLength(3)
         self.old_import_number.setObjectName(_fromUtf8("old_import_number"))
-        self.horizontalLayout.addWidget(self.old_import_number)
+        self.horizontalLayout.addWidget(self.old_import_number, QtCore.Qt.AlignHCenter)
         self.label_4 = QtGui.QLabel(self.horizontalLayoutWidget)
         self.label_4.setObjectName(_fromUtf8("label_4"))
         self.horizontalLayout.addWidget(self.label_4)
         self.new_import_number = QtGui.QLineEdit(self.horizontalLayoutWidget)
         self.new_import_number.setMaxLength(3)
         self.new_import_number.setObjectName(_fromUtf8("new_import_number"))
-        self.horizontalLayout.addWidget(self.new_import_number)
+        self.horizontalLayout.addWidget(self.new_import_number, QtCore.Qt.AlignHCenter)
         self.export_format_combobox = QtGui.QComboBox(self.export_group)
         self.export_format_combobox.setGeometry(QtCore.QRect(120, 40, 161, 31))
         self.export_format_combobox.setObjectName(_fromUtf8("export_format_combobox"))
@@ -248,12 +248,48 @@ class Ui_BBSS_Main_Window(object):
         self.store_in_db_checkbox.setObjectName(_fromUtf8("store_in_db_checkbox"))
         self.verticalLayout_2.addWidget(self.store_in_db_checkbox)
         self.settings_group = QtGui.QGroupBox(self.options_tab)
-        self.settings_group.setGeometry(QtCore.QRect(10, 250, 611, 251))
+        self.settings_group.setGeometry(QtCore.QRect(10, 250, 611, 431))
         self.settings_group.setObjectName(_fromUtf8("settings_group"))
-        self.textBrowser = QtGui.QTextBrowser(self.settings_group)
-        self.textBrowser.setEnabled(True)
-        self.textBrowser.setGeometry(QtCore.QRect(20, 30, 571, 192))
-        self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
+        self.verticalLayoutWidget_3 = QtGui.QWidget(self.settings_group)
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(20, 30, 571, 391))
+        self.verticalLayoutWidget_3.setObjectName(_fromUtf8("verticalLayoutWidget_3"))
+        self.verticalLayout_8 = QtGui.QVBoxLayout(self.verticalLayoutWidget_3)
+        self.verticalLayout_8.setMargin(0)
+        self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
+        self.label_18 = QtGui.QLabel(self.verticalLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(28)
+        self.label_18.setFont(font)
+        self.label_18.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_18.setObjectName(_fromUtf8("label_18"))
+        self.verticalLayout_8.addWidget(self.label_18)
+        self.label_19 = QtGui.QLabel(self.verticalLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_19.setFont(font)
+        self.label_19.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_19.setWordWrap(True)
+        self.label_19.setObjectName(_fromUtf8("label_19"))
+        self.verticalLayout_8.addWidget(self.label_19)
+        self.line_2 = QtGui.QFrame(self.verticalLayoutWidget_3)
+        self.line_2.setFrameShape(QtGui.QFrame.HLine)
+        self.line_2.setFrameShadow(QtGui.QFrame.Sunken)
+        self.line_2.setObjectName(_fromUtf8("line_2"))
+        self.verticalLayout_8.addWidget(self.line_2)
+        self.label_20 = QtGui.QLabel(self.verticalLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label_20.setFont(font)
+        self.label_20.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_20.setObjectName(_fromUtf8("label_20"))
+        self.verticalLayout_8.addWidget(self.label_20)
+        self.label_21 = QtGui.QLabel(self.verticalLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label_21.setFont(font)
+        self.label_21.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_21.setObjectName(_fromUtf8("label_21"))
+        self.verticalLayout_8.addWidget(self.label_21)
         self.TaskTabbedPane.addTab(self.options_tab, _fromUtf8(""))
         BBSS_Main_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(BBSS_Main_Window)
@@ -316,16 +352,10 @@ class Ui_BBSS_Main_Window(object):
         self.replace_characters_checkbox.setText(_translate("BBSS_Main_Window", "Illegale Zeichen in Namen ersetzen", None))
         self.store_in_db_checkbox.setText(_translate("BBSS_Main_Window", "Daten in Datenbank ablegen", None))
         self.settings_group.setTitle(_translate("BBSS_Main_Window", "Über...", None))
-        self.textBrowser.setHtml(_translate("BBSS_Main_Window", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Linux Biolinum O\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">bbss - BBS Student Management</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Management software für das Erzeugen und Verwalten von Schülern und ihren Benutzernamen und Passwörtern. Neue Schüler lassen sich aus Schülerlisten im CSV- oder XLS-Format importieren und in verschiedene Ausgabeformate exportieren.</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Autor: Christian Wichmann</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
+        self.label_18.setText(_translate("BBSS_Main_Window", "bbss - BBS Student Management", None))
+        self.label_19.setText(_translate("BBSS_Main_Window", "Software für das Erzeugen und Verwalten von Schülern und ihrer Benutzernamen und Passwörtern.", None))
+        self.label_20.setText(_translate("BBSS_Main_Window", "Autor: Christian Wichmann", None))
+        self.label_21.setText(_translate("BBSS_Main_Window", "Lizensiert unter der GNU GPL v2 oder neuer.", None))
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.options_tab), _translate("BBSS_Main_Window", "Optionen", None))
         self.menuDatei.setTitle(_translate("BBSS_Main_Window", "Datei", None))
         self.menu_exit.setText(_translate("BBSS_Main_Window", "Beenden", None))
