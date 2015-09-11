@@ -19,7 +19,26 @@ from bbss import data
 logger = logging.getLogger('bbss.db')
 
 DB_FILENAME = 'students.db'
-DO_OVERWRITE_PASSWORDS = False
+DO_OVERWRITE_USERNAME_AND_PASSWORD = False
+
+
+#
+# Technical notes on database schema:
+#
+# In the first version of this program, the database stored the class
+# information for all students in the table "Students". Problems occurred
+# when students changed classes or visited multiple school types after another.
+#
+# Since September 2015 at each import the class of a student is stored with
+# the student data in table "Student" and also in the field "class_in_import"
+# in the "StudentsInImports" table.
+#
+# While old entries are still in the database, information about which student
+# changed class between imports has to be stored. Therefore an additional table
+# ("ClassChanges") is created, that contains a student id of the student
+# changing class, the import id of the import in which the class changes took
+# place and the old class name before the import.
+#
 
 
 class StudentDatabase(object):
@@ -38,20 +57,50 @@ class StudentDatabase(object):
         self.close_connection()
 
     def create_tables(self):
-        """Creates tables for database, if they not already exist."""
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Imports (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            filename TEXT NOT NULL, date DATE NOT NULL)""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS Students (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            surname TEXT NOT NULL, firstname TEXT NOT NULL,
-                            classname TEXT NOT NULL, birthday DATE NOT NULL,
-                            username TEXT NOT NULL, password TEXT NOT NULL)""")
-        self.cur.execute("""CREATE TABLE IF NOT EXISTS StudentsInImports (
-                            student_id INT NOT NULL, import_id INT NOT NULL,
-                            FOREIGN KEY(student_id) REFERENCES Students(id),
-                            FOREIGN KEY(import_id) REFERENCES Imports(id))""")
+        """
+        Creates or alter tables for student database, if they not already exist.
+        To know which tables have to be updated or created, an user version is
+        stored as PRAGMA inside the database.
+
+        Per default the version is "0" if a new database is created. In teh first
+        version the tables Imports, Students and StudentsInImports are created.
+        The second version (September 2015) changed how the class information is
+        stored. (See technical note above!)
+        """
+        user_version = self.get_database_version()
+        if user_version == 0:
+            self.cur.execute("""CREATE TABLE IF NOT EXISTS Imports (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                filename TEXT NOT NULL, date DATE NOT NULL)""")
+            self.cur.execute("""CREATE TABLE IF NOT EXISTS Students (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                surname TEXT NOT NULL, firstname TEXT NOT NULL,
+                                classname TEXT NOT NULL, birthday DATE NOT NULL,
+                                username TEXT NOT NULL, password TEXT NOT NULL)""")
+            self.cur.execute("""CREATE TABLE IF NOT EXISTS StudentsInImports (
+                                student_id INT NOT NULL, import_id INT NOT NULL,
+                                FOREIGN KEY(student_id) REFERENCES Students(id),
+                                FOREIGN KEY(import_id) REFERENCES Imports(id))""")
+            self.set_database_version(1)
+        elif user_version == 1:
+            self.cur.execute("""ALTER TABLE StudentsInImports ADD COLUMN class_in_import TEXT DEFAULT ""; """)
+            self.cur.execute("""CREATE TABLE IF NOT EXISTS ClassChanges (
+                                student_id INT NOT NULL, import_id INT NOT NULL,
+                                old_class_name TEXT NOT NULL,
+                                FOREIGN KEY(student_id) REFERENCES Students(id),
+                                FOREIGN KEY(import_id) REFERENCES Imports(id))""")
+            self.set_database_version(2)
         self.conn.commit()
+
+    def set_database_version(self, new_version):
+        self.cur.execute('PRAGMA user_version={};'.format(new_version))
+        self.conn.commit()
+
+    def get_database_version(self):
+        self.cur.execute('PRAGMA user_version;')
+        user_version = self.cur.fetchone()[0]
+        logger.debug('database version: {}'.format(user_version))
+        return user_version
 
     def get_last_import_id(self):
         """Gets index of last import from database."""
@@ -78,49 +127,45 @@ class StudentDatabase(object):
         for student in student_list:
             # check if student is already in database
             sql = """SELECT * FROM Students
-                     WHERE surname="{0}" AND firstname="{1}"
-                     AND birthday="{2}" """.format(student.surname,
-                                                   student.firstname,
-                                                   student.birthday)
+                     WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
+                  """.format(student.surname, student.firstname, student.birthday)
             self.cur.execute(sql)
             current_student = self.cur.fetchone()
             if not current_student:
                 # insert student in database
-                self.cur.execute("""INSERT INTO Students
-                                    VALUES (NULL,?,?,?,?,?,?)""",
+                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?)""",
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
                                   student.generate_user_id(),
                                   student.generate_password()))
                 # insert connection between new student and this import
                 student_id = self.cur.lastrowid
-                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)',
-                                 (student_id, import_id))
+                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
+                                 (student_id, import_id, student.classname))
             else:
-                # change already stored student
-                if DO_OVERWRITE_PASSWORDS:
-                    self.cur.execute("""UPDATE Students SET classname=?,
-                                        username=?, password=?
-                                        WHERE surname=? AND firstname=?
-                                        AND birthday=? """,
+                # get student id from database
+                student_id = current_student['id']
+                # if student changed class between imports, change it
+                if current_student['classname'] != student.classname:
+                    # update class name
+                    self.cur.execute("""UPDATE Students SET classname=?
+                                        WHERE surname=? AND firstname=? AND birthday=?;""",
+                                     (student.classname, student.surname,
+                                      student.firstname, student.birthday))
+                    # store old class name for future reference
+                    self.cur.execute("""INSERT INTO ClassChanges VALUES (?,?,?);""",
+                                     (student_id, import_id, current_student['classname']))
+                if DO_OVERWRITE_USERNAME_AND_PASSWORD:
+                    self.cur.execute("""UPDATE Students SET username=?, password=?
+                                        WHERE surname=? AND firstname=? AND birthday=? """,
                                      (student.classname,
                                       student.generate_user_id(),
                                       student.generate_password(),
-                                      student.surname,
-                                      student.firstname,
+                                      student.surname, student.firstname,
                                       student.birthday))
-                # get student id...
-                #self.cur.execute("""SELECT * FROM Students WHERE surname=?
-                #                    AND firstname=? AND birthday=?""",
-                #                 (student.surname,
-                #                  student.firstname,
-                #                  student.birthday))
-                #result_data = self.cur.fetchone()
-                #student_id = result_data[0]
-                student_id = current_student['id']
                 # ...and include it in current import
-                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?)',
-                                 (student_id, import_id))
+                self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
+                                 (student_id, import_id, student.classname))
         self.conn.commit()
 
     def print_statistics(self):
