@@ -27,11 +27,13 @@ PASSWORD_LENGTH = 7
 
 @total_ordering
 class Student(object):
-    """Holds all information of a single student.
+    """
+    Holds all information of a single student.
 
     If an user_id and password has already been assigned to a student this
     data has to be stored. Otherwise these data has to be generated when
-    it is first needed, e.g. for exporting or storing in the database."""
+    it is first needed, e.g. for exporting or storing in the database.
+    """
     def __init__(self, surname, firstname, classname, birthday):
         self.surname = surname
         self.firstname = firstname
@@ -51,7 +53,7 @@ class Student(object):
 
     def __lt__(self, other):
         # FIXME Check if different implementations of __eq__ and __lt__ result
-        # in problematic effects when sorting lists of students!
+        #       in problematic effects when sorting lists of students!
         return ((self.classname, self.surname, self.firstname, self.birthday) <
                 (other.classname, other.surname, other.firstname, other.birthday))
 
@@ -77,13 +79,15 @@ class Student(object):
         return ''
 
     def generate_user_id(self):
-        """Generates a user id for a student if it does not exist already.
+        """
+        Generates a user id for a student if it does not exist already.
         Otherwise the existing user id is returned!
         
         Currently the existing user id is NEVER replaced even when an existing
         student is in the database and her class name changed! The database
         functions call this method to get the user id. Changing user ids when
-        classes are changed, could be handled here?!"""
+        classes are changed, could be handled here?!
+        """
         if not self.user_id:
             self.user_id = '%s.%s%s' % (self.get_class_name_for_username(),
                                         replace_illegal_characters(self.surname)[0:4].upper(),
@@ -106,28 +110,42 @@ class Student(object):
 
 
 def generate_simple_password():
-    """Deprecated function for generating simple passwort by using a four digit
+    """Deprecated function for generating simple password by using a four digit
     number and concatenating it to a fixed string."""
     return 'A##' + str(random.randint(1000, 9999))
 
 
 def generate_random_password():
-    # generate a good password
-    # http://stackoverflow.com/questions/3854692/generate-password-in-python
+    """
+    Generate a random password for a given length including all letters and
+    digits. To generate unpredictable passwords, the SystemRandom class from
+    the random module is used!
+
+    See also: http://stackoverflow.com/questions/3854692/generate-password-in-python
+
+    :return: string containing random password
+    """
     chars = string.ascii_letters + string.digits
-    return ''.join(random.sample(chars, PASSWORD_LENGTH))
+    return ''.join(random.SystemRandom().sample(chars, PASSWORD_LENGTH))
 
 
 def generate_good_password():
-    # load password with at least one lower case letter, one upper case letter
-    # and one digit
+    """
+    Generate a random password for a given length including all letters and
+    digits. This password contains at least one lower case letter, one upper
+    case letter and one digit. To generate unpredictable passwords, the
+    SystemRandom class from the random module is used!
+
+    :return: string containing random password of good quality
+    """
+    # fill up with at least one uppercase, one lowercase and one digit
     password = []
-    password += random.choice(string.ascii_uppercase)
-    password += random.choice(string.ascii_lowercase)
-    password += random.choice(string.digits)
+    password += random.SystemRandom().choice(string.ascii_uppercase)
+    password += random.SystemRandom().choice(string.ascii_lowercase)
+    password += random.SystemRandom().choice(string.digits)
     # fill password up with more characters
     chars = string.ascii_letters + string.digits
-    password += [random.choice(chars) for _ in range(PASSWORD_LENGTH-3)]
+    password += [random.SystemRandom().choice(chars) for _ in range(PASSWORD_LENGTH-3)]
     logger.debug('New password generated: ' + ''.join(password))
     return ''.join(password)
 
