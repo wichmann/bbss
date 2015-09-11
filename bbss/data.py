@@ -79,7 +79,7 @@ class Student(object):
                 return config.department_map[department]
         return ''
 
-    def generate_user_id(self):
+    def generate_user_id(self, regenerate=False):
         """
         Generates a user id for a student if it does not exist already.
         Otherwise the existing user id is returned!
@@ -89,17 +89,17 @@ class Student(object):
         functions call this method to get the user id. Changing user ids when
         classes are changed, could be handled here?!
         """
-        if not self.user_id:
+        if not self.user_id or regenerate:
             self.user_id = '%s.%s%s' % (self.get_class_name_for_username(),
                                         replace_illegal_characters(self.surname)[0:4].upper(),
                                         replace_illegal_characters(self.firstname)[0:4].upper())
         return self.user_id
 
-    def generate_password(self):
+    def generate_password(self, regenerate=False):
         """Generates a password for a student if it does not exist already.
         Otherwise the existing password is returned!
         """
-        if not self.password:
+        if not self.password or regenerate:
             self.password = generate_good_password()
         return self.password
 

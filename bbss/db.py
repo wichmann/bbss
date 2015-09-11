@@ -19,7 +19,7 @@ from bbss import data
 logger = logging.getLogger('bbss.db')
 
 DB_FILENAME = 'students.db'
-DO_OVERWRITE_USERNAME_AND_PASSWORD = False
+ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
 
 
 #
@@ -156,14 +156,16 @@ class StudentDatabase(object):
                     # store old class name for future reference
                     self.cur.execute("""INSERT INTO ClassChanges VALUES (?,?,?);""",
                                      (student_id, import_id, current_student['classname']))
-                if DO_OVERWRITE_USERNAME_AND_PASSWORD:
+                # check whether the student has been in the previous import
+                sql = 'SELECT * FROM StudentsInImports WHERE student_id = {} AND import_id = {};'
+                self.cur.execute(sql.format(student_id, import_id - 1))
+                was_in_previous_import = self.cur.fetchone()
+                if ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD or not was_in_previous_import:
                     self.cur.execute("""UPDATE Students SET username=?, password=?
                                         WHERE surname=? AND firstname=? AND birthday=? """,
-                                     (student.classname,
-                                      student.generate_user_id(),
-                                      student.generate_password(),
-                                      student.surname, student.firstname,
-                                      student.birthday))
+                                     (student.generate_user_id(regenerate=True),
+                                      student.generate_password(regenerate=True),
+                                      student.surname, student.firstname, student.birthday))
                 # ...and include it in current import
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
                                  (student_id, import_id, student.classname))

@@ -99,6 +99,14 @@ def search_student_in_database(search_string):
 
 
 def get_imports_for_student(student):
+    """
+    Gets a list of the import IDs for all imports that contain the given
+    student. The student is identified by her first name, last name and
+    birthday.
+
+    :param student: student to find imports for
+    :return: list of imports containing the given student
+    """
     return student_database.get_imports_for_student(student.firstname, student.surname, student.birthday)
 
 
