@@ -12,6 +12,7 @@ Created on Mon Feb  23 15:08:56 2014
 @author: Christian Wichmann
 """
 
+import sys
 import logging
 from PyQt4 import QtGui
 from PyQt4 import QtCore
@@ -313,14 +314,13 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
 
 
 def start_gui():
-    import sys
-
+    # make app object global to let it be collected to prevent error messages
+    # http://stackoverflow.com/questions/27131294/error-qobjectstarttimer-qtimer-can-only-be-used-with-threads-started-with-qt/27155799#27155799
+    global app
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
-
     main = BbssGui()
     main.show()
-
     sys.exit(app.exec_())
 
 
