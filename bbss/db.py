@@ -215,6 +215,31 @@ class StudentDatabase(object):
             student_list.append(s)
         return student_list
 
+    def get_imports_for_student(self, firstname, surname, birthday):
+        """
+        Returns a list with the import IDs for all imports that contain the
+        given student identified by her surname, firstname and birthday.
+
+        :param firstname: firstname of student to be found
+        :param surname: surname of student to be found
+        :param birthday: birthday of student to be found
+        :return: list with all imports that contain the given student
+        """
+        # get student ID from database
+        sql = """SELECT id FROM Students WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
+              """.format(surname, firstname, birthday)
+        self.cur.execute(sql)
+        current_student = self.cur.fetchone()
+        if current_student:
+            # get all imports that contain this student
+            get_all_imports_stmt = """SELECT import_id FROM StudentsInImports
+                                      WHERE student_id = {};"""
+            self.cur.execute(get_all_imports_stmt.format(current_student['id']))
+            result_data = self.cur.fetchall()
+            return [int(i[0]) for i in result_data]
+        else:
+            return []
+
     def generate_changeset(self, old_import_id=-1, new_import_id=0):
         """Generates a changeset with all added, deleted and changed student
            data between two specific imports.
@@ -272,15 +297,13 @@ class StudentDatabase(object):
 
     def _get_difference_between_imports(self, old_import_id, new_import_id):
         # TODO handle changed students
-        sql = """SELECT * FROM
-                 (
-                 SELECT student_id FROM StudentsInImports
-                 WHERE import_id = {0}
-                 EXCEPT
-                 SELECT student_id FROM StudentsInImports
-                 WHERE import_id = {1}
-                 )
-                 JOIN Students ON student_id = id"""
+        sql = """SELECT * FROM (
+                     SELECT student_id FROM StudentsInImports
+                     WHERE import_id = {0}
+                     EXCEPT
+                     SELECT student_id FROM StudentsInImports
+                     WHERE import_id = {1}
+                 ) JOIN Students ON student_id = id"""
         change_set = data.ChangeSet()
 
         # get added students and store them in list
@@ -310,6 +333,24 @@ class StudentDatabase(object):
             s.password = student['password']
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
+
+        # get changed students from database and store them in list
+        changed_student_stmt = """SELECT * FROM (
+                                  SELECT student_id FROM ClassChanges
+                                  WHERE import_id BETWEEN {0} AND {1}
+                                  ) JOIN Students ON student_id = id"""
+        self.cur.execute(changed_student_stmt.format(old_import_id + 1, new_import_id))
+        result_data = self.cur.fetchall()
+        logger.debug('Changed students are: ')
+        for student in result_data:
+            s = data.Student(student['surname'],
+                             student['firstname'],
+                             student['classname'],
+                             student['birthday'])
+            s.user_id = student['username']
+            s.password = student['password']
+            logger.debug('\t' + str(s))
+            change_set.students_changed.append(s)
 
         return change_set
 

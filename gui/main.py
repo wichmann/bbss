@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Fri Nov 21 15:19:28 2014
-#      by: PyQt4 UI code generator 4.11.2
+# Created: Fri Sep 11 11:32:02 2015
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -114,7 +114,7 @@ class Ui_BBSS_Main_Window(object):
         self.export_data_button.setGeometry(QtCore.QRect(470, 90, 121, 24))
         self.export_data_button.setObjectName(_fromUtf8("export_data_button"))
         self.horizontalLayoutWidget = QtGui.QWidget(self.export_group)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(310, 40, 273, 31))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(310, 40, 273, 33))
         self.horizontalLayoutWidget.setObjectName(_fromUtf8("horizontalLayoutWidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setMargin(0)
@@ -169,7 +169,7 @@ class Ui_BBSS_Main_Window(object):
         self.groupBox.setGeometry(QtCore.QRect(10, 370, 611, 311))
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.gridLayoutWidget_3 = QtGui.QWidget(self.groupBox)
-        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 30, 571, 251))
+        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 30, 571, 263))
         self.gridLayoutWidget_3.setObjectName(_fromUtf8("gridLayoutWidget_3"))
         self.gridLayout_2 = QtGui.QGridLayout(self.gridLayoutWidget_3)
         self.gridLayout_2.setMargin(5)
@@ -293,7 +293,7 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.addTab(self.options_tab, _fromUtf8(""))
         BBSS_Main_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(BBSS_Main_Window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 657, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 657, 29))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuDatei = QtGui.QMenu(self.menubar)
         self.menuDatei.setObjectName(_fromUtf8("menuDatei"))

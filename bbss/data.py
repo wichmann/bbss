@@ -14,6 +14,7 @@ import random
 import logging
 import string
 from functools import total_ordering
+from collections import namedtuple
 
 from bbss import config
 from bbss import ad
@@ -178,17 +179,21 @@ def is_class_blacklisted(class_name):
     return False
 
 
+ChangeSetStatistics = namedtuple('ChangeSetStatistics', 'added changed removed')
+
 class ChangeSet(object):
-    """Defines all changes between two imports of student data.
+    """
+    Defines all changes between two imports of student data.
 
     After importing student data it is stored into the database. For some uses
     it is necessary to get all changed students. That includes all added,
     removed and changed student entities. This diff is stored by a ChangeSet
-    and can be used for exporting this data into various formats."""
+    and can be used for exporting this data into various formats.
+    """
     def __init__(self):
         self.students_added = []
         self.students_removed = []
         self.students_changed = []
 
-    def temp(self):
-        pass
+    def get_statistics(self):
+        return ChangeSetStatistics(len(self.students_added), len(self.students_changed), len(self.students_removed))

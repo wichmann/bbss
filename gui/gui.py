@@ -64,8 +64,7 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         elif role != QtCore.Qt.DisplayRole:
             return None
         student = self.student_list[index.row()]
-        return '{0}'.format(getattr(student,
-                                    self.column_list[index.column()]))
+        return '{0}'.format(getattr(student, self.column_list[index.column()]))
 
     def student_data(self, index, role=QtCore.Qt.DisplayRole):
         student = self.student_list[index.row()]
@@ -79,28 +78,20 @@ class StudentTableModel(QtCore.QAbstractTableModel):
                 return str(count+1)
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
-        logger.warn('Updating of student data not yet implemented.')
-        #print "setData", index.row(), index.column(), value
+        logger.warn('Updating of student data (row={row}, column={column}) not yet implemented.'.format(row=index.row(), column=index.column()))
 
     def flags(self, index):
-        return QtCore.Qt.ItemIsEnabled
-        #if (index.column() == 0):
-        #    return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
-        #else:
-        #    return QtCore.Qt.ItemIsEnabled
+        return QtCore.Qt.ItemIsEnabled # | QtCore.Qt.ItemIsEditable
 
 
 class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     """Main window for bbss"""
-
-    FILENAME = 'schueler_20140213.csv'
-
     def __init__(self, parent=None):
         """Initialize main window for bbss."""
         logger.info('Building main window of bbss...')
         QtGui.QMainWindow.__init__(self, parent)
+        self.FILENAME = ''
         self.setupUi(self)
-        #self.resize(QtCore.QSize(1000, 800))
         self.setup_table_models()
         self.setup_combo_boxes()
         self.center_on_screen()
@@ -164,6 +155,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.search_student_text.textEdited.connect(self.on_search_student)
         self.search_students_tableView.selectionModel().selectionChanged.connect(
             self.on_select_student_from_search)
+        self.search_students_tableView.clicked.connect(self.on_search_student_table_click)
         self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
         self.menu_exit.triggered.connect(self.close)
 
@@ -172,7 +164,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         logger.info('Loading file with student data...')
         self.FILENAME = QtGui.QFileDialog\
             .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
-                             'CSV-Dateien (*.csv);;Excel-Dateien (*.xls *.xlsx)')
+                             'Excel-Dateien (*.xls *.xlsx);;CSV-Dateien (*.csv)')
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
         import os
         _, ext = os.path.splitext(self.FILENAME)
@@ -211,13 +203,11 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         if filter_string:
             logger.debug('Filtering for {0}...'.format(filter_string))
             syntax = QtCore.QRegExp.PatternSyntax(QtCore.QRegExp.Wildcard)
-            caseSensitivity = QtCore.Qt.CaseInsensitive
-            regExp = QtCore.QRegExp(filter_string, caseSensitivity, syntax)
+            case_sensitivity = QtCore.Qt.CaseInsensitive
+            regExp = QtCore.QRegExp(filter_string, case_sensitivity, syntax)
             self.proxy_import_table_model.setFilterRegExp(regExp)
-            #self.proxy_import_table_model.setFilterFixedString(filter_string)
             count = self.proxy_import_table_model.rowCount()
-            self.search_result_label.setText('{} Schüler gefunden...'
-                                             .format(count))
+            self.search_result_label.setText('{} Schüler gefunden...'.format(count))
         else:
             self.search_result_label.setText('')
 
@@ -240,12 +230,18 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             selected_student = self.search_students_table_model.student_data(model_index)
             # fill in text boxes with student information
             self.result_username_text.setText(selected_student.user_id)
-            self.result_imports_text.setText('Importe 1, 2, 4')
+            imports = [str(i) for i in bbss.get_imports_for_student(selected_student)]
+            self.result_imports_text.setText(', '.join(imports))
             self.result_birthday_text.setText(selected_student.birthday)
             self.result_name_text.setText(selected_student.firstname)
             self.result_class_text.setText(selected_student.classname)
             self.result_password_text.setText(selected_student.password)
             self.result_surname_text.setText(selected_student.surname)
+
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    def on_search_student_table_click(self, index):
+        if index.isValid():
+            self.search_students_tableView.selectRow(index.row())
 
     @QtCore.pyqtSlot()
     def on_update_export_changeset(self):
@@ -266,9 +262,8 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             new_id = 0
         self.changeset = bbss.generate_changeset(old_import_id=old_id,
                                                  new_import_id=new_id)
-        logger.debug('{} added, {} removed'
-                     .format(len(self.changeset.students_added),
-                             len(self.changeset.students_removed)))
+        logger.debug('{} added, {} changed, {} removed'
+                     .format(*self.changeset.get_statistics()))
         # update tables for added and removed students
         self.added_students_table_model = StudentTableModel(
             self.changeset.students_added)
@@ -280,9 +275,9 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             self.removed_students_table_model)
         # update labels with student count
         self.added_student_table_label.setText('Hinzugefügte Schüler ({}):'
-            .format(len(self.changeset.students_added)))
+            .format(self.changeset.get_statistics().added))
         self.removed_student_table_label.setText('Entfernte Schüler ({}):'
-            .format(len(self.changeset.students_removed)))
+            .format(self.changeset.get_statistics().removed))
 
     @QtCore.pyqtSlot()
     def on_export_data(self):
@@ -302,8 +297,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
 
     def get_filename_for_export(self):
         """Gets filename for export of student data from user."""
-        filename = QtGui.QFileDialog.getSaveFileName(self,
-                                                     'Speichere Datei...')
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Speichere Datei...')
         logger.info('Export file chosen: "{0}".'.format(filename))
         return filename
 

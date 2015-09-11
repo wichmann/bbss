@@ -98,6 +98,10 @@ def search_student_in_database(search_string):
     return student_database.search_for_student(search_string)
 
 
+def get_imports_for_student(student):
+    return student_database.get_imports_for_student(student.firstname, student.surname, student.birthday)
+
+
 def clear_database():
     """Clears database by removing its file from the filesystem.
 
