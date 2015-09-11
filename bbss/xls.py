@@ -54,9 +54,13 @@ def import_data(import_file):
         name_of_student = sheet.cell(i, column_map['surname']).value
         firstname_of_student = sheet.cell(i, column_map['firstname']).value
         # read and convert date from excel format
-        excel_date = xlrd.xldate_as_tuple(sheet.cell(i, column_map['birthday'])
-                                          .value, book.datemode)
-        birthday_of_student = datetime.datetime(*excel_date).date()
+        try:
+            excel_date = xlrd.xldate_as_tuple(sheet.cell(i, column_map['birthday']).value, book.datemode)
+            birthday_of_student = datetime.datetime(*excel_date).date()
+        except TypeError:
+            # if a student has no birthday in BBS Planung the cell is empty and
+            # contains a string instead of a datetime, so a TypeError is raised
+            birthday_of_student = datetime.datetime(1980, 1, 1)
         # check if student or class is blacklisted
         if data.is_class_blacklisted(class_of_student):
             logger.debug('Student ({0} {1}) not imported because class ({2}) is blacklisted.'
@@ -70,6 +74,8 @@ def import_data(import_file):
                                  name_of_student,
                                  class_of_student))
             continue
+        # check if students name ends with a underscore, because this is an
+        # entry for a student that participates in two classes at the same time
         if name_of_student[-1:] == '_':
             continue
         # add student to list
