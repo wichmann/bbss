@@ -82,7 +82,7 @@ class StudentDatabase(object):
                                 FOREIGN KEY(student_id) REFERENCES Students(id),
                                 FOREIGN KEY(import_id) REFERENCES Imports(id))""")
             self.set_database_version(1)
-        elif user_version == 1:
+        if user_version <= 1:
             self.cur.execute("""ALTER TABLE StudentsInImports ADD COLUMN class_in_import TEXT DEFAULT ""; """)
             self.cur.execute("""CREATE TABLE IF NOT EXISTS ClassChanges (
                                 student_id INT NOT NULL, import_id INT NOT NULL,
@@ -95,11 +95,12 @@ class StudentDatabase(object):
     def set_database_version(self, new_version):
         self.cur.execute('PRAGMA user_version={};'.format(new_version))
         self.conn.commit()
+        logger.debug('Updating database version to: {}'.format(new_version))
 
     def get_database_version(self):
         self.cur.execute('PRAGMA user_version;')
         user_version = self.cur.fetchone()[0]
-        logger.debug('database version: {}'.format(user_version))
+        logger.debug('Current database version: {}'.format(user_version))
         return user_version
 
     def get_last_import_id(self):
