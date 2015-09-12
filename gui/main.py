@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Fri Sep 11 11:32:02 2015
+# Created: Sat Sep 12 10:45:55 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -164,6 +164,9 @@ class Ui_BBSS_Main_Window(object):
         self.search_student_text = QtGui.QLineEdit(self.verticalLayoutWidget)
         self.search_student_text.setObjectName(_fromUtf8("search_student_text"))
         self.horizontalLayout_3.addWidget(self.search_student_text)
+        self.clear_search_field_button = QtGui.QToolButton(self.verticalLayoutWidget)
+        self.clear_search_field_button.setObjectName(_fromUtf8("clear_search_field_button"))
+        self.horizontalLayout_3.addWidget(self.clear_search_field_button)
         self.verticalLayout_3.addLayout(self.horizontalLayout_3)
         self.groupBox = QtGui.QGroupBox(self.search_tab)
         self.groupBox.setGeometry(QtCore.QRect(10, 370, 611, 311))
@@ -258,14 +261,16 @@ class Ui_BBSS_Main_Window(object):
         self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
         self.label_18 = QtGui.QLabel(self.verticalLayoutWidget_3)
         font = QtGui.QFont()
-        font.setPointSize(28)
+        font.setPointSize(24)
         self.label_18.setFont(font)
+        self.label_18.setTextFormat(QtCore.Qt.AutoText)
+        self.label_18.setScaledContents(False)
         self.label_18.setAlignment(QtCore.Qt.AlignCenter)
         self.label_18.setObjectName(_fromUtf8("label_18"))
         self.verticalLayout_8.addWidget(self.label_18)
         self.label_19 = QtGui.QLabel(self.verticalLayoutWidget_3)
         font = QtGui.QFont()
-        font.setPointSize(18)
+        font.setPointSize(16)
         self.label_19.setFont(font)
         self.label_19.setAlignment(QtCore.Qt.AlignCenter)
         self.label_19.setWordWrap(True)
@@ -323,7 +328,7 @@ class Ui_BBSS_Main_Window(object):
         self.load_file_button.setText(_translate("BBSS_Main_Window", "Datei laden...", None))
         self.label_8.setText(_translate("BBSS_Main_Window", "Importierte Schüler:", None))
         self.import_data_button.setText(_translate("BBSS_Main_Window", "Daten importieren...", None))
-        self.delete_database_button.setText(_translate("BBSS_Main_Window", "Delete Database...", None))
+        self.delete_database_button.setText(_translate("BBSS_Main_Window", "Lösche Datenbank...", None))
         self.label.setText(_translate("BBSS_Main_Window", "Suche:", None))
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.import_tab), _translate("BBSS_Main_Window", "Daten importieren", None))
         self.added_student_table_label.setText(_translate("BBSS_Main_Window", "Hinzugefügte Schüler:", None))
@@ -338,6 +343,7 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.export_tab), _translate("BBSS_Main_Window", "Daten exportieren", None))
         self.search_students_label.setText(_translate("BBSS_Main_Window", "Schüler suchen:", None))
         self.label_6.setText(_translate("BBSS_Main_Window", "Suche: ", None))
+        self.clear_search_field_button.setText(_translate("BBSS_Main_Window", "X", None))
         self.groupBox.setTitle(_translate("BBSS_Main_Window", "Schülerinformationen", None))
         self.label_2.setText(_translate("BBSS_Main_Window", "Vorname", None))
         self.label_7.setText(_translate("BBSS_Main_Window", "Name", None))

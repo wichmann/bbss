@@ -158,6 +158,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.search_students_tableView.clicked.connect(self.on_search_student_table_click)
         self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
         self.menu_exit.triggered.connect(self.close)
+        self.clear_search_field_button.clicked.connect(self.search_student_text.clear)
         # TODO Connect options check boxes with functions.
         #      (replace_classnames_checkbox, replace_characters_checkbox, store_in_db_checkbox)
 

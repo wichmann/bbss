@@ -76,7 +76,7 @@
        <item row="5" column="2" alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="delete_database_button">
          <property name="text">
-          <string>Delete Database...</string>
+          <string>Lösche Datenbank...</string>
          </property>
         </widget>
        </item>
@@ -359,6 +359,13 @@
          <item>
           <widget class="QLineEdit" name="search_student_text"/>
          </item>
+         <item>
+          <widget class="QToolButton" name="clear_search_field_button">
+           <property name="text">
+            <string>X</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -575,11 +582,17 @@
          <widget class="QLabel" name="label_18">
           <property name="font">
            <font>
-            <pointsize>28</pointsize>
+            <pointsize>24</pointsize>
            </font>
           </property>
           <property name="text">
            <string>bbss - BBS Student Management</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::AutoText</enum>
+          </property>
+          <property name="scaledContents">
+           <bool>false</bool>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -590,7 +603,7 @@
          <widget class="QLabel" name="label_19">
           <property name="font">
            <font>
-            <pointsize>18</pointsize>
+            <pointsize>16</pointsize>
            </font>
           </property>
           <property name="text">
