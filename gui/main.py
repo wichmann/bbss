@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
 #
-# Created: Sat Sep 12 10:45:55 2015
+# Created: Tue Sep 22 07:21:47 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,7 +111,7 @@ class Ui_BBSS_Main_Window(object):
         self.export_group.setMinimumSize(QtCore.QSize(0, 150))
         self.export_group.setObjectName(_fromUtf8("export_group"))
         self.export_data_button = QtGui.QPushButton(self.export_group)
-        self.export_data_button.setGeometry(QtCore.QRect(470, 90, 121, 24))
+        self.export_data_button.setGeometry(QtCore.QRect(450, 90, 131, 31))
         self.export_data_button.setObjectName(_fromUtf8("export_data_button"))
         self.horizontalLayoutWidget = QtGui.QWidget(self.export_group)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(310, 40, 273, 33))

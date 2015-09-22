@@ -218,10 +218,10 @@
          <widget class="QPushButton" name="export_data_button">
           <property name="geometry">
            <rect>
-            <x>470</x>
+            <x>450</x>
             <y>90</y>
-            <width>121</width>
-            <height>24</height>
+            <width>131</width>
+            <height>31</height>
            </rect>
           </property>
           <property name="text">
