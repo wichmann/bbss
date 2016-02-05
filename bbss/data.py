@@ -49,6 +49,8 @@ class Student(object):
                                            self.classname)
 
     def __eq__(self, other):
+        if other == None:
+            return False
         return ((self.surname, self.firstname, self.birthday) ==
                 (other.surname, other.firstname, other.birthday))
 
