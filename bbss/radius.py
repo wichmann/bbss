@@ -28,7 +28,11 @@ def export_data(output_file, change_set, replace_illegal_characters=True):
         count = 0
         class_of_student = ''
         line = '{:20}\t\tCleartext-Password := "{}"\n'
+        last_exported_student = None
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+            if student == last_exported_student:
+                continue
+            last_exported_student = student
             count += 1
             if class_of_student != student.classname:
                 export_file.write('# {}\n'.format(student.classname))
