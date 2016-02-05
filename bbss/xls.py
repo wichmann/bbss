@@ -30,7 +30,7 @@ column_map = {'surname': 0,
               'birthday': 0}
 
 
-def import_data(import_file):
+def import_data(import_file, callback):
     student_count = 0
     student_list = []
     # open excel file
@@ -49,6 +49,9 @@ def import_data(import_file):
             column_map['birthday'] = i
     # read all rows of table and save them as student objects
     for i in range(1, sheet.nrows):
+        # call callback functions with number of current students
+        if callback != None and callable(callback):
+            callback(i, sheet.nrows)
         # TODO add check with cell.ctype == XL_CELL_TEXT
         class_of_student = sheet.cell(i, column_map['classname']).value
         name_of_student = sheet.cell(i, column_map['surname']).value

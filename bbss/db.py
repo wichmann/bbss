@@ -113,11 +113,21 @@ class StudentDatabase(object):
         else:
             return 0
 
-    def store_students_db(self, importfile_name, student_list):
-        """Stores a new complete set of students in the database. Already
-           imported students will only be referenced and their user name and
-           password information will not be altered."""
-
+    def store_students_db(self, importfile_name, student_list, callback):
+        """
+        Stores a new complete set of students in the database. Already imported
+        students will only be referenced and their user name and password
+        information will not be altered.
+        
+        :param importfile_name: name of the file from which the students were
+                                imported
+        :param student_list: list with the student data that should be imported
+                             into the database
+        :param callback: Function that is called after each of the students
+                         that are imported. First parameter is the current
+                         imported student, second parameter is the number of
+                         students to be imported.
+        """
         # storing new data in database
         self.cur.execute("INSERT INTO Imports VALUES(NULL,?,?)",
                          (importfile_name, datetime.date.today()))
@@ -125,7 +135,10 @@ class StudentDatabase(object):
         self.conn.commit()
 
         # storing all students in database
-        for student in student_list:
+        for i, student in enumerate(student_list):
+            # call callback functions with number of current students
+            if callback != None and callable(callback):
+                callback(i, len(student_list))
             # check if student is already in database
             sql = """SELECT * FROM Students
                      WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";

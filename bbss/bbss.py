@@ -40,11 +40,11 @@ def import_csv_file(input_file):
     _check_for_doubles()
 
 
-def import_excel_file(input_file):
+def import_excel_file(input_file, callback=None):
     """Reads a Microsoft Excel file and adds student to list."""
     logger.info('Importing students from file...')
     global student_list
-    student_list = bbss.xls.import_data(input_file)
+    student_list = bbss.xls.import_data(input_file, callback)
     _check_for_doubles()
 
 
@@ -81,15 +81,23 @@ def _check_for_doubles():
         seen.add(student.generate_user_id())
 
 
-def store_students_db(importfile_name):
+def store_students_db(importfile_name, callback=None):
     """Stores a set of student data in student database.
 
     The database is initialized the first time it is used. By calling this
     function a newly imported student list will be added to the database.
     In the database the name of the imported file is also stored for future
-    reference."""
+    reference.
+    
+    :param importfile_name: name of the file from which the students were
+                            imported
+    :param callback: Function that is called after each of the students that
+                     are imported. First parameter is the current imported
+                     student, second parameter is the number of students to be
+                     imported.
+    """
     global student_database
-    student_database.store_students_db(importfile_name, student_list)
+    student_database.store_students_db(importfile_name, student_list, callback)
     student_database.print_statistics()
     # TODO return statistics values for gui
 
@@ -111,11 +119,13 @@ def get_imports_for_student(student):
 
 
 def clear_database():
-    """Clears database by removing its file from the filesystem.
+    """
+    Clears database by removing its file from the filesystem.
 
     All student data is stored in a database file on the filesystem in the
     directory the main application is started. By calilng this function this
-    file will be deleted without a additional confirmation!"""
+    file will be deleted without a additional confirmation!
+    """
     try:
         global student_database
         student_database.close_connection()

@@ -184,7 +184,16 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     @QtCore.pyqtSlot()
     def on_import_data(self):
         logger.info('Importing data into database...')
-        bbss.store_students_db(self.FILENAME)
+        self.progress = QtGui.QProgressDialog('Importiere Schüler...',
+                                              'Abbrechen', 0, 0, self)
+        #self.progress.setWindowTitle('Please wait...')
+        self.progress.setWindowModality(QtCore.Qt.WindowModal)
+        self.progress.canceled.connect(self.progress.close)
+        self.progress.show()
+        def update_progressbar(current, complete):
+            self.progress.setRange(0, complete)
+            self.progress.setValue(current+1)
+        bbss.store_students_db(self.FILENAME, callback=update_progressbar)
         message = "Schülerdaten aus Datei {0} wurden erfolgreich eingelesen."\
                   .format(self.FILENAME)
         QtGui.QMessageBox.information(self, 'Schülerdaten importiert.',

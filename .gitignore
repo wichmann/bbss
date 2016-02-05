@@ -39,6 +39,7 @@ nosetests.xml
 *.xls
 *.xlsx
 *.csv
+*.txt
 students.db
 *.log*
 .idea
