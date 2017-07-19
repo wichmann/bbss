@@ -366,7 +366,7 @@ class StudentDatabase(object):
             s.password = student['password']
             logger.debug('\t' + str(s))
             change_set.students_changed.append(s)
-
+        change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
         return change_set
 
     def _get_all_students_of_import(self, new_import_id):
@@ -388,7 +388,30 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             change_set.students_added.append(s)
+        # TODO: Set class changes in change_set correctly.
         return change_set
+
+    def _get_class_changes(self, old_import_id, new_import_id):
+        classes_added = []
+        classes_removed = []
+        classes_for_import_statement = """SELECT DISTINCT classname
+            FROM StudentsInImports, Students
+            WHERE StudentsInImports.student_id = Students.id
+            AND import_id = "{0}"; """
+        # get all classes for old import
+        self.cur.execute(classes_for_import_statement.format(old_import_id))
+        result_data = self.cur.fetchall()
+        classes_old = [r['classname'] for r in result_data]
+        # get all classes for new import
+        self.cur.execute(classes_for_import_statement.format(new_import_id))
+        result_data = self.cur.fetchall()
+        classes_new = [r['classname'] for r in result_data]
+        # check what classes were added or removed between imports
+        classes_removed = list(set(classes_old) - set(classes_new))
+        classes_added = list(set(classes_new) - set(classes_old))
+        logger.debug('Removed classes: {}'.format(classes_removed))
+        logger.debug('Added classes: {}'.format(classes_added))
+        return classes_added, classes_removed
 
     def close_connection(self):
         """Closes connection to database."""

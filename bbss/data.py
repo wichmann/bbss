@@ -40,6 +40,7 @@ class Student(object):
         self.firstname = firstname
         self.classname = classname
         self.birthday = birthday
+        self.email = ''
         self.user_id = None
         self.password = None
 
@@ -196,6 +197,8 @@ class ChangeSet(object):
         self.students_added = []
         self.students_removed = []
         self.students_changed = []
+        self.classes_added = []
+        self.classes_removed = []
 
     def get_statistics(self):
         return ChangeSetStatistics(len(self.students_added), len(self.students_changed), len(self.students_removed))
