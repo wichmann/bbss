@@ -17,6 +17,7 @@ import bbss.db
 import bbss.csv
 import bbss.radius
 import bbss.xls
+import bbss.moodle
 
 
 __all__ = ['import_csv_file', 'import_excel_file', 'export_csv_file',
@@ -59,6 +60,14 @@ def export_radius_file(output_file, changes, replace_illegal_characters=True):
     """Writes a file for use in FreeRadius server."""
     logger.info('Writing student data to radius file...')
     bbss.radius.export_data(output_file, changes,
+                            replace_illegal_characters)
+    logger.info('Student list written to file.')
+
+
+def export_moodle_file(output_file, changes, replace_illegal_characters=True):
+    """Writes a file for use in Moodle server."""
+    logger.info('Writing student data to Moodle file...')
+    bbss.moodle.export_data(output_file, changes,
                             replace_illegal_characters)
     logger.info('Student list written to file.')
 

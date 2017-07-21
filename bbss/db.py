@@ -388,7 +388,7 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             change_set.students_added.append(s)
-        # TODO: Set class changes in change_set correctly.
+        change_set.classes_added = self._get_all_classes(new_import_id)
         return change_set
 
     def _get_class_changes(self, old_import_id, new_import_id):
@@ -412,6 +412,19 @@ class StudentDatabase(object):
         logger.debug('Removed classes: {}'.format(classes_removed))
         logger.debug('Added classes: {}'.format(classes_added))
         return classes_added, classes_removed
+
+    def _get_all_classes(self, import_id):
+        classes_for_import_statement = """SELECT DISTINCT classname
+            FROM StudentsInImports, Students
+            WHERE StudentsInImports.student_id = Students.id
+            AND import_id = "{0}"; """
+        # get all classes for new import
+        self.cur.execute(classes_for_import_statement.format(import_id))
+        result_data = self.cur.fetchall()
+        classes_new = [r['classname'] for r in result_data]
+        logger.debug('All classes in import: {}'.format(classes_new))
+        print(classes_new)
+        return classes_new
 
     def close_connection(self):
         """Closes connection to database."""

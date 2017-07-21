@@ -131,7 +131,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             
     def setup_combo_boxes(self):
         # TODO get values from bbss package
-        export_formats = ('LogoDidact', 'Radius Server', 'Active Directory')
+        export_formats = ('LogoDidact', 'Radius-Server', 'Active Directory', 'Moodle', 'WebUntis')
         self.export_format_combobox.addItems(export_formats)
 
     def center_on_screen(self):
@@ -295,15 +295,18 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     def on_export_data(self):
         self.update_changeset_from_database()
         export_format = self.export_format_combobox.currentText()
+        # TODO: Ask for file name after evaluating export format!
         export_file = self.get_filename_for_export()
         if export_file:
             if export_format == 'LogoDidact':
                 bbss.export_csv_file(export_file, self.changeset)
-            elif export_format == 'Radius Server':
+            elif export_format == 'Radius-Server':
                 bbss.export_radius_file(export_file, self.changeset)
+            elif export_format == 'Moodle':
+                bbss.export_moodle_file(export_file, self.changeset)
             else:
                 logger.warn('Export format not yet implemented.')
-                message = 'Export zu "Active Directory" noch nicht implementiert.'
+                message = 'Gewünschtes Exportformat noch nicht implementiert.'
                 QtGui.QMessageBox.information(self, 'Fehler bei Export',
                                               message, QtGui.QMessageBox.Ok)
 
