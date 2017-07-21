@@ -423,7 +423,6 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         classes_new = [r['classname'] for r in result_data]
         logger.debug('All classes in import: {}'.format(classes_new))
-        print(classes_new)
         return classes_new
 
     def close_connection(self):

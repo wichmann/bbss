@@ -304,6 +304,8 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
                 bbss.export_radius_file(export_file, self.changeset)
             elif export_format == 'Moodle':
                 bbss.export_moodle_file(export_file, self.changeset)
+            elif export_format == 'WebUntis':
+                bbss.export_webuntis_file(export_file, self.changeset)
             else:
                 logger.warn('Export format not yet implemented.')
                 message = 'Gewünschtes Exportformat noch nicht implementiert.'

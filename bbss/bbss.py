@@ -18,6 +18,7 @@ import bbss.csv
 import bbss.radius
 import bbss.xls
 import bbss.moodle
+import bbss.webuntis
 
 
 __all__ = ['import_csv_file', 'import_excel_file', 'export_csv_file',
@@ -31,6 +32,10 @@ logger = logging.getLogger('bbss.main')
 
 student_list = []
 student_database = bbss.db.StudentDatabase()
+
+
+# TODO: Replace seperate functions for different import/export file formats
+#       with one function taking the file format as parameter.
 
 
 def import_csv_file(input_file):
@@ -69,6 +74,13 @@ def export_moodle_file(output_file, changes, replace_illegal_characters=True):
     logger.info('Writing student data to Moodle file...')
     bbss.moodle.export_data(output_file, changes,
                             replace_illegal_characters)
+    logger.info('Student list written to file.')
+
+
+def export_webuntis_file(output_file, changes):
+    """Writes a file for use in WebUntis."""
+    logger.info('Writing student data to WebUntis file...')
+    bbss.webuntis.export_data(output_file, changes)
     logger.info('Student list written to file.')
 
 

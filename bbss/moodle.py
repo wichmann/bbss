@@ -38,7 +38,7 @@ def _write_class_list_file(output_file, change_set):
     of that class. Groups for classes that no longer exist, will not be deleted
     automatically.
     
-    :param output_file: file name to write student list to
+    :param output_file: file name to write class list to
     :param change_set: object representing all changes between given imports
     
     TODO: Check how to delete no longer needed classes automatically.
