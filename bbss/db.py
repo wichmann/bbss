@@ -90,6 +90,9 @@ class StudentDatabase(object):
                                 FOREIGN KEY(student_id) REFERENCES Students(id),
                                 FOREIGN KEY(import_id) REFERENCES Imports(id))""")
             self.set_database_version(2)
+        if user_version <= 2:
+            self.cur.execute("""ALTER TABLE Students ADD COLUMN email TEXT DEFAULT ""; """)
+            self.set_database_version(3)
         self.conn.commit()
 
     def set_database_version(self, new_version):
@@ -147,11 +150,12 @@ class StudentDatabase(object):
             current_student = self.cur.fetchone()
             if not current_student:
                 # insert student in database
-                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?)""",
+                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?)""",
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
                                   student.generate_user_id(),
-                                  student.generate_password()))
+                                  student.generate_password(),
+                                  student.email))
                 # insert connection between new student and this import
                 student_id = self.cur.lastrowid
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
@@ -159,6 +163,10 @@ class StudentDatabase(object):
             else:
                 # get student id from database
                 student_id = current_student['id']
+                # update email address every time in case something changed
+                self.cur.execute("""UPDATE Students SET email=?
+                                    WHERE surname=? AND firstname=? AND birthday=?;""",
+                                 (student.email, student.surname, student.firstname, student.birthday))
                 # if student changed class between imports, change it
                 if current_student['classname'] != student.classname:
                     # update class name
@@ -227,6 +235,7 @@ class StudentDatabase(object):
                              student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
+            s.email = student['email']
             student_list.append(s)
         return student_list
 
@@ -332,6 +341,7 @@ class StudentDatabase(object):
                              student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
+            s.email = student['email']
             logger.debug('\t' + str(s))
             change_set.students_added.append(s)
 
@@ -346,6 +356,7 @@ class StudentDatabase(object):
                              student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
+            s.email = student['email']
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
 
@@ -364,6 +375,7 @@ class StudentDatabase(object):
                              student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
+            s.email = student['email']
             logger.debug('\t' + str(s))
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
@@ -372,7 +384,7 @@ class StudentDatabase(object):
     def _get_all_students_of_import(self, new_import_id):
         sql_for_all_students = """SELECT import_id,
             student_id, firstname, surname,
-            classname, birthday, username, password
+            classname, birthday, username, password, email
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
             AND import_id = "{0}"; """.format(new_import_id)
@@ -387,6 +399,7 @@ class StudentDatabase(object):
                              student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
+            s.email = student['email']
             change_set.students_added.append(s)
         change_set.classes_added = self._get_all_classes(new_import_id)
         return change_set

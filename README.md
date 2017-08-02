@@ -53,6 +53,7 @@ bbss requires at least Python 3.2. The following Python packages are necessary:
 * PyQt4 for graphical user interface (including pyqt4-dev-tools for pyuic4 tool)
 * win32com for using Microsoft Active Directory under Windows
 * docopt for handling command line arguments
+* reportlab for creating PDF files as pasword lists for WebUntis user data
 
 
 PROBLEMS

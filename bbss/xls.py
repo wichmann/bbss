@@ -27,7 +27,8 @@ logger = logging.getLogger('bbss.xls')
 column_map = {'surname': 0,
               'firstname': 0,
               'classname': 0,
-              'birthday': 0}
+              'birthday': 0,
+              'email': 0}
 
 
 def import_data(import_file, callback):
@@ -47,6 +48,8 @@ def import_data(import_file, callback):
             column_map['firstname'] = i
         elif table_heading_cell == 'GEBDAT':
             column_map['birthday'] = i
+        elif table_heading_cell == 'EMAIL':
+            column_map['email'] = i
     # read all rows of table and save them as student objects
     for i in range(1, sheet.nrows):
         # call callback functions with number of current students
@@ -82,10 +85,11 @@ def import_data(import_file, callback):
         if name_of_student[-1:] == '_':
             continue
         # add student to list
-        student_list.append(data.Student(name_of_student,
-                                         firstname_of_student,
-                                         class_of_student,
-                                         birthday_of_student))
+        new_student = data.Student(name_of_student, firstname_of_student, class_of_student, birthday_of_student)
+        # include mail address if given in import file
+        if column_map['email'] != 0:
+            new_student.email = sheet.cell(i, column_map['email']).value
+        student_list.append(new_student)
         student_count += 1
     logger.info('%s student imported.' % student_count)
     return student_list
