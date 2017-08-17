@@ -88,7 +88,8 @@ def import_data(import_file, callback):
         new_student = data.Student(name_of_student, firstname_of_student, class_of_student, birthday_of_student)
         # include mail address if given in import file
         if column_map['email'] != 0:
-            new_student.email = sheet.cell(i, column_map['email']).value
+            mail_address_from_file = sheet.cell(i, column_map['email']).value
+            new_student.email = data.verify_mail_address(mail_address_from_file)
         student_list.append(new_student)
         student_count += 1
     logger.info('%s student imported.' % student_count)

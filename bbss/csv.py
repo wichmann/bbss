@@ -24,6 +24,8 @@ __all__ = ['import_data', 'export_data']
 logger = logging.getLogger('bbss.csv')
 
 
+# TODO: Import mail adresses from CSV file like the XLS import does!!!
+
 ### correlation between columns in the csv file and their attributes
 column_map = {'surname': 0,
               'firstname': 0,

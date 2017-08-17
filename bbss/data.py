@@ -182,6 +182,29 @@ def is_class_blacklisted(class_name):
     return False
 
 
+def verify_mail_address(mail_address):
+    """
+    Verifies whether a given mail address is a legal value. The imported data often
+    contains words or abbreviations that were given in the PDF form filled by the
+    company of the student.
+    """
+    mail_address = mail_address.strip().lower()
+    # check whether given string is in blacklist
+    if mail_address in config.mail_address_blacklist:
+        logger.debug('Illegal mail address found: {}'.format(mail_address))
+        return ''
+    # check whether the string contains only one charater like ['-', 'x', '.', '-', '?', '/']
+    if len(set(mail_address)) == 1:
+        logger.debug('Illegal mail address found: {}'.format(mail_address))
+        return ''
+    # ceck whether a @ character is present
+    if '@' not in mail_address:
+        logger.debug('Illegal mail address found: {}'.format(mail_address))
+        return ''
+    # TODO: Check whether it is necessary to check address with Pythons email.utils.parseaddr().
+    return mail_address
+
+
 ChangeSetStatistics = namedtuple('ChangeSetStatistics', 'added changed removed')
 
 class ChangeSet(object):

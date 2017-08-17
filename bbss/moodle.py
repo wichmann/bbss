@@ -90,7 +90,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
         output_file_writer = csv.writer(csvfile, delimiter=';')
         # FIXME: Check whether "role1" field is necessary.
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
-                                     'password', 'email', 'role1', 'deleted'))
+                                     'password', 'email', 'deleted'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
             _write_student(student, output_file_writer,
                            replace_illegal_characters, False)
@@ -143,5 +143,4 @@ def _write_student(student, output_file_writer, replace_illegal_characters, dele
                                  user_id,
                                  student.generate_password(),
                                  mail_address,
-                                 'student',
                                  '1' if deleted else '0'))

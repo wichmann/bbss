@@ -91,3 +91,11 @@ department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
                   ('VAM'): 'Versorgungstechnik',
                   ('IHK', 'ITW'): 'Gäste',
                   ('OWS', 'OWH'): 'Osnabrücker Werkstätten'}
+
+
+### list containing blicklisted strings when importing mail addresses from BBS-Planung
+mail_address_blacklist = ['unbekannt', 'nicht bekannt', 'keine bekannt', 'nicht vorhanden',
+                          'keine angabe', 'ohne angabe', 'ohne angaben', 'wird nachgereicht',
+                          'keine', 'nicht angegeben', 'k.a.', 'n.n.', 'n.a.', 'o.a.',
+                          'keine ahnung', 'ohne', 'ka', './.', 'keine@vorhanden.de']
+
