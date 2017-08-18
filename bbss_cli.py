@@ -21,6 +21,7 @@ import sys
 from docopt import docopt
 
 from bbss import bbss
+from bbss import data
 
 
 if __name__ == '__main__':
@@ -46,6 +47,7 @@ Usage:
   bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
   bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | radius | ad)] [--drc] [--dric]
   bbss_cli search <SEARCH_STRING>
+  bbss_cli diff <FIRST_STUDENT_LIST> <SECOND_STUDENT_LIST> <OUTPUT_FILE>
 
 Options:
   -h, --help            Show this help message and exit.
@@ -127,3 +129,20 @@ Options:
                                     bbss.generate_changeset(),
                                     not options['--dric'])
             logger.info("Exported student data for use in radius server.")
+
+    # evaluate diff command line options
+    elif options['diff']:
+        print('Diffing two student data files...')
+        change_set = data.ChangeSet()
+        # load first student data file
+        bbss.import_excel_file(options['<FIRST_STUDENT_LIST>'])
+        first_import = bbss.student_list
+        first_import_classes = set([s.classname for s in first_import])
+        # load second student data file
+        bbss.import_excel_file(options['<SECOND_STUDENT_LIST>'])
+        second_import = bbss.student_list
+        second_import_classes = set([s.classname for s in second_import])
+        # generate change set
+        change_set.classes_added = list(second_import_classes-first_import_classes)
+        change_set.classes_removed = list(first_import_classes-second_import_classes)
+        bbss.export_webuntis_file(options['<OUTPUT_FILE>'], change_set)
