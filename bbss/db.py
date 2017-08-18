@@ -382,6 +382,12 @@ class StudentDatabase(object):
         return change_set
 
     def _get_all_students_of_import(self, new_import_id):
+        """
+        Returns all students for a given import.
+        
+        :param new_import_id: import ID for which to get students
+        :return: ChangeSet object containing all students from the given import
+        """
         sql_for_all_students = """SELECT import_id,
             student_id, firstname, surname,
             classname, birthday, username, password, email
@@ -405,20 +411,28 @@ class StudentDatabase(object):
         return change_set
 
     def _get_class_changes(self, old_import_id, new_import_id):
+        """
+        Compares two imports and returns lists of added/removed classes between
+        the given imports.
+        
+        :param old_import_id: import ID for earlier import of comparison
+        :param new_import_id: import ID for later import of comparison
+        :return: two lists with the classes that were added and removed between given imports
+        """
         classes_added = []
         classes_removed = []
-        classes_for_import_statement = """SELECT DISTINCT classname
+        classes_for_import_statement = """SELECT DISTINCT class_in_import
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
-            AND import_id = "{0}"; """
+            AND import_id = {import_id}; """
         # get all classes for old import
-        self.cur.execute(classes_for_import_statement.format(old_import_id))
+        self.cur.execute(classes_for_import_statement.format(import_id=old_import_id))
         result_data = self.cur.fetchall()
-        classes_old = [r['classname'] for r in result_data]
+        classes_old = [r['class_in_import'] for r in result_data]
         # get all classes for new import
-        self.cur.execute(classes_for_import_statement.format(new_import_id))
+        self.cur.execute(classes_for_import_statement.format(import_id=new_import_id))
         result_data = self.cur.fetchall()
-        classes_new = [r['classname'] for r in result_data]
+        classes_new = [r['class_in_import'] for r in result_data]
         # check what classes were added or removed between imports
         classes_removed = list(set(classes_old) - set(classes_new))
         classes_added = list(set(classes_new) - set(classes_old))
