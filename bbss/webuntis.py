@@ -17,10 +17,11 @@ import datetime
 
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.lib.units import cm
+from reportlab.lib.units import cm, mm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus.flowables import KeepTogether
 
 from bbss import data
 
@@ -93,21 +94,42 @@ def create_pdf_doc(output_file, list_of_passwords):
         logger.debug('User: {} Password: {}'.format(k, v))
     logger.debug('Finished creating new passwords for WebUntis.')
     # create PDF file
+    main_paragraph_style = ParagraphStyle(name='Normal', fontSize=14, leading=18) #fontName='Inconsolata'
+    link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
     story = [Spacer(1,0.75*cm)]
-    data = [('Benutzername: {}'.format(k),'Passwort: {}'.format(v)) for k, v in sorted(list_of_passwords.items())]
-    t = Table(data)
-    t.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica'),
-                           ('FONTSIZE',(0,0),(-1,-1), 12),
-                           ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                           ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                           ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
-                           ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                           ('LEFTPADDING', (0,0), (-1,-1), 25),
-                           ('RIGHTPADDING', (0,0), (-1,-1), 25),
-                           ('BOTTOMPADDING', (0,0), (-1,-1), 10),
-                           ('TOPPADDING', (0,0), (-1,-1), 10)]))
-    story.append(t)
+    for k, v in sorted(list_of_passwords.items()):
+        # build inner table with class specific user account information
+        inner_table_data = [['Benutzername: {}'.format(k), 'Passwort: {}'.format(v)]]
+        inner_table = Table(inner_table_data)
+        inner_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Courier'),
+                                         ('FONTSIZE',(0,0),(-1,-1), 12),
+                                         ('VALIGN',(0,0),(-1,-1),'TOP'),
+                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
+                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
+                                         ('BOX', (0,0), (-1,-1), 0.25, colors.white),
+                                         ('LEFTPADDING', (0,0), (-1,-1), 20),
+                                         ('RIGHTPADDING', (0,0), (-1,-1), 20),
+                                         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                                         ('TOPPADDING', (0,0), (-1,-1), 5)]))
+        # build paragraphs for outer table
+        data = [[Paragraph('Benutzerdaten für den Zugriff auf den Stundenplan<br/>der Klasse {}'.format(k),
+                           main_paragraph_style)],
+                [inner_table],
+                [Paragraph('Online: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)',
+                           link_paragraph_style)]]
+        outer_table = Table(data)
+        outer_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica'),
+                                         ('FONTSIZE',(0,0),(-1,-1), 14),
+                                         ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
+                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
+                                         ('BOX', (0,0), (-1,-1), 0.25, colors.black),
+                                         ('LEFTPADDING', (0,0), (-1,-1), 20),
+                                         ('RIGHTPADDING', (0,0), (-1,-1), 20),
+                                         ('BOTTOMPADDING', (0,0), (-1,-1), 10),
+                                         ('TOPPADDING', (0,0), (-1,-1), 10)]))
+        # append outer table for this class to document (without breaking table over multiple pages)
+        story.append(KeepTogether(outer_table))
+        story.append(Paragraph('<br/><br/>', ParagraphStyle(name='Normal')))
     doc.build(story, onFirstPage=create_first_page, onLaterPages=create_later_pages)
-    # print created PDF file
-    #
