@@ -15,11 +15,11 @@ import datetime
 import logging
 
 from bbss import data
+from bbss import config
 
 logger = logging.getLogger('bbss.db')
 
 DB_FILENAME = 'students.db'
-ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
 
 
 #
@@ -62,7 +62,7 @@ class StudentDatabase(object):
         To know which tables have to be updated or created, an user version is
         stored as PRAGMA inside the database.
 
-        Per default the version is "0" if a new database is created. In teh first
+        Per default the version is "0" if a new database is created. In the first
         version the tables Imports, Students and StudentsInImports are created.
         The second version (September 2015) changed how the class information is
         stored. (See technical note above!)
@@ -163,10 +163,11 @@ class StudentDatabase(object):
             else:
                 # get student id from database
                 student_id = current_student['id']
-                # update email address every time in case something changed
-                self.cur.execute("""UPDATE Students SET email=?
-                                    WHERE surname=? AND firstname=? AND birthday=?;""",
-                                 (student.email, student.surname, student.firstname, student.birthday))
+                # update email address if option is set
+                if config.ALWAYS_IMPORT_EMAIL_ADDRESSES:
+                    self.cur.execute("""UPDATE Students SET email=?
+                                        WHERE surname=? AND firstname=? AND birthday=?;""",
+                                     (student.email, student.surname, student.firstname, student.birthday))
                 # if student changed class between imports, change it
                 if current_student['classname'] != student.classname:
                     # update class name
@@ -181,7 +182,7 @@ class StudentDatabase(object):
                 sql = 'SELECT * FROM StudentsInImports WHERE student_id = {} AND import_id = {};'
                 self.cur.execute(sql.format(student_id, import_id - 1))
                 was_in_previous_import = self.cur.fetchone()
-                if ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD or not was_in_previous_import:
+                if config.ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD or not was_in_previous_import:
                     self.cur.execute("""UPDATE Students SET username=?, password=?
                                         WHERE surname=? AND firstname=? AND birthday=? """,
                                      (student.generate_user_id(regenerate=True),

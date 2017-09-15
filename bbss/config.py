@@ -11,6 +11,14 @@ Created on Mon Feb  3 15:08:56 2013
 """
 
 
+### option whether to overwrite username and password at each import
+ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
+
+
+### option whether to import email addresses every time even if the student was already in the database
+ALWAYS_IMPORT_EMAIL_ADDRESSES = False
+
+
 ### black list of classes not to load
 class_blacklist = ('OWS', 'OWH')
 
@@ -54,6 +62,7 @@ char_map = {'ä': 'ae',
             'ß': 'ss',
             'Ç': 'C',
             'ç': 'c',
+            'č': 'c',
             '´': '',
             '-': '',
             ' ': ''}
@@ -73,6 +82,7 @@ class_map = {'SGOX': 'SGO',
              'BGT11A': 'BGT',
              'BGT11B': 'BGT',
              'BGT11C': 'BGT',
+             'BGT11D': 'BGT',
              'BGT12': 'BGT',
              'BGT13': 'BGT'}
 
