@@ -14,8 +14,10 @@ Created on Mon Feb  23 15:08:56 2014
 
 import sys
 import logging
-from PyQt4 import QtGui
-from PyQt4 import QtCore
+
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
 
 from gui.main import Ui_BBSS_Main_Window
 from bbss import bbss
@@ -30,7 +32,7 @@ logger = logging.getLogger('bbss.gui')
 APP_NAME = "BBSS"
 
 
-class StudentTableFilterProxyModel(QtGui.QSortFilterProxyModel):
+class StudentTableFilterProxyModel(QtCore.QSortFilterProxyModel):
     """Filters student table for regular expression in all columns."""
     def filterAcceptsRow(self, sourceRow, sourceParent):
         index0 = self.sourceModel().index(sourceRow, 0, sourceParent)
@@ -84,12 +86,12 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         return QtCore.Qt.ItemIsEnabled # | QtCore.Qt.ItemIsEditable
 
 
-class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
+class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
     """Main window for bbss"""
     def __init__(self, parent=None):
         """Initialize main window for bbss."""
         logger.info('Building main window of bbss...')
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
         self.FILENAME = ''
         self.setupUi(self)
         self.setup_table_models()
@@ -105,8 +107,8 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         self.proxy_import_table_model.setSourceModel(self.import_table_model)
         self.proxy_import_table_model.setDynamicSortFilter(True)
         self.import_data_tableview.setModel(self.proxy_import_table_model)
-        self.import_data_tableview.horizontalHeader().setResizeMode(
-            QtGui.QHeaderView.Stretch)
+        self.import_data_tableview.horizontalHeader().setSectionResizeMode (
+            QtWidgets.QHeaderView.Stretch)
         # set up export table views
         self.added_students_table_model = StudentTableModel(list())
         self.removed_students_table_model = StudentTableModel(list())
@@ -114,20 +116,20 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             self.added_students_table_model)
         self.removed_students_tableview.setModel(
             self.removed_students_table_model)
-        self.added_students_tableview.horizontalHeader().setResizeMode(
-            QtGui.QHeaderView.Stretch)
-        self.removed_students_tableview.horizontalHeader().setResizeMode(
-            QtGui.QHeaderView.Stretch)
+        self.added_students_tableview.horizontalHeader().setSectionResizeMode (
+            QtWidgets.QHeaderView.Stretch)
+        self.removed_students_tableview.horizontalHeader().setSectionResizeMode (
+            QtWidgets.QHeaderView.Stretch)
         # set up search table views
         self.search_students_table_model = StudentTableModel(list())
         self.search_students_tableView.setModel(
             self.search_students_table_model)
-        self.search_students_tableView.horizontalHeader().setResizeMode(
-            QtGui.QHeaderView.Stretch)
+        self.search_students_tableView.horizontalHeader().setSectionResizeMode (
+            QtWidgets.QHeaderView.Stretch)
         self.search_students_tableView.setSelectionBehavior(
-            QtGui.QAbstractItemView.SelectRows)
+            QtWidgets.QAbstractItemView.SelectRows)
         self.search_students_tableView.setSelectionMode(
-            QtGui.QAbstractItemView.SingleSelection)
+            QtWidgets.QAbstractItemView.SingleSelection)
             
     def setup_combo_boxes(self):
         # TODO get values from bbss package
@@ -136,7 +138,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
 
     def center_on_screen(self):
         """Centers the window on the screen."""
-        screen = QtGui.QDesktopWidget().screenGeometry()
+        screen = QtWidgets.QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2,
                   (screen.height() - size.height()) / 2)
@@ -165,9 +167,10 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     @QtCore.pyqtSlot()
     def on_load_file(self):
         logger.info('Loading file with student data...')
-        self.FILENAME = QtGui.QFileDialog\
+		# store only first element of tuple (new in PyQt5)
+        self.FILENAME = QtWidgets.QFileDialog\
             .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
-                             'Excel-Dateien (*.xls *.xlsx);;CSV-Dateien (*.csv)')
+                             'Excel-Dateien (*.xls *.xlsx);;CSV-Dateien (*.csv)')[0]
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
         import os
         _, ext = os.path.splitext(self.FILENAME)
@@ -184,7 +187,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
     @QtCore.pyqtSlot()
     def on_import_data(self):
         logger.info('Importing data into database...')
-        self.progress = QtGui.QProgressDialog('Importiere Schüler...',
+        self.progress = QtWidgets.QProgressDialog('Importiere Schüler...',
                                               'Abbrechen', 0, 0, self)
         #self.progress.setWindowTitle('Please wait...')
         self.progress.setWindowModality(QtCore.Qt.WindowModal)
@@ -196,18 +199,18 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         bbss.store_students_db(self.FILENAME, callback=update_progressbar)
         message = "Schülerdaten aus Datei {0} wurden erfolgreich eingelesen."\
                   .format(self.FILENAME)
-        QtGui.QMessageBox.information(self, 'Schülerdaten importiert.',
-                                      message, QtGui.QMessageBox.Ok)
+        QtWidgets.QMessageBox.information(self, 'Schülerdaten importiert.',
+                                          message, QtWidgets.QMessageBox.Ok)
 
     @QtCore.pyqtSlot()
     def on_delete_database(self):
         logger.info('Deleting database file...')
         message = "Soll die Datenbankdatei wirklich gelöscht werden? "\
                   "Alle gespeicherten Informationen gehen dabei verloren!"
-        reply = QtGui.QMessageBox.question(self, 'Datenbank löschen?',
-                                           message, QtGui.QMessageBox.Yes,
-                                           QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+        reply = QtWidgets.QMessageBox.question(self, 'Datenbank löschen?',
+                                               message, QtWidgets.QMessageBox.Yes,
+                                               QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
             bbss.clear_database()
 
     @QtCore.pyqtSlot(str)
@@ -232,7 +235,7 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
         result = bbss.search_student_in_database(search_string)
         self.search_students_table_model.update(result)
 
-    @QtCore.pyqtSlot(QtGui.QItemSelection, QtGui.QItemSelection)
+    @QtCore.pyqtSlot(QtCore.QItemSelection, QtCore.QItemSelection)
     def on_select_student_from_search(self, selected, deselected):
         """Show student information in text boxes when student was selected in
         search table view."""
@@ -309,12 +312,12 @@ class BbssGui(QtGui.QMainWindow, Ui_BBSS_Main_Window):
             else:
                 logger.warn('Export format not yet implemented.')
                 message = 'Gewünschtes Exportformat noch nicht implementiert.'
-                QtGui.QMessageBox.information(self, 'Fehler bei Export',
-                                              message, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, 'Fehler bei Export',
+                                                  message, QtWidgets.QMessageBox.Ok)
 
     def get_filename_for_export(self):
         """Gets filename for export of student data from user."""
-        filename = QtGui.QFileDialog.getSaveFileName(self, 'Speichere Datei...')
+        filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Speichere Datei...')[0]
         logger.info('Export file chosen: "{0}".'.format(filename))
         return filename
 
@@ -328,7 +331,7 @@ def start_gui():
     # make app object global to let it be collected to prevent error messages
     # http://stackoverflow.com/questions/27131294/error-qobjectstarttimer-qtimer-can-only-be-used-with-threads-started-with-qt/27155799#27155799
     global app
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     main = BbssGui()
     main.show()
