@@ -25,7 +25,7 @@ logger = logging.getLogger('bbss.moodle')
 
 
 def export_data(output_file, change_set, replace_illegal_characters=True):
-    # class list file no necessary, because cohorts will be created by uploading
+    # class list file not necessary, because cohorts will be created by uploading
     # user list (source: https://docs.moodle.org/33/en/Cohorts#Uploading_users_to_a_cohort)
     #_write_class_list_file(output_file, change_set)
     _write_student_list_file(output_file, change_set, replace_illegal_characters)
@@ -83,24 +83,34 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     Trainer/in ohne Bearbeitungsrecht	  teacher
     Teilnehmer/in                         student
     """
-    if os.path.exists(output_file):
+    output_file = os.path.splitext(output_file)
+    output_file_added_students = '{}.added{}'.format(*output_file)
+    output_file_removed_students = '{}.removed{}'.format(*output_file)
+    if os.path.exists(output_file_added_students) or os.path.exists(output_file_removed_students):
         logger.warn('Output file already exists, will be overwritten...')
-    with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
+    # export file with all added students
+    with open(output_file_added_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
         # FIXME: Check whether "role1" field is necessary.
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
                                      'password', 'email', 'deleted'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
-            _write_student(student, output_file_writer,
-                           replace_illegal_characters, False)
+            _write_student(student, output_file_writer, replace_illegal_characters, False)
             count += 1
+        logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
+    # export file with all removed students
+    with open(output_file_removed_students, 'w', newline='', encoding='utf8') as csvfile:
+        count = 0
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        # FIXME: Check whether "role1" field is necessary.
+        output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
+                                     'password', 'email', 'deleted'))
         for student in sorted(change_set.students_removed):
             # set delete column for removed students
-            _write_student(student, output_file_writer,
-                           replace_illegal_characters, True)
+            _write_student(student, output_file_writer, replace_illegal_characters, True)
             count += 1
-        logger.debug('{0} students exported to Moodle file format.'.format(count))
+        logger.debug('{0} students (removed) exported to Moodle file format.'.format(count))
 
 
 def _write_student(student, output_file_writer, replace_illegal_characters, deleted):
