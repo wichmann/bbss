@@ -23,8 +23,8 @@ from bbss import ad
 logger = logging.getLogger('bbss.data')
 
 
-PASSWORD_LENGTH = 7
-    
+PASSWORD_LENGTH = 8
+
 
 @total_ordering
 class Student(object):
@@ -142,14 +142,16 @@ def generate_good_password():
 
     :return: string containing random password of good quality
     """
+    chars = string.ascii_letters + string.digits
     # fill up with at least one uppercase, one lowercase and one digit
     password = []
     password += random.SystemRandom().choice(string.ascii_uppercase)
     password += random.SystemRandom().choice(string.ascii_lowercase)
     password += random.SystemRandom().choice(string.digits)
     # fill password up with more characters
-    chars = string.ascii_letters + string.digits
     password += [random.SystemRandom().choice(chars) for _ in range(PASSWORD_LENGTH-3)]
+    # shuffle characters of password string
+    random.shuffle(password)
     logger.debug('New password generated: ' + ''.join(password))
     return ''.join(password)
 
