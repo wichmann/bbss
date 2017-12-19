@@ -31,6 +31,20 @@ Usage of bbss command line interface:
     --dric                 Do not replace illegal characters in student names.
     --dsdb                 Do not store imported student data in database.
 
+For easy distribution it is possible to build a single zip or exe file
+containing all necessary files with either cx_freeze or pyinstaller. Both
+tools can be installed by using pip:
+
+    pip install pyinstaller
+    pip install cx_freeze
+
+After the installation both tools can create in single directory or single
+file distribution:
+
+    pyinstaller bbss_gui.py
+    pyinstaller --onefile bbss_gui.py
+    python setup.py build
+
 
 KNOWN PROBLEMS AND BUGS
 -----------------------
@@ -50,7 +64,7 @@ REQUIREMENTS
 ------------
 bbss requires at least Python 3.2. The following Python packages are necessary:
 * xlrd for importing Microsoft Excel files
-* PyQt4 for graphical user interface (including pyqt4-dev-tools for pyuic4 tool)
+* PyQt5 for graphical user interface (including pyqt5-dev-tools for pyuic5 tool)
 * win32com for using Microsoft Active Directory under Windows
 * docopt for handling command line arguments
 * reportlab for creating PDF files as pasword lists for WebUntis user data
