@@ -24,7 +24,7 @@ __all__ = ['export_data']
 logger = logging.getLogger('bbss.moodle')
 
 
-def export_data(output_file, change_set, replace_illegal_characters=True):
+def export_data(output_file, change_set, replace_illegal_characters=False):
     # class list file not necessary, because cohorts will be created by uploading
     # user list (source: https://docs.moodle.org/33/en/Cohorts#Uploading_users_to_a_cohort)
     #_write_class_list_file(output_file, change_set)
