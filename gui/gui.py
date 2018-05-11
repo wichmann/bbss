@@ -99,6 +99,26 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         self.setup_combo_boxes()
         self.center_on_screen()
         self.set_signals_and_slots()
+        self.search_students_tableView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.search_students_tableView.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        menu = QtWidgets.QMenu(self)
+        copy_action = QtWidgets.QAction(QtGui.QIcon(), 'Kopieren', self)
+        #copy_action.triggered.connect(self.testfkt)
+        menu.addAction(copy_action)
+        global_coordinates = self.search_students_tableView.mapToGlobal(pos)
+        # show menu and wait synchronous for click (asynchronous call: menu.popup)
+        action = menu.exec_(global_coordinates)
+        if action == copy_action:
+            model = self.search_students_tableView.model()
+            index = self.search_students_tableView.indexAt(pos)
+            if 0 <= index.row() < model.rowCount():
+                student = model.student_data(index)
+                clipboard = QtWidgets.QApplication.clipboard()
+                clipboard.clear(mode=clipboard.Clipboard)
+                copy_text = ','.join((student.firstname, student.surname, student.classname, student.user_id, student.password))
+                clipboard.setText(copy_text, mode=clipboard.Clipboard)
 
     def setup_table_models(self):
         """Sets up table view and its models."""
