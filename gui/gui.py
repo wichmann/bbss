@@ -12,6 +12,7 @@ Created on Mon Feb  23 15:08:56 2014
 @author: Christian Wichmann
 """
 
+import os
 import sys
 import logging
 
@@ -122,9 +123,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             QtWidgets.QHeaderView.Stretch)
         # set up search table views
         self.search_students_table_model = StudentTableModel(list())
-        self.search_students_tableView.setModel(
-            self.search_students_table_model)
-        self.search_students_tableView.horizontalHeader().setSectionResizeMode (
+        self.search_students_tableView.setModel(self.search_students_table_model)
+        self.search_students_tableView.horizontalHeader().setSectionResizeMode(
             QtWidgets.QHeaderView.Stretch)
         self.search_students_tableView.setSelectionBehavior(
             QtWidgets.QAbstractItemView.SelectRows)
@@ -133,7 +133,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             
     def setup_combo_boxes(self):
         # TODO get values from bbss package
-        export_formats = ('LogoDidact', 'Radius-Server', 'Active Directory', 'Moodle', 'WebUntis')
+        export_formats = ('LogoDidact', 'Radius-Server', 'Active Directory', 'Moodle', 'WebUntis', 'LabSoft Classroom Manager')
         self.export_format_combobox.addItems(export_formats)
 
     def center_on_screen(self):
@@ -172,7 +172,6 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
                              'Excel-Dateien (*.xls *.xlsx);;CSV-Dateien (*.csv)')[0]
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
-        import os
         _, ext = os.path.splitext(self.FILENAME)
         if ext == '.csv':
             bbss.import_csv_file(self.FILENAME)
@@ -309,6 +308,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                 bbss.export_moodle_file(export_file, self.changeset)
             elif export_format == 'WebUntis':
                 bbss.export_webuntis_file(export_file, self.changeset)
+            elif export_format == 'LabSoft Classroom Manager':
+                bbss.export_labsoft_file(export_file, self.changeset)
             else:
                 logger.warn('Export format not yet implemented.')
                 message = 'Gewünschtes Exportformat noch nicht implementiert.'

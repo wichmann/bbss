@@ -19,12 +19,13 @@ import bbss.radius
 import bbss.xls
 import bbss.moodle
 import bbss.webuntis
+import bbss.labsoft
 
 
 __all__ = ['import_csv_file', 'import_excel_file', 'export_csv_file',
+           'export_moodle_file', 'export_webuntis_file', 'export_labsoft_file',
            'export_radius_file', 'store_students_db', 'clear_database',
            'search_student_in_database', 'generate_changeset']
-#__version__ = '0.0.1'
 
 
 logger = logging.getLogger('bbss.main')
@@ -69,7 +70,8 @@ def export_radius_file(output_file, changes, replace_illegal_characters=True):
     logger.info('Student list written to file.')
 
 
-def export_moodle_file(output_file, changes, replace_illegal_characters=True):
+# Changed default policy to not replacing illegal characters anymore [20170105].
+def export_moodle_file(output_file, changes, replace_illegal_characters=False):
     """Writes a file for use in Moodle server."""
     logger.info('Writing student data to Moodle file...')
     bbss.moodle.export_data(output_file, changes,
@@ -81,6 +83,13 @@ def export_webuntis_file(output_file, changes):
     """Writes a file for use in WebUntis."""
     logger.info('Writing student data to WebUntis file...')
     bbss.webuntis.export_data(output_file, changes)
+    logger.info('Student list written to file.')
+
+
+def export_labsoft_file(output_file, changes):
+    """Writes a file for use in LabSoft Classroom Manager."""
+    logger.info('Writing student data to LabSoft Classroom Manager file...')
+    bbss.labsoft.export_data(output_file, changes)
     logger.info('Student list written to file.')
 
 
