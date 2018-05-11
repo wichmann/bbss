@@ -70,7 +70,7 @@ class Student(object):
         """Returns class name for use in the class identifier in output formats.
         Some replacements from config module are applied, but NOT ALL of
         them!"""
-        exceptions = ['BGT11A', 'BGT11B', 'BGT11C', 'BGT12', 'BGT13']
+        exceptions = ['BGT11A', 'BGT11B', 'BGT11C', 'BGT11D', 'BGT12', 'BGT13']
         return replace_class_name(self.classname, exceptions)
 
     def get_class_determinator(self):
@@ -85,7 +85,8 @@ class Student(object):
     def generate_user_id(self, regenerate=False):
         """
         Generates a user id for a student if it does not exist already.
-        Otherwise the existing user id is returned!
+        Otherwise the existing user id is returned! The default user id is
+        returned as all caps string.
         
         Currently the existing user id is NEVER replaced even when an existing
         student is in the database and her class name changed! The database
