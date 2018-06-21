@@ -20,6 +20,13 @@ from bbss import config
 from bbss import ad
 
 
+#
+# Alternatives for generating better passwords: 
+# pronounceable passwords in Python: https://www.ibisc.univ-evry.fr/~fpommereau/blog/2015-05-07-generating-pronounceable-passwords-in-python.html
+# and: https://exyr.org/2011/random-pronounceable-passwords/
+#
+
+
 logger = logging.getLogger('bbss.data')
 
 
@@ -104,7 +111,7 @@ class Student(object):
         Otherwise the existing password is returned!
         """
         if not self.password or regenerate:
-            self.password = generate_good_password()
+            self.password = generate_good_readable_password()
         return self.password
 
     def generate_ou(self):
@@ -149,6 +156,36 @@ def generate_good_password():
     password += random.SystemRandom().choice(string.ascii_uppercase)
     password += random.SystemRandom().choice(string.ascii_lowercase)
     password += random.SystemRandom().choice(string.digits)
+    # fill password up with more characters
+    password += [random.SystemRandom().choice(chars) for _ in range(PASSWORD_LENGTH-3)]
+    # shuffle characters of password string
+    random.shuffle(password)
+    logger.debug('New password generated: ' + ''.join(password))
+    return ''.join(password)
+
+
+def generate_good_readable_password():
+    """
+    Generate a random password for a given length including all letters and
+    digits. This password contains at least one lower case letter, one upper
+    case letter and one digit. To generate unpredictable passwords, the
+    SystemRandom class from the random module is used! All ambiguous characters
+    are exempt from passwords.
+
+    Source: https://stackoverflow.com/questions/55556/characters-to-avoid-in-automatically-generated-passwords
+   
+    :return: string containing random password of good quality
+    """
+    password = []
+    # define possible characters for use in passwords (source: https://www.grc.com/ppp.htm)
+    uppercase = 'ABCDEFGHJKLMNPRSTUVWXYZ'
+    lowercase = 'abcdefghijkmnopqrstuvwxyz'
+    digits = '23456789'
+    chars = uppercase + lowercase + digits
+    # fill up with at least one uppercase, one lowercase and one digit
+    password += random.SystemRandom().choice(uppercase)
+    password += random.SystemRandom().choice(lowercase)
+    password += random.SystemRandom().choice(digits)
     # fill password up with more characters
     password += [random.SystemRandom().choice(chars) for _ in range(PASSWORD_LENGTH-3)]
     # shuffle characters of password string
