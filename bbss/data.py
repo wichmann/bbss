@@ -77,7 +77,8 @@ class Student(object):
         """Returns class name for use in the class identifier in output formats.
         Some replacements from config module are applied, but NOT ALL of
         them!"""
-        exceptions = ['BGT11A', 'BGT11B', 'BGT11C', 'BGT11D', 'BGT12', 'BGT13']
+        exceptions = ['BGT11A', 'BGT11B', 'BGT11C', 'BGT11D', 'BGT12', 'BGT13',
+                      'TG11A', 'TG11B', 'TG11C', 'TG11D', 'TG12', 'TG13']
         return replace_class_name(self.classname, exceptions)
 
     def get_class_determinator(self):

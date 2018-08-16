@@ -84,13 +84,20 @@ class_map = {'SGOX': 'SGO',
              'BGT11C': 'BGT',
              'BGT11D': 'BGT',
              'BGT12': 'BGT',
-             'BGT13': 'BGT'}
+             'BGT13': 'BGT',
+			 'TG11A': 'TG',
+             'TG11B': 'TG',
+             'TG11C': 'TG',
+             'TG11D': 'TG',
+             'TG12': 'TG',
+             'TG13': 'TG'}
 
 
 ### map translating a class determinator (without the identifier for a
 ### specific class) to a department to which this class belongs to
 department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
-                  ('BGT', 'BGTA', 'BGTB', 'BGTC', 'BGT12', 'BGT13'): 'Berufliches Gymnasium',
+                  ('BGT', 'BGTA', 'BGTB', 'BGTC', 'BGT12', 'BGT13',
+                   'TG', 'TG11A', 'TG11B', 'TG11C', 'TG11D', 'TG12', 'TG13'): 'Berufliches Gymnasium',
                   ('FOSS', 'FOSW', 'FSAE', 'FSAM', 'FSE', 'FSM'): 'Fachschule',
                   ('BFIA', 'IFA', 'IFI', 'ISE'): 'IT-Berufe',
                   ('KBK', 'KFZ', 'KKB', 'KZM', 'KZO', 'KZU', 'KZF'): 'Kraftfahrzeugtechnik',
