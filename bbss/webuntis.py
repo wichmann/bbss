@@ -66,6 +66,13 @@ def _write_class_list_file(output_file, change_set):
             new_password = data.generate_good_password()
             list_of_passwords[c] = new_password
             output_file_writer.writerow((c, c, new_password, 'Klasse', 'Klassen'))
+	# write file with classes that can be deleted from WebUntis (does not work automatically!)
+    output_file = os.path.splitext(output_file)
+    output_file = '{}.removed{}'.format(*output_file)
+    with open(output_file, 'w', newline='', encoding='utf8') as removedlistfile:
+        removedlistfile.write('Bitte die folgenden Klassen manuell in WebUntis löschen!\n\n')
+        for c in change_set.classes_removed:
+            removedlistfile.write(' - {}\n'.format(c))
     return list_of_passwords
 
 
