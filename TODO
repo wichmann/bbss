@@ -4,10 +4,7 @@ bbss - BBS Student Management
 
 TODO:
 * Use unittest (Unit testing framework)
-* Check if illegal characters are replaced before or after they are stored in
-  the DB. All string should be stored as UNICODE string and replacement should
-  only happen when they are exported to a format that does not support all
-  characters.
+* 
 * 
 * 
 

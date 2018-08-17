@@ -123,8 +123,8 @@ def create_pdf_doc(output_file, list_of_passwords):
         data = [[Paragraph('Benutzerdaten für den Zugriff auf den Stundenplan<br/>der Klasse {}'.format(k),
                            main_paragraph_style)],
                 [inner_table],
-                [Paragraph('Online: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)',
-                           link_paragraph_style)]]
+                [Paragraph('Bitte die Benutzerdaten an die Klasse weitergeben. Danke!', main_paragraph_style)],
+                [Paragraph('Zugriff online unter: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)', link_paragraph_style)]]
         outer_table = Table(data)
         outer_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica'),
                                          ('FONTSIZE',(0,0),(-1,-1), 14),
@@ -138,5 +138,5 @@ def create_pdf_doc(output_file, list_of_passwords):
                                          ('TOPPADDING', (0,0), (-1,-1), 10)]))
         # append outer table for this class to document (without breaking table over multiple pages)
         story.append(KeepTogether(outer_table))
-        story.append(Paragraph('<br/><br/>', ParagraphStyle(name='Normal')))
+        story.append(Paragraph('<br/><br/><br/><br/>', ParagraphStyle(name='Normal')))
     doc.build(story, onFirstPage=create_first_page, onLaterPages=create_later_pages)
