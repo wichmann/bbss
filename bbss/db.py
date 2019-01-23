@@ -10,6 +10,7 @@ Created on Mon Feb  3 15:08:56 2014
 @author: Christian Wichmann
 """
 
+import uuid
 import sqlite3
 import datetime
 import logging
@@ -46,6 +47,10 @@ class StudentDatabase(object):
     def __init__(self):
         """Initializes a new database to store student information."""
         logger.info('Initializing student database...')
+        # register adapters for storing and getting UUID to/from database
+        # source: https://stackoverflow.com/a/18842491
+        sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+        sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
         # connecting to database
         self.conn = sqlite3.connect(DB_FILENAME)
         # change the row factory to use Row to allow access via column name
@@ -93,6 +98,9 @@ class StudentDatabase(object):
         if user_version <= 2:
             self.cur.execute("""ALTER TABLE Students ADD COLUMN email TEXT DEFAULT ""; """)
             self.set_database_version(3)
+        if user_version <= 3:
+            self.cur.execute("""ALTER TABLE Students ADD COLUMN guid GUID DEFAULT ""; """)
+            self.set_database_version(4)
         self.conn.commit()
 
     def set_database_version(self, new_version):
@@ -131,7 +139,7 @@ class StudentDatabase(object):
                          imported student, second parameter is the number of
                          students to be imported.
         """
-        # storing new data in database
+        # store import date and filename in database
         self.cur.execute("INSERT INTO Imports VALUES(NULL,?,?)",
                          (importfile_name, datetime.date.today()))
         import_id = self.cur.lastrowid
@@ -142,20 +150,29 @@ class StudentDatabase(object):
             # call callback functions with number of current students
             if callback != None and callable(callback):
                 callback(i, len(student_list))
-            # check if student is already in database
-            sql = """SELECT * FROM Students
-                     WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
-                  """.format(student.surname, student.firstname, student.birthday)
-            self.cur.execute(sql)
-            current_student = self.cur.fetchone()
+            current_student = None
+            # if imported student has already a GUID...
+            if student.guid:
+                # ...check if student is already in database by using GUID as identifiers
+                sql = """SELECT * FROM Students WHERE guid=?; """
+                self.cur.execute(sql, (str(student.guid), ))
+                current_student = self.cur.fetchone()
+            # if students GUID is not known...
+            if not current_student:
+                # ...check if student is already in database by using name and birthday as identifiers
+                sql = """SELECT * FROM Students
+                         WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
+                      """.format(student.surname, student.firstname, student.birthday)
+                self.cur.execute(sql)
+                current_student = self.cur.fetchone()
             if not current_student:
                 # insert student in database
-                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?)""",
+                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?)""",
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
                                   student.generate_user_id(),
                                   student.generate_password(),
-                                  student.email))
+                                  student.email, str(student.guid)))
                 # insert connection between new student and this import
                 student_id = self.cur.lastrowid
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',

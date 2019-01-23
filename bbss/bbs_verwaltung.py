@@ -80,8 +80,9 @@ def _read_student(row, student_list):
     try:
         birthday = datetime.datetime.strptime(birthday, '%d.%m.%Y').date()
         new_student = data.Student(surname, firstname, classname, birthday)
-        # include mail address
+        # include mail address and GUID
         new_student.email = data.verify_mail_address(mail_adress)
+        new_student.guid = guid
         # append new student to list
         student_list.append(new_student)
         student_count = 1
