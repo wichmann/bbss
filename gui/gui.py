@@ -190,11 +190,11 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
 		# store only first element of tuple (new in PyQt5)
         self.FILENAME = QtWidgets.QFileDialog\
             .getOpenFileName(self, 'Öffne Schülerdatendatei...', '',
-                             'Excel-Dateien (*.xls *.xlsx);;CSV-Dateien (*.csv)')[0]
+                             'BBS-Verwaltung (*.csv);;BBS-Planung (*.xls *.xlsx)')[0]
         logger.info('Student data file chosen: "{0}".'.format(self.FILENAME))
         _, ext = os.path.splitext(self.FILENAME)
         if ext == '.csv':
-            bbss.import_csv_file(self.FILENAME)
+            bbss.import_bbs_verwaltung_csv_file(self.FILENAME)
         elif ext == '.xls' or ext == '.xlsx':
             bbss.import_excel_file(self.FILENAME)
         else:

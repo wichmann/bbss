@@ -20,9 +20,11 @@ import bbss.xls
 import bbss.moodle
 import bbss.webuntis
 import bbss.labsoft
+import bbss.bbs_verwaltung
 
 
-__all__ = ['import_csv_file', 'import_excel_file', 'export_csv_file',
+__all__ = ['import_csv_file', 'import_excel_file',
+           'import_bbs_verwaltung_csv_file', 'export_csv_file',
            'export_moodle_file', 'export_webuntis_file', 'export_labsoft_file',
            'export_radius_file', 'store_students_db', 'clear_database',
            'search_student_in_database', 'generate_changeset']
@@ -44,6 +46,14 @@ def import_csv_file(input_file):
     logger.info('Importing students from file...')
     global student_list
     student_list = bbss.csv.import_data(input_file)
+    _check_for_doubles()
+
+
+def import_bbs_verwaltung_csv_file(input_file):
+    """Reads a CVS file from BBS-Verwaltung and adds student to list."""
+    logger.info('Importing students from file...')
+    global student_list
+    student_list = bbss.bbs_verwaltung.import_data(input_file)
     _check_for_doubles()
 
 
