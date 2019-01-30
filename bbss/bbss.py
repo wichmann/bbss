@@ -173,3 +173,7 @@ def clear_database():
         student_database = bbss.db.StudentDatabase()
     except:
         logger.info('No database file found.')
+
+
+def get_class_history(student_id):
+    return student_database.get_class_history(student_id)

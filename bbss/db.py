@@ -470,6 +470,27 @@ class StudentDatabase(object):
         logger.debug('All classes in import: {}'.format(classes_new))
         return classes_new
 
+    def get_class_history(self, student_id):
+        query_id = """SELECT class_in_import as classname, min(import_id) as min_import,
+                      max(import_id) as max_import FROM
+                      ( SELECT * FROM students JOIN StudentsInImports
+	                  ON StudentsInImports.student_id = Students.id ORDER BY Students.id )
+                      WHERE username = ? GROUP BY class_in_import ORDER BY import_id;"""
+        query_dates = """SELECT classname, I1.date as min_date, I2.date as max_date FROM 
+                         ( SELECT class_in_import as classname, min(import_id) as min_import,
+                         max(import_id) as max_import FROM
+                         ( SELECT * FROM students JOIN StudentsInImports
+	                     ON StudentsInImports.student_id = Students.id ORDER BY Students.id )
+                         WHERE username = ? GROUP BY class_in_import ORDER BY import_id )
+                         JOIN Imports as I1 ON min_import = I1.id
+                         JOIN Imports as I2 ON (max_import+1) = I2.id;"""
+        self.cur.execute(query_dates, (student_id, ))
+        result_data = self.cur.fetchall()
+        history = []
+        for r in result_data:
+            history.append((r['classname'], r['min_date'], r['max_date']))
+        return history
+
     def close_connection(self):
         """Closes connection to database."""
         self.conn.close()
