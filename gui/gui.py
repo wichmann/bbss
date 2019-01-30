@@ -107,6 +107,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         copy_action = QtWidgets.QAction(QtGui.QIcon(), 'Kopieren', self)
         #copy_action.triggered.connect(self.testfkt)
         menu.addAction(copy_action)
+        history_action = QtWidgets.QAction(QtGui.QIcon(), 'Historie', self)
+        menu.addAction(history_action)
         global_coordinates = self.search_students_tableView.mapToGlobal(pos)
         # show menu and wait synchronous for click (asynchronous call: menu.popup)
         action = menu.exec_(global_coordinates)
@@ -119,6 +121,15 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                 clipboard.clear(mode=clipboard.Clipboard)
                 copy_text = ','.join((student.firstname, student.surname, student.classname, student.user_id, student.password))
                 clipboard.setText(copy_text, mode=clipboard.Clipboard)
+        elif action == history_action:
+            model = self.search_students_tableView.model()
+            index = self.search_students_tableView.indexAt(pos)
+            if 0 <= index.row() < model.rowCount():
+                student = model.student_data(index)
+                data = bbss.get_class_history(student.user_id)
+                template = 'Klasse {} von {} bis {}'
+                message = '\n'.join([template.format(d[0], d[1], d[2]) for d in data])
+                QtWidgets.QMessageBox.information(self, 'Klassenhistorie',message, QtWidgets.QMessageBox.Ok)
 
     def setup_table_models(self):
         """Sets up table view and its models."""
