@@ -48,7 +48,7 @@ class Student(object):
         self.classname = classname
         self.birthday = birthday
         self.email = ''
-        self.guid = None
+        self.guid = ''
         self.user_id = None
         self.password = None
 

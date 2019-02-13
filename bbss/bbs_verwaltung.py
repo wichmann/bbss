@@ -69,6 +69,9 @@ def _read_student(row, student_list):
     if classname[:2] == 'ZZ':
         logger.debug(message.format(firstname, surname, classname))
         return student_count
+    if not classname:
+        logger.debug(message.format(firstname, surname, classname))
+        return student_count
     # check if students name ends with a underscore, because this is an
     # entry for a student that participates in two classes at the same time
     if surname[-1:] == '_':

@@ -49,10 +49,10 @@ class StudentDatabase(object):
         logger.info('Initializing student database...')
         # register adapters for storing and getting UUID to/from database
         # source: https://stackoverflow.com/a/18842491
-        sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
-        sqlite3.register_adapter(uuid.UUID, lambda u: buffer(u.bytes_le))
+        #sqlite3.register_converter('GUID', lambda b: uuid.UUID(bytes_le=b))
+        #sqlite3.register_adapter(uuid.UUID, lambda u: memoryview(u.bytes_le))
         # connecting to database
-        self.conn = sqlite3.connect(DB_FILENAME)
+        self.conn = sqlite3.connect(DB_FILENAME) #detect_types=sqlite3.PARSE_DECLTYPES
         # change the row factory to use Row to allow access via column name
         self.conn.row_factory = sqlite3.Row
         self.cur = self.conn.cursor()
@@ -154,20 +154,19 @@ class StudentDatabase(object):
             # if imported student has already a GUID...
             if student.guid:
                 # ...check if student is already in database by using GUID as identifiers
-                sql = """SELECT * FROM Students WHERE guid=?; """
+                sql = 'SELECT * FROM Students WHERE guid=?;'
                 self.cur.execute(sql, (str(student.guid), ))
                 current_student = self.cur.fetchone()
             # if students GUID is not known...
             if not current_student:
                 # ...check if student is already in database by using name and birthday as identifiers
-                sql = """SELECT * FROM Students
-                         WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
-                      """.format(student.surname, student.firstname, student.birthday)
-                self.cur.execute(sql)
+                sql = 'SELECT * FROM Students WHERE surname=? AND firstname=? AND birthday=?;'
+                self.cur.execute(sql, (student.surname, student.firstname, student.birthday))
                 current_student = self.cur.fetchone()
+            #
             if not current_student:
                 # insert student in database
-                self.cur.execute("""INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?)""",
+                self.cur.execute('INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?)',
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
                                   student.generate_user_id(),
@@ -182,29 +181,28 @@ class StudentDatabase(object):
                 student_id = current_student['id']
                 # update email address if option is set
                 if config.ALWAYS_IMPORT_EMAIL_ADDRESSES:
-                    self.cur.execute("""UPDATE Students SET email=?
-                                        WHERE surname=? AND firstname=? AND birthday=?;""",
-                                     (student.email, student.surname, student.firstname, student.birthday))
+                    self.cur.execute('UPDATE Students SET email=? WHERE id=?;',
+                                     (student.email, student_id))
+                # update GUID for all students, import for previously exiting students!
+                self.cur.execute('UPDATE Students SET guid=? WHERE id=?;',
+                                 (str(student.guid), student_id))
                 # if student changed class between imports, change it
                 if current_student['classname'] != student.classname:
                     # update class name
-                    self.cur.execute("""UPDATE Students SET classname=?
-                                        WHERE surname=? AND firstname=? AND birthday=?;""",
-                                     (student.classname, student.surname,
-                                      student.firstname, student.birthday))
+                    self.cur.execute('UPDATE Students SET classname=? WHERE id=?;',
+                                     (student.classname, student_id))
                     # store old class name for future reference
-                    self.cur.execute("""INSERT INTO ClassChanges VALUES (?,?,?);""",
+                    self.cur.execute('INSERT INTO ClassChanges VALUES (?,?,?);',
                                      (student_id, import_id, current_student['classname']))
                 # check whether the student has been in the previous import
-                sql = 'SELECT * FROM StudentsInImports WHERE student_id = {} AND import_id = {};'
-                self.cur.execute(sql.format(student_id, import_id - 1))
+                sql = 'SELECT * FROM StudentsInImports WHERE student_id=? AND import_id=?;'
+                self.cur.execute(sql, (student_id, import_id-1))
                 was_in_previous_import = self.cur.fetchone()
                 if config.ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD or not was_in_previous_import:
-                    self.cur.execute("""UPDATE Students SET username=?, password=?
-                                        WHERE surname=? AND firstname=? AND birthday=? """,
+                    self.cur.execute('UPDATE Students SET username=?, password=? WHERE id=?;',
                                      (student.generate_user_id(regenerate=True),
                                       student.generate_password(regenerate=True),
-                                      student.surname, student.firstname, student.birthday))
+                                      student_id))
                 # ...and include it in current import
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
                                  (student_id, import_id, student.classname))
@@ -214,22 +212,21 @@ class StudentDatabase(object):
         # get statistics
         last_import_id = self.get_last_import_id()
         self.cur.execute("""SELECT import_id, COUNT(*) FROM (
-                            SELECT student_id,
-                            COUNT(import_id) as cd, import_id
+                            SELECT student_id, COUNT(import_id) as cd, import_id
                             FROM StudentsInImports
-                            WHERE import_id = {0} OR import_id = {1}
+                            WHERE import_id=? OR import_id=?
                             GROUP BY student_id )
                             WHERE cd = 1 GROUP BY import_id
-                            ORDER BY import_id;"""
-                         .format(last_import_id, last_import_id - 1))
+                            ORDER BY import_id;""",
+                         (last_import_id, last_import_id-1))
         result_data = self.cur.fetchall()
         for element in list(result_data):
             if element[0] == last_import_id:
-                logger.info('%s students added.' % element['count(*)'])
+                logger.info('{} students added.'.format(element['count(*)']))
             if element[0] == last_import_id - 1:
-                logger.info('%s students removed.' % element['count(*)'])
+                logger.info('{} students removed.'.format(element['count(*)']))
         # get student count
-        self.cur.execute('SELECT COUNT(*) FROM Students')
+        self.cur.execute('SELECT COUNT(*) FROM Students;')
         result_data = self.cur.fetchone()
         logger.info('{0} students currently stored in database.'
                     .format(result_data['count(*)']))
@@ -237,23 +234,21 @@ class StudentDatabase(object):
 
     def search_for_student(self, search_string):
         select_stmt = """SELECT * FROM Students
-                         WHERE surname LIKE "%{0}%"
-                         OR firstname LIKE "%{0}%"
-                         OR classname LIKE "%{0}%"
-                         OR birthday LIKE "%{0}%" """
+                         WHERE surname LIKE ? OR firstname LIKE ?
+                         OR classname LIKE ? OR birthday LIKE ?"""
         student_list = []
-        self.cur.execute(select_stmt.format(search_string))
+        search_string = ('%{}%'.format(search_string), ) * 4
+        self.cur.execute(select_stmt, search_string)
         result_data = self.cur.fetchall()
         for student in result_data:
             # get data for each and every found student into one list of
             # Student objects
-            s = data.Student(student['surname'],
-                             student['firstname'],
-                             student['classname'],
-                             student['birthday'])
+            s = data.Student(student['surname'], student['firstname'],
+                             student['classname'], student['birthday'])
             s.user_id = student['username']
             s.password = student['password']
             s.email = student['email']
+            s.guid = student['guid']
             student_list.append(s)
         return student_list
 
@@ -268,15 +263,13 @@ class StudentDatabase(object):
         :return: list with all imports that contain the given student
         """
         # get student ID from database
-        sql = """SELECT id FROM Students WHERE surname="{0}" AND firstname="{1}" AND birthday="{2}";
-              """.format(surname, firstname, birthday)
-        self.cur.execute(sql)
+        sql = 'SELECT id FROM Students WHERE surname=? AND firstname=? AND birthday=?;'
+        self.cur.execute(sql, (surname, firstname, birthday))
         current_student = self.cur.fetchone()
         if current_student:
             # get all imports that contain this student
-            get_all_imports_stmt = """SELECT import_id FROM StudentsInImports
-                                      WHERE student_id = {};"""
-            self.cur.execute(get_all_imports_stmt.format(current_student['id']))
+            stmt = 'SELECT import_id FROM StudentsInImports WHERE student_id=?;'
+            self.cur.execute(stmt, (current_student['id'], ))
             result_data = self.cur.fetchall()
             return [int(i[0]) for i in result_data]
         else:
@@ -341,15 +334,15 @@ class StudentDatabase(object):
         # TODO handle changed students
         sql = """SELECT * FROM (
                      SELECT student_id FROM StudentsInImports
-                     WHERE import_id = {0}
+                     WHERE import_id=?
                      EXCEPT
                      SELECT student_id FROM StudentsInImports
-                     WHERE import_id = {1}
+                     WHERE import_id=?
                  ) JOIN Students ON student_id = id"""
         change_set = data.ChangeSet()
 
         # get added students and store them in list
-        self.cur.execute(sql.format(new_import_id, old_import_id))
+        self.cur.execute(sql, (new_import_id, old_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Added students are: ')
         for student in result_data:
@@ -360,11 +353,12 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             s.email = student['email']
+            s.guid = student['guid']
             logger.debug('\t' + str(s))
             change_set.students_added.append(s)
 
         # get removed students and store them in list
-        self.cur.execute(sql.format(old_import_id, new_import_id))
+        self.cur.execute(sql, (old_import_id, new_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Removed students are: ')
         for student in result_data:
@@ -375,15 +369,16 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             s.email = student['email']
+            s.guid = student['guid']
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
 
         # get changed students from database and store them in list
         changed_student_stmt = """SELECT * FROM (
                                   SELECT student_id FROM ClassChanges
-                                  WHERE import_id BETWEEN {0} AND {1}
+                                  WHERE import_id BETWEEN ? AND ?
                                   ) JOIN Students ON student_id = id"""
-        self.cur.execute(changed_student_stmt.format(old_import_id + 1, new_import_id))
+        self.cur.execute(changed_student_stmt, (old_import_id + 1, new_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Changed students are: ')
         for student in result_data:
@@ -394,6 +389,7 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             s.email = student['email']
+            s.guid = student['guid']
             logger.debug('\t' + str(s))
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
@@ -407,12 +403,12 @@ class StudentDatabase(object):
         :return: ChangeSet object containing all students from the given import
         """
         sql_for_all_students = """SELECT import_id,
-            student_id, firstname, surname,
-            classname, birthday, username, password, email
+            student_id, firstname, surname, classname,
+            birthday, username, password, email, guid
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
-            AND import_id = "{0}"; """.format(new_import_id)
-        self.cur.execute(sql_for_all_students)
+            AND import_id = ?; """
+        self.cur.execute(sql_for_all_students, (new_import_id, ))
         result_data = self.cur.fetchall()
         # build change set and return it
         change_set = data.ChangeSet()
@@ -424,6 +420,7 @@ class StudentDatabase(object):
             s.user_id = student['username']
             s.password = student['password']
             s.email = student['email']
+            s.guid = student['guid']
             change_set.students_added.append(s)
         change_set.classes_added = self._get_all_classes(new_import_id)
         return change_set
@@ -442,13 +439,13 @@ class StudentDatabase(object):
         classes_for_import_statement = """SELECT DISTINCT class_in_import
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
-            AND import_id = {import_id}; """
+            AND import_id = ?; """
         # get all classes for old import
-        self.cur.execute(classes_for_import_statement.format(import_id=old_import_id))
+        self.cur.execute(classes_for_import_statement, (old_import_id, ))
         result_data = self.cur.fetchall()
         classes_old = [r['class_in_import'] for r in result_data]
         # get all classes for new import
-        self.cur.execute(classes_for_import_statement.format(import_id=new_import_id))
+        self.cur.execute(classes_for_import_statement, (new_import_id, ))
         result_data = self.cur.fetchall()
         classes_new = [r['class_in_import'] for r in result_data]
         # check what classes were added or removed between imports
@@ -462,9 +459,9 @@ class StudentDatabase(object):
         classes_for_import_statement = """SELECT DISTINCT classname
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
-            AND import_id = "{0}"; """
+            AND import_id = ?; """
         # get all classes for new import
-        self.cur.execute(classes_for_import_statement.format(import_id))
+        self.cur.execute(classes_for_import_statement, (import_id, ))
         result_data = self.cur.fetchall()
         classes_new = [r['classname'] for r in result_data]
         logger.debug('All classes in import: {}'.format(classes_new))
