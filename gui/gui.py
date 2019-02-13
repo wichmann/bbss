@@ -276,7 +276,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             # fill in text boxes with student information
             self.result_username_text.setText(selected_student.user_id)
             imports = [str(i) for i in bbss.get_imports_for_student(selected_student)]
-            self.result_imports_text.setText(', '.join(imports))
+            self.result_imports_text.setText(', '.join(imports) + 
+                                             ' - GUID: {}'.format(selected_student.guid))
             self.result_birthday_text.setText(selected_student.birthday)
             self.result_name_text.setText(selected_student.firstname)
             self.result_class_text.setText(selected_student.classname)
