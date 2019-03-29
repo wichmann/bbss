@@ -20,7 +20,7 @@ executables = [
 
 setup(
     name='bbss - BBS student management',
-    version='0.3',
+    version='0.4',
     author='Christian Wichmann',
     author_email='wichmann@bbs-os-brinkstr.de',
     packages=['bbss', 'gui'],

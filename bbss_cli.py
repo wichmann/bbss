@@ -31,7 +31,8 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     log_to_file = logging.handlers.RotatingFileHandler(LOG_FILENAME,
                                                        maxBytes=262144,
-                                                       backupCount=5)
+                                                       backupCount=5,
+													   encoding='utf-8')
     log_to_file.setLevel(logging.DEBUG)
     logger.addHandler(log_to_file)
     log_to_screen = logging.StreamHandler(sys.stdout)
@@ -45,7 +46,7 @@ bbss - BBS Student Management - A tool to store and manage student data
 Usage:
   bbss_cli clear
   bbss_cli import <IMPORT_FILENAME> [--import-format (csv | excel)] [-c CONFIG_FILE] [--dsdb]
-  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | radius | ad)] [--drc] [--dric]
+  bbss_cli export <EXPORT_FILENAME> [--export-format (logodidact | moodle | radius | ad)] [--drc] [--dric]
   bbss_cli search <SEARCH_STRING>
   bbss_cli diff <FIRST_STUDENT_LIST> <SECOND_STUDENT_LIST> <OUTPUT_FILE>
 
@@ -60,7 +61,7 @@ Options:
   --dric                 Do not replace illegal characters in student names.
   --dsdb                 Do not store imported student data in database.
 """
-    options = docopt(docopt_string, version='bbss 0.3')
+    options = docopt(docopt_string, version='bbss 0.4')
 
     # use default config file (config.py) or a given file in directory
     # where this file lies
@@ -103,7 +104,7 @@ Options:
         if options['csv']:
             # read file into list of students
             # TODO use options.dontReplaceClassNames when importing
-            bbss.import_csv_file(options['<IMPORT_FILENAME>'])
+            bbss.import_bbs_verwaltung_csv_file(options['<IMPORT_FILENAME>'])
         elif options['excel']:
             bbss.import_excel_file(options['<IMPORT_FILENAME>'])
         # store newly imported student list in database
@@ -129,6 +130,12 @@ Options:
                                     bbss.generate_changeset(),
                                     not options['--dric'])
             logger.info("Exported student data for use in radius server.")
+        elif options['moodle']:
+            logger.info("Exporting student data for use in Moodle server...")
+            bbss.export_moodle_file(options['<EXPORT_FILENAME>'],
+                                    bbss.generate_changeset(),
+                                    not options['--dric'])
+            logger.info("Exported student data for use in Moodle server.")
 
     # evaluate diff command line options
     elif options['diff']:
