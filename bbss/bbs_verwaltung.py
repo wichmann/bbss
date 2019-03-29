@@ -44,6 +44,7 @@ def _read_student(row, student_list):
 	"""
     student_count = 0
     try:
+        # parse GUID as validation, although it is stored as string in the database
         guid = uuid.UUID(str(row[0]))
     except ValueError:
         # create new random UUID if value from file could not be parsed
@@ -57,10 +58,11 @@ def _read_student(row, student_list):
     courses = row[6]
     birthday = row[7]
     initial_password = row[8]
-    is_new_user = row[9]             # new = -1 ??? else 0
-    student_was_deleted = row[10]
+    is_new_user = row[9]             # new = -1 / else = 0
+    student_was_deleted = row[10]    # deleted = -1 / else = 0
     is_teacher_or_student = row[11]  # teacher = -1 / student = 0
     group_memberships = row[12]
+    # TODO: Check whether to use "is_new_user" and "student_was_deleted" fields!?
     # check if student or class is blacklisted
     message = 'Student ({0} {1}) not imported because class ({2}) is blacklisted.'
     if data.is_class_blacklisted(classname):
@@ -69,6 +71,7 @@ def _read_student(row, student_list):
     if classname[:2] == 'ZZ':
         logger.debug(message.format(firstname, surname, classname))
         return student_count
+    # check whether a classname was given in the import file
     if not classname:
         logger.debug(message.format(firstname, surname, classname))
         return student_count
@@ -85,7 +88,7 @@ def _read_student(row, student_list):
         new_student = data.Student(surname, firstname, classname, birthday)
         # include mail address and GUID
         new_student.email = data.verify_mail_address(mail_adress)
-        new_student.guid = guid
+        new_student.guid = str(guid)
         # append new student to list
         student_list.append(new_student)
         student_count = 1

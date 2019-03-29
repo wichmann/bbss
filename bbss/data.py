@@ -48,6 +48,7 @@ class Student(object):
         self.classname = classname
         self.birthday = birthday
         self.email = ''
+        # store GUID for student ALWAYS as string, because it is easier to handle
         self.guid = ''
         self.user_id = None
         self.password = None

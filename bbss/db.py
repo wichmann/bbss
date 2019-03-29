@@ -10,7 +10,6 @@ Created on Mon Feb  3 15:08:56 2014
 @author: Christian Wichmann
 """
 
-import uuid
 import sqlite3
 import datetime
 import logging
@@ -166,6 +165,7 @@ class StudentDatabase(object):
             #
             if not current_student:
                 # insert student in database
+                logger.debug('Added new student to database: {}'.format(student))
                 self.cur.execute('INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?)',
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
@@ -183,6 +183,7 @@ class StudentDatabase(object):
                 if config.ALWAYS_IMPORT_EMAIL_ADDRESSES:
                     self.cur.execute('UPDATE Students SET email=? WHERE id=?;',
                                      (student.email, student_id))
+                # TODO: Update firstname, surname and birthday for students identified by GUID!
                 # update GUID for all students, import for previously exiting students!
                 self.cur.execute('UPDATE Students SET guid=? WHERE id=?;',
                                  (str(student.guid), student_id))
