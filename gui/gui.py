@@ -109,6 +109,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         menu.addAction(copy_action)
         history_action = QtWidgets.QAction(QtGui.QIcon(), 'Historie', self)
         menu.addAction(history_action)
+        export_action = QtWidgets.QAction(QtGui.QIcon(), 'Exportieren...', self)
+        menu.addAction(export_action)
         global_coordinates = self.search_students_tableView.mapToGlobal(pos)
         # show menu and wait synchronous for click (asynchronous call: menu.popup)
         action = menu.exec_(global_coordinates)
@@ -130,6 +132,13 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                 template = 'Klasse {} von {} bis {}'
                 message = '\n'.join([template.format(d[0], d[1], d[2]) for d in data])
                 QtWidgets.QMessageBox.information(self, 'Klassenhistorie',message, QtWidgets.QMessageBox.Ok)
+        elif action == export_action:
+            model = self.search_students_tableView.model()
+            index = self.search_students_tableView.indexAt(pos)
+            if 0 <= index.row() < model.rowCount():
+                student = model.student_data(index)
+                output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Wähle PDF-Datei zum Export...', '', 'PDF-Datei (*.pdf)')[0]
+                bbss.export_pdf_file(output_file, [student, student, student, student])
 
     def setup_table_models(self):
         """Sets up table view and its models."""

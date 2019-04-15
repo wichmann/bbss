@@ -15,6 +15,7 @@ import os
 
 import bbss.db
 import bbss.csv
+import bbss.pdf
 import bbss.radius
 import bbss.xls
 import bbss.moodle
@@ -26,7 +27,8 @@ import bbss.bbs_verwaltung
 __all__ = ['import_csv_file', 'import_excel_file',
            'import_bbs_verwaltung_csv_file', 'export_csv_file',
            'export_moodle_file', 'export_webuntis_file', 'export_labsoft_file',
-           'export_radius_file', 'store_students_db', 'clear_database',
+           'export_radius_file', 'export_pdf_file', 
+           'clear_database', 'store_students_db',
            'search_student_in_database', 'generate_changeset']
 
 
@@ -100,6 +102,13 @@ def export_labsoft_file(output_file, changes):
     """Writes a file for use in LabSoft Classroom Manager."""
     logger.info('Writing student data to LabSoft Classroom Manager file...')
     bbss.labsoft.export_data(output_file, changes)
+    logger.info('Student list written to file.')
+
+
+def export_pdf_file(output_file, student_list):
+    """Writes a PDF file to be distributed to the students."""
+    logger.info('Writing student list to PDF file...')
+    bbss.pdf.export_data(output_file, student_list)
     logger.info('Student list written to file.')
 
 
