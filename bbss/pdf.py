@@ -38,6 +38,7 @@ BORDER_VERTICAL = 1.5*cm
 TODAY = datetime.datetime.today().strftime('%d.%m.%Y')
 TITLE = 'Benutzerdaten für Logodidact und Moodle (Stand: {})'.format(TODAY)
 AUTHOR = 'bbss - BBS Student Management'
+INFO_TEXT = 'Bitte die Benutzerdaten an die Schülerinnen und Schüler weitergeben. Danke!'
 
 
 def export_data(output_file, student_list):
@@ -71,7 +72,7 @@ def create_pdf_doc(output_file, students_added):
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
     story = [Spacer(1,0.5*cm)]
 	# add page header
-    story.append(Paragraph('Bitte die Benutzerdaten an die Schülerinnen und Schüler weitergeben. Danke!', link_paragraph_style))
+    story.append(Paragraph(INFO_TEXT, link_paragraph_style))
     story.append(Spacer(1, 0.5*cm))
     for s in sorted(students_added):
         # build inner table with class specific user account information
