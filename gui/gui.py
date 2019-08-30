@@ -138,7 +138,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             if 0 <= index.row() < model.rowCount():
                 student = model.student_data(index)
                 output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Wähle PDF-Datei zum Export...', '', 'PDF-Datei (*.pdf)')[0]
-                bbss.export_pdf_file(output_file, [student])
+                if output_file:
+                    bbss.export_pdf_file(output_file, [student])
 
     def setup_table_models(self):
         """Sets up table view and its models."""
