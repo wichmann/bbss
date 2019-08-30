@@ -62,7 +62,10 @@ def _read_student(row, student_list):
     student_was_deleted = row[10]    # deleted = -1 / else = 0
     is_teacher_or_student = row[11]  # teacher = -1 / student = 0
     group_memberships = row[12]
-    # TODO: Check whether to use "is_new_user" and "student_was_deleted" fields!?
+    # check if student was deleted and should therefore not imported
+    if student_was_deleted == '-1':
+        logger.debug('Deleted student not imported: {0} {1} ({2})'.format(firstname, surname, classname))
+        return student_count
     # check if student or class is blacklisted
     message = 'Student ({0} {1}) not imported because class ({2}) is blacklisted.'
     if data.is_class_blacklisted(classname):
