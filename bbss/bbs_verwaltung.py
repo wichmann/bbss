@@ -40,7 +40,9 @@ def _read_student(row, student_list):
     """Reads a single student (her/his data) from a row of a csv file.
 	
 	Columns:
-	GUID, E-Mailadresse, Username im AD, Nachname, Vorname, Klasse, Kurse, Geb. Datum, Initial-Passwort, Neu, löschen, LK=-1/SuS=0, Gruppenzugehörigkeit z.B. für E-Mail
+	GUID, E-Mailadresse, Username im AD, Nachname, Vorname, Klasse, Kurse,
+    Geb. Datum, Initial-Passwort, löschen, Neu, LK=-1/SuS=0, Gruppen-
+    zugehörigkeit z.B. für E-Mail
 	"""
     student_count = 0
     try:
@@ -50,6 +52,7 @@ def _read_student(row, student_list):
         # create new random UUID if value from file could not be parsed
         logger.error('Could not parse UUID: ', str(row[0]))
         guid = uuid.uuid4()
+    # assign all values from row
     mail_adress = row[1]
     username = row[2]
     surname = row[3]
@@ -58,11 +61,11 @@ def _read_student(row, student_list):
     courses = row[6]
     birthday = row[7]
     initial_password = row[8]
-    is_new_user = row[9]             # new = -1 / else = 0
-    student_was_deleted = row[10]    # deleted = -1 / else = 0
+    student_was_deleted = row[9]     # deleted = -1 / else = 0, set always after student was moved to "Abgänger"
+    is_new_user = row[10]            # new = -1 / else = 0, only set once after student was added
     is_teacher_or_student = row[11]  # teacher = -1 / student = 0
     group_memberships = row[12]
-    # check if student was deleted and should therefore not imported
+    # check if student was deleted in BBS-Verwaltung and should therefore not be imported
     if student_was_deleted == '-1':
         logger.debug('Deleted student not imported: {0} {1} ({2})'.format(firstname, surname, classname))
         return student_count
@@ -92,6 +95,8 @@ def _read_student(row, student_list):
         # include mail address and GUID
         new_student.email = data.verify_mail_address(mail_adress)
         new_student.guid = str(guid)
+        new_student.is_new = (is_new_user == '-1')
+        new_student.was_deleted = (student_was_deleted == '-1')
         # append new student to list
         student_list.append(new_student)
         student_count = 1

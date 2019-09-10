@@ -85,6 +85,7 @@ class StudentDatabase(object):
                                 student_id INT NOT NULL, import_id INT NOT NULL,
                                 FOREIGN KEY(student_id) REFERENCES Students(id),
                                 FOREIGN KEY(import_id) REFERENCES Imports(id))""")
+            # TODO: Figure out if it is possible to add foreign key constraint ON DELETE CASCADE to student_id reference?! (Solution: https://www.sqlite.org/faq.html#q11)
             self.set_database_version(1)
         if user_version <= 1:
             self.cur.execute("""ALTER TABLE StudentsInImports ADD COLUMN class_in_import TEXT DEFAULT ""; """)
@@ -162,6 +163,17 @@ class StudentDatabase(object):
                 sql = 'SELECT * FROM Students WHERE surname=? AND firstname=? AND birthday=?;'
                 self.cur.execute(sql, (student.surname, student.firstname, student.birthday))
                 current_student = self.cur.fetchone()
+                # check whether the student with given surname, firstname and
+                # birthday has already a GUID (meaning he/she was imported from
+                # BBS-Verwaltung, which can store multiple entries for the same
+                # student, e.g. students with overlapping membership in multiple
+                # classes)
+                if current_student and current_student['guid']:
+                    logger.debug('Adding second database entry for student: {} {}'.format(
+					             current_student['firstname'], current_student['surname']))
+                    # allow to include student a second time with the new class assigned to him/her
+                    current_student = None
+            #
             #
             if not current_student:
                 # insert student in database
