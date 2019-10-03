@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'bbss_tabbed_gui.ui'
+# Form implementation generated from reading ui file 'gui/bbss_tabbed_gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.1
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_BBSS_Main_Window(object):
     def setupUi(self, BBSS_Main_Window):
@@ -99,7 +100,7 @@ class Ui_BBSS_Main_Window(object):
         self.export_data_button.setGeometry(QtCore.QRect(450, 90, 131, 31))
         self.export_data_button.setObjectName("export_data_button")
         self.horizontalLayoutWidget = QtWidgets.QWidget(self.export_group)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(310, 40, 273, 33))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(310, 40, 273, 34))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -138,6 +139,7 @@ class Ui_BBSS_Main_Window(object):
         self.search_students_label.setObjectName("search_students_label")
         self.verticalLayout_3.addWidget(self.search_students_label)
         self.search_students_tableView = QtWidgets.QTableView(self.verticalLayoutWidget)
+        self.search_students_tableView.setAlternatingRowColors(True)
         self.search_students_tableView.setObjectName("search_students_tableView")
         self.verticalLayout_3.addWidget(self.search_students_tableView)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -157,7 +159,7 @@ class Ui_BBSS_Main_Window(object):
         self.groupBox.setGeometry(QtCore.QRect(10, 370, 611, 311))
         self.groupBox.setObjectName("groupBox")
         self.gridLayoutWidget_3 = QtWidgets.QWidget(self.groupBox)
-        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 30, 571, 263))
+        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 30, 571, 270))
         self.gridLayoutWidget_3.setObjectName("gridLayoutWidget_3")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.gridLayoutWidget_3)
         self.gridLayout_2.setContentsMargins(5, 5, 5, 5)
@@ -283,7 +285,7 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.addTab(self.options_tab, "")
         BBSS_Main_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(BBSS_Main_Window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 657, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 657, 30))
         self.menubar.setObjectName("menubar")
         self.menuDatei = QtWidgets.QMenu(self.menubar)
         self.menuDatei.setObjectName("menuDatei")
@@ -351,4 +353,5 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.options_tab), _translate("BBSS_Main_Window", "Optionen"))
         self.menuDatei.setTitle(_translate("BBSS_Main_Window", "Datei"))
         self.menu_exit.setText(_translate("BBSS_Main_Window", "Beenden"))
+
 

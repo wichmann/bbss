@@ -40,7 +40,8 @@ nosetests.xml
 *.xlsx
 *.csv
 *.txt
-students.db
+students*.db
 *.log*
 .idea
 *.bak
+.vscode/*
