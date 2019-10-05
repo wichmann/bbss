@@ -88,6 +88,47 @@ class StudentTableModel(QtCore.QAbstractTableModel):
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
 
+class DateDialog(QtWidgets.QDialog):
+    """
+    Shows a dialog to input a date and time similar to what QtGui.QInputDialog
+    does for text, integer and floats.
+
+    Source: https://stackoverflow.com/a/18202709
+
+    Usage: date, time, ok = DateDialog.getDateTime()
+    """
+    def __init__(self, parent=None):
+        super(DateDialog, self).__init__(parent)
+
+        layout = QtWidgets.QVBoxLayout(self)
+
+        # nice widget for editing the date
+        self.datetime = QtWidgets.QDateTimeEdit(self)
+        self.datetime.setCalendarPopup(True)
+        self.datetime.setDateTime(QtCore.QDateTime.currentDateTime().addYears(-2))
+        layout.addWidget(self.datetime)
+
+        # OK and Cancel buttons
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
+            QtCore.Qt.Horizontal, self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    # get current date and time from the dialog
+    def dateTime(self):
+        return self.datetime.dateTime()
+
+    # static method to create the dialog and return (date, time, accepted)
+    @staticmethod
+    def getDateTime(parent=None):
+        dialog = DateDialog(parent)
+        result = dialog.exec_()
+        date = dialog.dateTime()
+        return (date.date(), date.time(), result == QtWidgets.QDialog.Accepted)
+
+
 class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
     """Main window for bbss"""
     def __init__(self, parent=None):
@@ -202,6 +243,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         self.TaskTabbedPane.currentChanged.connect(self.on_tab_changed)
         self.menu_exit.triggered.connect(self.close)
         self.clear_search_field_button.clicked.connect(self.search_student_text.clear)
+        self.menu_delete_database.triggered.connect(self.on_delete_database)
+        self.menu_delete_old_data.triggered.connect(self.on_delete_old_data)
         # TODO Connect options check boxes with functions.
         #      (replace_classnames_checkbox, replace_characters_checkbox, store_in_db_checkbox)
 
@@ -251,6 +294,21 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                                                QtWidgets.QMessageBox.No)
         if reply == QtWidgets.QMessageBox.Yes:
             bbss.clear_database()
+
+    @QtCore.pyqtSlot()
+    def on_delete_old_data(self):
+        logger.info('Deleting old data from database...')
+        date, _, ok = DateDialog.getDateTime()
+        logger.debug('Ask user for date limit: {}'.format(date if ok else ''))
+        if ok:
+            self.progress = QtWidgets.QProgressDialog('Lösche alte Daten...', 'Abbrechen', 0, 0, self)
+            self.progress.setWindowModality(QtCore.Qt.WindowModal)
+            self.progress.canceled.connect(self.progress.close)
+            self.progress.show()
+            def update_progressbar(current, complete):
+                self.progress.setRange(0, complete)
+                self.progress.setValue(current+1)
+            bbss.delete_old_data(date.toString('yyyy-MM-dd'), callback=update_progressbar)
 
     @QtCore.pyqtSlot(str)
     def on_import_filter(self, filter_string):

@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_BBSS_Main_Window(object):
     def setupUi(self, BBSS_Main_Window):
         BBSS_Main_Window.setObjectName("BBSS_Main_Window")
-        BBSS_Main_Window.resize(657, 789)
+        BBSS_Main_Window.resize(658, 789)
         self.centralwidget = QtWidgets.QWidget(BBSS_Main_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.TaskTabbedPane = QtWidgets.QTabWidget(self.centralwidget)
@@ -285,7 +285,7 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.addTab(self.options_tab, "")
         BBSS_Main_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(BBSS_Main_Window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 657, 30))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 658, 30))
         self.menubar.setObjectName("menubar")
         self.menuDatei = QtWidgets.QMenu(self.menubar)
         self.menuDatei.setObjectName("menuDatei")
@@ -295,6 +295,13 @@ class Ui_BBSS_Main_Window(object):
         BBSS_Main_Window.setStatusBar(self.statusbar)
         self.menu_exit = QtWidgets.QAction(BBSS_Main_Window)
         self.menu_exit.setObjectName("menu_exit")
+        self.menu_delete_database = QtWidgets.QAction(BBSS_Main_Window)
+        self.menu_delete_database.setObjectName("menu_delete_database")
+        self.menu_delete_old_data = QtWidgets.QAction(BBSS_Main_Window)
+        self.menu_delete_old_data.setObjectName("menu_delete_old_data")
+        self.menuDatei.addAction(self.menu_delete_database)
+        self.menuDatei.addAction(self.menu_delete_old_data)
+        self.menuDatei.addSeparator()
         self.menuDatei.addAction(self.menu_exit)
         self.menubar.addAction(self.menuDatei.menuAction())
         self.label_8.setBuddy(self.import_data_tableview)
@@ -353,5 +360,7 @@ class Ui_BBSS_Main_Window(object):
         self.TaskTabbedPane.setTabText(self.TaskTabbedPane.indexOf(self.options_tab), _translate("BBSS_Main_Window", "Optionen"))
         self.menuDatei.setTitle(_translate("BBSS_Main_Window", "Datei"))
         self.menu_exit.setText(_translate("BBSS_Main_Window", "Beenden"))
+        self.menu_delete_database.setText(_translate("BBSS_Main_Window", "Datenbank löschen..."))
+        self.menu_delete_old_data.setText(_translate("BBSS_Main_Window", "Alte Datensätze löschen..."))
 
 

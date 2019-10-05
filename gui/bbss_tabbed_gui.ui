@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>657</width>
+    <width>658</width>
     <height>789</height>
    </rect>
   </property>
@@ -678,7 +678,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>657</width>
+     <width>658</width>
      <height>30</height>
     </rect>
    </property>
@@ -686,6 +686,9 @@
     <property name="title">
      <string>Datei</string>
     </property>
+    <addaction name="menu_delete_database"/>
+    <addaction name="menu_delete_old_data"/>
+    <addaction name="separator"/>
     <addaction name="menu_exit"/>
    </widget>
    <addaction name="menuDatei"/>
@@ -694,6 +697,16 @@
   <action name="menu_exit">
    <property name="text">
     <string>Beenden</string>
+   </property>
+  </action>
+  <action name="menu_delete_database">
+   <property name="text">
+    <string>Datenbank löschen...</string>
+   </property>
+  </action>
+  <action name="menu_delete_old_data">
+   <property name="text">
+    <string>Alte Datensätze löschen...</string>
    </property>
   </action>
  </widget>
