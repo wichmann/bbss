@@ -501,6 +501,44 @@ class StudentDatabase(object):
             history.append((r['classname'], r['min_date'], r['max_date']))
         return history
 
+
+    def delete_old_data(self, date_limit, callback):
+        """
+        Removes all students that have only been in imports before the given
+        date border. All entries in the tables Students and StudentsInImports
+        will be deleted. The entry in the Imports table remains!
+        """
+        student_query = """SELECT student_id, max(import_id) as max_import
+                           FROM StudentsInImports JOIN Students
+                           ON StudentsInImports.student_id = Students.id
+                           GROUP BY student_id HAVING max(import_id) < ?
+                           ORDER BY student_id;"""
+        # find first import to be kept in the database
+        self.cur.execute('SELECT min(id), date FROM imports WHERE date > ?;', (date_limit, ))
+        result_data = self.cur.fetchall()
+        minimal_import = result_data[0]['min(id)']
+        # TODO: Check whether minimal import is last import?!
+        logger.info('First import that should be kept in the database: {}'.format(minimal_import))
+        # find the last import for all students and filter them
+        self.cur.execute(student_query, (minimal_import, ))
+        result_data = self.cur.fetchall()
+        with self.conn:
+            # delete all students that appear only in older imports
+            for i, r in enumerate(result_data):
+                # call callback functions with number of current students
+                if callback != None and callable(callback):
+                    callback(i, len(result_data))
+                student_id = r['student_id']
+                logger.debug('Deleting student no. {} with last import no. {}.'.format(*tuple(r)))
+                self.conn.execute("DELETE FROM StudentsInImports WHERE student_id=?;", (student_id, ))
+                self.conn.execute("DELETE FROM Students WHERE id=?;", (student_id, ))
+            else:
+                logger.info('Deleted {} students from database.'.format(i))
+        # compressing database file
+        logger.info('Compressing database file...')
+        with self.conn:
+            self.conn.execute('VACUUM;')
+
     def close_connection(self):
         """Closes connection to database."""
         self.conn.close()
