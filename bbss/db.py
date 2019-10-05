@@ -481,6 +481,7 @@ class StudentDatabase(object):
         return classes_new
 
     def get_class_history(self, student_id):
+        # pylint: disable=unused-variable
         query_id = """SELECT class_in_import as classname, min(import_id) as min_import,
                       max(import_id) as max_import FROM
                       ( SELECT * FROM students JOIN StudentsInImports

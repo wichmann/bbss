@@ -67,7 +67,6 @@ def create_later_pages(canvas, doc):
 def create_pdf_doc(output_file, students_added):
     logger.debug('Exporting students to PDF file...')
     # create PDF file
-    main_paragraph_style = ParagraphStyle(name='Normal', fontSize=14, leading=18) #fontName='Inconsolata'
     link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
     story = [Spacer(1,0.5*cm)]

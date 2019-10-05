@@ -50,21 +50,21 @@ def _read_student(row, student_list):
         guid = uuid.UUID(str(row[0]))
     except ValueError:
         # create new random UUID if value from file could not be parsed
-        logger.error('Could not parse UUID: ', str(row[0]))
+        logger.error('Could not parse UUID: {}'.format(str(row[0])))
         guid = uuid.uuid4()
     # assign all values from row
     mail_adress = row[1]
-    username = row[2]
+    #username = row[2]
     surname = row[3]
     firstname = row[4]
     classname = row[5]
-    courses = row[6]
+    #courses = row[6]
     birthday = row[7]
-    initial_password = row[8]
+    #initial_password = row[8]
     student_was_deleted = row[9]     # deleted = -1 / else = 0, set always after student was moved to "Abgänger"
     is_new_user = row[10]            # new = -1 / else = 0, only set once after student was added
     is_teacher_or_student = row[11]  # teacher = -1 / student = 0
-    group_memberships = row[12]
+    #group_memberships = row[12]
     # check if student was deleted in BBS-Verwaltung and should therefore not be imported
     if student_was_deleted == '-1':
         logger.debug('Deleted student not imported: {0} {1} ({2})'.format(firstname, surname, classname))
