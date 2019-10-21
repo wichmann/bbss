@@ -503,11 +503,19 @@ class StudentDatabase(object):
         return history
 
 
-    def delete_old_data(self, date_limit, callback):
+    def delete_old_data(self, retention_period, callback):
         """
-        Removes all students that have only been in imports before the given
-        date border. All entries in the tables Students and StudentsInImports
-        will be deleted. The entry in the Imports table remains!
+        Removes all students that have not been in an import for a given
+		retention period. All entries in the tables Students and
+		StudentsInImports will be deleted. The entries in the Imports table
+		will NOT be deleted!
+
+        :param retention_period: period for which not to delete student data
+		:param callback: Function that is called after each deletion of a
+                         student. First parameter is the number of the current
+                         deleted student, second parameter is the number of
+                         students to be deleted.
+        :return: list of all deleted students
         """
         student_query = """SELECT student_id, max(import_id) as max_import
                            FROM StudentsInImports JOIN Students
@@ -515,7 +523,7 @@ class StudentDatabase(object):
                            GROUP BY student_id HAVING max(import_id) < ?
                            ORDER BY student_id;"""
         # find first import to be kept in the database
-        self.cur.execute('SELECT min(id), date FROM imports WHERE date > ?;', (date_limit, ))
+        self.cur.execute('SELECT min(id), date FROM imports WHERE date > ?;', (retention_period, ))
         result_data = self.cur.fetchall()
         minimal_import = result_data[0]['min(id)']
         # TODO: Check whether minimal import is last import?!

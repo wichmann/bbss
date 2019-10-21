@@ -186,5 +186,5 @@ def clear_database():
 def get_class_history(student_id):
     return student_database.get_class_history(student_id)
 
-def delete_old_data(date_limit, callback=None):
-    return student_database.delete_old_data(date_limit, callback)
+def delete_old_data(retention_period, callback=None):
+    return student_database.delete_old_data(retention_period, callback)
