@@ -86,8 +86,11 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     output_file = os.path.splitext(output_file)
     output_file_added_students = '{}.added{}'.format(*output_file)
     output_file_removed_students = '{}.removed{}'.format(*output_file)
-    if os.path.exists(output_file_added_students) or os.path.exists(output_file_removed_students):
+    output_file_log = '{}.log{}'.format(*output_file)
+    if os.path.exists(output_file_added_students) or os.path.exists(output_file_removed_students) or os.path.exists(output_file_log):
         logger.warn('Output file already exists, will be overwritten...')
+    # create empty log file
+    open(output_file_log, 'w').close()
     # export file with all added students
     with open(output_file_added_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
