@@ -45,8 +45,8 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     """
     if os.path.exists(output_file):
         logger.warn('Output file already exists, will be overwritten...')
-    # export file with all added and changed students
-    with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
+    # export file with all added and changed students (Windows default encoding for US and most of EU explicitly set!)
+    with open(output_file, 'w', newline='', encoding='cp1252') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Login', 'FirstName', 'LastName', 'MemberOf'))
