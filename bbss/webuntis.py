@@ -10,18 +10,21 @@ Created on Fri Jul 21 11:26:47 2017
 """
 
 
-import csv
+import io
 import os
+import csv
 import logging
 import datetime
 
+import qrcode
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.units import cm, mm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.platypus.flowables import KeepTogether
+from reportlab.platypus.flowables import KeepTogether, Image
+from reportlab.lib.utils import ImageReader
 
 from bbss import data
 
@@ -38,6 +41,7 @@ BORDER_VERTICAL = 1.5*cm
 TODAY = datetime.datetime.today().strftime('%d.%m.%Y')
 TITLE = 'Benutzerdaten für WebUntis - Import vom {}'.format(TODAY)
 AUTHOR = 'bbss - BBS Student Management'
+INCLUDE_QR_CODE = False
 
 
 def export_data(output_file, change_set):
@@ -94,6 +98,17 @@ def create_later_pages(canvas, doc):
     canvas.restoreState()
 
 
+def create_qr_code(user, password):
+    QR_URL_TEMPLATE = 'untis://setschool?url=asopo.webuntis.com&school=BBS Brinkstr-Osnabrück&user={}&key={}&schoolNumber=2042600'
+    img = qrcode.make(QR_URL_TEMPLATE.format(user, password))
+    #img.show()
+    #img.save('qr.png')
+    # get binary data for image to be inserted into PDF
+    output = io.BytesIO()
+    img.save(output, format=img.format)
+    return output
+
+
 def create_pdf_doc(output_file, list_of_passwords):
     # log all new passwords
     logger.debug('Creating new passwords for classes to be imported into WebUntis...')
@@ -107,16 +122,23 @@ def create_pdf_doc(output_file, list_of_passwords):
     story = [Spacer(1,0.75*cm)]
     for k, v in sorted(list_of_passwords.items()):
         # build inner table with class specific user account information
-        inner_table_data = [['Benutzername: {}'.format(k), 'Passwort: {}'.format(v)]]
-        inner_table = Table(inner_table_data)
+        img = create_qr_code(k, v)
+        if INCLUDE_QR_CODE:
+            inner_table_data = [['Benutzername: {}'.format(k), Image(img, width=2.5*cm, height=2.5*cm, hAlign='RIGHT')], ['Passwort: {}'.format(v)]]
+            inner_table = Table(inner_table_data, colWidths=[8*cm, 4*cm])
+        else:
+            inner_table_data = [['Benutzername: {}'.format(k), 'Passwort: {}'.format(v)]]
+            inner_table = Table(inner_table_data)
         inner_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Courier'),
                                          ('FONTSIZE',(0,0),(-1,-1), 12),
+                                         ('SPAN', (1,0), (1,-1)),
                                          ('VALIGN',(0,0),(-1,-1),'TOP'),
                                          ('ALIGN',(0,0),(-1,-1),'LEFT'),
+                                         ('ALIGN',(1,0),(1,-1),'RIGHT'),
                                          ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
                                          ('BOX', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('LEFTPADDING', (0,0), (-1,-1), 20),
-                                         ('RIGHTPADDING', (0,0), (-1,-1), 20),
+                                         ('LEFTPADDING', (0,0), (-1,-1), 15),
+                                         ('RIGHTPADDING', (0,0), (-1,-1), 15),
                                          ('BOTTOMPADDING', (0,0), (-1,-1), 5),
                                          ('TOPPADDING', (0,0), (-1,-1), 5)]))
         # build paragraphs for outer table

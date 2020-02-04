@@ -1,0 +1,6 @@
+xlrd
+PyQt4
+docopt
+reportlab
+qrcode
+Pillow
