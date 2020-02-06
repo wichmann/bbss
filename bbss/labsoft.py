@@ -54,7 +54,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
             if any([student.classname.startswith(c) for c in CLASSES_WHITE_LIST]):
                 _write_student(student, output_file_writer, replace_illegal_characters)
                 count += 1
-        logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
+        logger.debug('{0} students (added) exported to Labsoft file format.'.format(count))
 
 
 def _write_student(student, output_file_writer, replace_illegal_characters):
