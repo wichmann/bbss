@@ -254,6 +254,19 @@ class StudentDatabase(object):
                     .format(result_data['count(*)']))
         self.conn.commit()
 
+    def build_student(self, student):
+        """
+        Builds a new Student object from result given by the database.
+        """
+        s = data.Student(student['surname'], student['firstname'],
+                         student['classname'], student['birthday'])
+        s.user_id = student['username']
+        s.password = student['password']
+        s.email = student['email']
+        s.guid = student['guid']
+        s.courses = student['courses']
+        return s
+
     def search_for_student(self, search_string):
         select_stmt = """SELECT * FROM Students
                          WHERE surname LIKE ? OR firstname LIKE ?
@@ -263,15 +276,7 @@ class StudentDatabase(object):
         self.cur.execute(select_stmt, search_string)
         result_data = self.cur.fetchall()
         for student in result_data:
-            # get data for each and every found student into one list of
-            # Student objects
-            s = data.Student(student['surname'], student['firstname'],
-                             student['classname'], student['birthday'])
-            s.user_id = student['username']
-            s.password = student['password']
-            s.email = student['email']
-            s.guid = student['guid']
-            s.courses = student['courses']
+            s = self.build_student(student)
             student_list.append(s)
         return student_list
 
@@ -369,15 +374,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Added students are: ')
         for student in result_data:
-            s = data.Student(student['surname'],
-                             student['firstname'],
-                             student['classname'],
-                             student['birthday'])
-            s.user_id = student['username']
-            s.password = student['password']
-            s.email = student['email']
-            s.guid = student['guid']
-            s.courses = student['courses']
+            s = self.build_student(student)
             logger.debug('\t' + str(s))
             change_set.students_added.append(s)
 
@@ -386,15 +383,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Removed students are: ')
         for student in result_data:
-            s = data.Student(student['surname'],
-                             student['firstname'],
-                             student['classname'],
-                             student['birthday'])
-            s.user_id = student['username']
-            s.password = student['password']
-            s.email = student['email']
-            s.guid = student['guid']
-            s.courses = student['courses']
+            s = self.build_student(student)
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
 
@@ -407,15 +396,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Changed students are: ')
         for student in result_data:
-            s = data.Student(student['surname'],
-                             student['firstname'],
-                             student['classname'],
-                             student['birthday'])
-            s.user_id = student['username']
-            s.password = student['password']
-            s.email = student['email']
-            s.guid = student['guid']
-            s.courses = student['courses']
+            s = self.build_student(student)
             logger.debug('\t' + str(s))
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
@@ -439,15 +420,7 @@ class StudentDatabase(object):
         # build change set and return it
         change_set = data.ChangeSet()
         for student in result_data:
-            s = data.Student(student['surname'],
-                             student['firstname'],
-                             student['classname'],
-                             student['birthday'])
-            s.user_id = student['username']
-            s.password = student['password']
-            s.email = student['email']
-            s.guid = student['guid']
-            s.courses = student['courses']
+            s = self.build_student(student)
             change_set.students_added.append(s)
         change_set.classes_added = self._get_all_classes(new_import_id)
         return change_set
