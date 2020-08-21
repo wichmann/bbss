@@ -85,8 +85,10 @@ def _read_student(row, student_list):
     # entry for a student that participates in two classes at the same time
     if surname[-1:] == '_':
         logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
+        surname = surname[:-1]
     if surname[-1:] == '1':
         logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
+        surname = surname[:-1]
     # skip teacher user
     if is_teacher_or_student == -1:
         return student_count
