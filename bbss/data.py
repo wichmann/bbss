@@ -241,10 +241,13 @@ def verify_mail_address(mail_address):
     if len(set(mail_address)) == 1:
         logger.debug('Illegal mail address found: {}'.format(mail_address))
         return ''
-    # ceck whether a @ character is present
+    # check whether a @ character is present
     if '@' not in mail_address:
         logger.debug('Illegal mail address found: {}'.format(mail_address))
         return ''
+    # handle addresses that were copied as URL
+    if 'mailto:' in mail_address:
+        return mail_address.replace('mailto:', '')
     # TODO: Check whether it is necessary to check address with Pythons email.utils.parseaddr().
     return mail_address
 

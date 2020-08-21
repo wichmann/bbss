@@ -115,5 +115,5 @@ department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
 mail_address_blacklist = ['unbekannt', 'nicht bekannt', 'keine bekannt', 'nicht vorhanden',
                           'keine angabe', 'ohne angabe', 'ohne angaben', 'wird nachgereicht',
                           'keine', 'nicht angegeben', 'k.a.', 'n.n.', 'n.a.', 'o.a.',
-                          'keine ahnung', 'ohne', 'ka', './.', 'keine@vorhanden.de']
+                          'keine ahnung', 'ohne', 'ka', './.', 'keine@vorhanden.de', 'keine@e-mail']
 
