@@ -52,6 +52,7 @@ class Student(object):
         self.guid = ''
         self.user_id = None
         self.password = None
+        self.courses = ''
 
     def __str__(self):
         return "<{0} {1} from {2}>".format(self.firstname,

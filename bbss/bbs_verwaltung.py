@@ -58,7 +58,7 @@ def _read_student(row, student_list):
     surname = row[3]
     firstname = row[4]
     classname = row[5]
-    #courses = row[6]
+    courses = row[6]
     birthday = row[7]
     #initial_password = row[8]
     student_was_deleted = row[9]     # deleted = -1 / else = 0, set always after student was moved to "Abgänger"
@@ -87,7 +87,7 @@ def _read_student(row, student_list):
         logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
     if surname[-1:] == '1':
         logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
-	# skip teacher user 
+    # skip teacher user
     if is_teacher_or_student == -1:
         return student_count
     # convert date of birth
@@ -99,10 +99,13 @@ def _read_student(row, student_list):
         new_student.guid = str(guid)
         new_student.is_new = (is_new_user == '-1')
         new_student.was_deleted = (student_was_deleted == '-1')
+        new_student.courses = courses
         # append new student to list
         student_list.append(new_student)
         student_count = 1
     except:
         logger.warn('Could not import student because data not valid.')
+    if courses:
+        logger.debug('Courses for student {}: {}'.format(new_student, courses))
     return student_count
 
