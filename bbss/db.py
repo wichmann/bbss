@@ -195,10 +195,12 @@ class StudentDatabase(object):
                 if config.ALWAYS_IMPORT_EMAIL_ADDRESSES:
                     self.cur.execute('UPDATE Students SET email=? WHERE id=?;',
                                      (student.email, student_id))
-                # TODO: Update firstname, surname and birthday for students identified by GUID!
                 # update GUID for all students, import for previously exiting students!
                 self.cur.execute('UPDATE Students SET guid=? WHERE id=?;',
                                  (str(student.guid), student_id))
+                # update firstname, surname and birthday for students identified by GUID
+                self.cur.execute('UPDATE Students SET firstname=?, surname=?, birthday=? WHERE id=?;',
+                                 (student.firstname, student.surname, student.birthday, student_id))
                 # if student changed class between imports, change it
                 if current_student['classname'] != student.classname:
                     # update class name
