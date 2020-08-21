@@ -29,6 +29,7 @@ def export_data(output_file, change_set, replace_illegal_characters=False):
     # user list (source: https://docs.moodle.org/33/en/Cohorts#Uploading_users_to_a_cohort)
     #_write_class_list_file(output_file, change_set)
     _write_student_list_file(output_file, change_set, replace_illegal_characters)
+    _write_cohorts_file(output_file, change_set)
 
 
 def _write_class_list_file(output_file, change_set):
@@ -55,6 +56,35 @@ def _write_class_list_file(output_file, change_set):
         output_file_writer.writerow(('name', 'idnumber', 'description'))
         for c in change_set.classes_added:
             output_file_writer.writerow((c, c, ''))
+
+
+def _write_cohorts_file(output_file, change_set):
+    """
+    Writes a file containing all assignments between students and cohorts.
+    
+    :param output_file: file name to write cohorts list to
+    :param change_set: object representing all changes between given imports
+
+    Export globale gruppe Datei:
+    username,cohort1,cohort2
+    student1,nursing,2016class
+    student2,nursing,2014class
+    student3,nursing,2014class
+    """
+    output_file = os.path.splitext(output_file)
+    output_file_cohorts = '{}.cohorts{}'.format(*output_file)
+    if os.path.exists(output_file_cohorts):
+        logger.warn('Output file already exists, will be overwritten...')
+    with open(output_file_cohorts, 'w', newline='', encoding='utf8') as csvfile:
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('username', 'cohort1', 'cohort2', 'cohort3', 'cohort4',
+                                     'cohort5', 'cohort6', 'cohort7', 'cohort8', 'cohort9',
+                                     'cohort10', 'cohort11', 'cohort12', 'cohort13', 'cohort14'))
+        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+            if student.courses:
+                c = student.courses.split(',')
+                course_names = ['Kurs-{}'.format(x.lower()) for x in c] + [''] * (14 - len(c))
+                output_file_writer.writerow((student.user_id, *course_names))
 
 
 def _write_student_list_file(output_file, change_set, replace_illegal_characters):
