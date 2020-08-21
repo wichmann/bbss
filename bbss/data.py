@@ -248,6 +248,9 @@ def verify_mail_address(mail_address):
     # handle addresses that were copied as URL
     if 'mailto:' in mail_address:
         return mail_address.replace('mailto:', '')
+    # filter out generic company addresses
+    if mail_address.startswith('info@'):
+        return ''
     # TODO: Check whether it is necessary to check address with Pythons email.utils.parseaddr().
     return mail_address
 
