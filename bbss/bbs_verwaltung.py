@@ -84,7 +84,9 @@ def _read_student(row, student_list):
     # check if students name ends with a underscore, because this is an
     # entry for a student that participates in two classes at the same time
     if surname[-1:] == '_':
-        return student_count
+        logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
+    if surname[-1:] == '1':
+        logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
 	# skip teacher user 
     if is_teacher_or_student == -1:
         return student_count
