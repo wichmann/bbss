@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+xlrd = "*"
+PyQt4 = "*"
+docopt = "*"
+reportlab = "*"
+qrcode = "*"
+Pillow = "*"
+PyQt5 = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
