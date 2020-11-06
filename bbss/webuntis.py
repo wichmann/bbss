@@ -15,6 +15,7 @@ import os
 import csv
 import logging
 import datetime
+from itertools import chain
 
 import qrcode
 from reportlab.pdfgen import canvas
@@ -45,10 +46,54 @@ INCLUDE_QR_CODE = False
 
 
 def export_data(output_file, change_set):
+    _write_student_list_file(output_file, change_set)
     list_of_passwords = _write_class_list_file(output_file, change_set)
     # create a PDF file with every new class including its password
     output_file += '.pdf'
     create_pdf_doc(output_file, list_of_passwords)
+
+
+def _write_student_list_file(output_file, change_set, replace_illegal_characters=False):
+    whitelist =  ['STSE91', 'SME91', 'IFI02', 'STP84', 'IFA02']
+    output_file = os.path.splitext(output_file)
+    output_file_students = '{}.students{}'.format(*output_file)
+    if os.path.exists(output_file_students):
+        logger.warn('Output file already exists, will be overwritten...')
+    with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('Nachname', 'Vorname', 'Geburtstag', 'Kurzname', 'Klasse', 'GUID'))
+        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+            class_of_student = student.get_class_name_for_class_id()
+            if class_of_student not in whitelist:
+                continue
+            surname_of_student = student.surname
+            firstname_of_student = student.firstname
+            # replace illegal characters if needed
+            if replace_illegal_characters:
+                class_of_student, surname_of_student, firstname_of_student =\
+                    map(data.replace_illegal_characters,
+                        (class_of_student, surname_of_student,
+                        firstname_of_student))
+                # check for non ascii characters in string
+                try:
+                    class_of_student.encode('ascii')
+                    surname_of_student.encode('ascii')
+                    firstname_of_student.encode('ascii')
+                except UnicodeEncodeError:
+                    logger.warning('Non ascii characters in %s %s in %s' %
+                                (firstname_of_student, surname_of_student, class_of_student))
+            # output student data for change set into file
+            user_id = student.generate_user_id().lower()
+            birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            output_file_writer.writerow((surname_of_student,
+                                         firstname_of_student,
+                                         birthday,
+                                         user_id,
+                                         class_of_student,
+                                         student.guid))
+        for student in sorted(change_set.students_removed):
+            # removed students should be included in the export file, with the exit date set to the date of the export
+            pass
 
 
 def _write_class_list_file(output_file, change_set):
