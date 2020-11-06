@@ -273,5 +273,9 @@ class ChangeSet(object):
         self.classes_added = []
         self.classes_removed = []
 
+    def __str__(self):
+        t = "<ChangeSet: {0} added, {1} removed, {2} changed>"
+        return t.format(len(self.students_added), len(self.students_removed), len(self.students_changed))
+
     def get_statistics(self):
         return ChangeSetStatistics(len(self.students_added), len(self.students_changed), len(self.students_removed))
