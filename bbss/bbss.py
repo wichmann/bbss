@@ -166,6 +166,39 @@ def get_imports_for_student(student):
     return student_database.get_imports_for_student(student.firstname, student.surname, student.birthday)
 
 
+def compare_mail_addresses(moodle_user_file):
+    """
+    Compare all current mail addresses, exported from Moodle, with the stored
+    mail addresses coming from BBS-Verwaltung.
+    """
+    same = 0
+    different = 0
+    differences_list = []
+    moodle_list = bbss.csv.import_user_list_from_moodle(moodle_user_file)
+    changeset = generate_changeset(old_import_id=0, new_import_id=0)
+    # loop through all students in database...
+    for s_db in changeset.students_added:
+        found = False
+        # ...and check whether the student can be found in the Moodle user list
+        for s_moodle in moodle_list:
+            # do a caseless comparison to ignore upper and lower case
+            if s_db.user_id.casefold() == s_moodle.user_id.casefold():
+                found = True
+                # remove automatically assigned mail addresses coming from Moodle
+                if '@example.com' in s_moodle.email:
+                    s_moodle.email = ''
+                if s_db.email.casefold() != s_moodle.email.casefold():
+                    differences_list.append((s_db, s_moodle))
+                    different += 1
+                else:
+                    same += 1
+                break
+        if not found:
+            logger.warning('Student {} not found in Moodle user list!'.format(s_db))
+    bbss.csv.export_differences_list('xxxtestxxx2.csv', differences_list)
+    logger.info('Same mail address: {}, different mail address: {}'.format(same, different))
+
+
 def clear_database():
     """
     Clears database by removing its file from the filesystem.
