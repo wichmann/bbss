@@ -18,7 +18,7 @@ import datetime
 from bbss import data
 
 
-__all__ = ['import_data', 'export_data']
+__all__ = ['import_data', 'export_data', 'import_user_list_from_moodle', 'export_differences_list']
 
 
 logger = logging.getLogger('bbss.csv')
@@ -129,3 +129,35 @@ def _write_student(student, output_file_writer, replace_illegal_characters):
                                  firstname_of_student,
                                  student.generate_user_id(),
                                  student.generate_password()))
+
+
+def import_user_list_from_moodle(import_file):
+    fieldnames = ['id', 'username', 'email', 'firstname', 'lastname', 'idnumber',
+                  'institution', 'department', 'phone1', 'phone2', 'city',
+                  'url', 'icq', 'skype', 'aim', 'yahoo', 'msn', 'country',
+                  'profile_field_dateofbirth', 'profile_field_placeofbirth',
+                  'profile_field_gender', 'profile_field_class']
+    student_list = []
+    with open(import_file, 'r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',', fieldnames=fieldnames)
+        for i, row in enumerate(reader):
+            username = row['username']
+            mail_adress = row['email']
+            last_name = row['lastname']
+            first_name = row['firstname']
+            new_student = data.Student(last_name, first_name, '', '')
+            new_student.email = mail_adress  # no validation necessary, because Moodle only contains valid mail addresses
+            new_student.user_id = username
+            # append new student to list
+            student_list.append(new_student)
+    return student_list
+
+
+def export_differences_list(output_file, differences_list):
+    if os.path.exists(output_file):
+        logger.warn('Output file already exists, will be overwritten...')
+    with open(output_file, 'w', newline='', encoding='cp1252') as csvfile:
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('Nachname', 'Vorname', 'Mail in BBS-Verwaltung', 'Mail in Moodle'))
+        for c in differences_list:
+            output_file_writer.writerow((c[0].surname, c[0].firstname, c[0].email, c[1].email))
