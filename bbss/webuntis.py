@@ -54,7 +54,7 @@ def export_data(output_file, change_set):
 
 
 def _write_student_list_file(output_file, change_set, replace_illegal_characters=False):
-    whitelist =  ['STSE91', 'SME91', 'IFI02', 'STP84', 'IFA02']
+    whitelist =  ['STSE91', 'SME91', 'IFI02', 'STP84', 'IFA02', 'KFZ04', 'MZM01', 'MIP01']
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students{}'.format(*output_file)
     if os.path.exists(output_file_students):
