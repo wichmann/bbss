@@ -686,8 +686,9 @@
     <property name="title">
      <string>Datei</string>
     </property>
-    <addaction name="menu_delete_database"/>
+    <addaction name="menu_compare_mail_addresses"/>
     <addaction name="menu_delete_old_data"/>
+    <addaction name="menu_delete_database"/>
     <addaction name="separator"/>
     <addaction name="menu_exit"/>
    </widget>
@@ -707,6 +708,11 @@
   <action name="menu_delete_old_data">
    <property name="text">
     <string>Alte Datensätze löschen...</string>
+   </property>
+  </action>
+  <action name="menu_compare_mail_addresses">
+   <property name="text">
+    <string>Mail-Adressen vergleichen...</string>
    </property>
   </action>
  </widget>

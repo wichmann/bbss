@@ -245,6 +245,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         self.clear_search_field_button.clicked.connect(self.search_student_text.clear)
         self.menu_delete_database.triggered.connect(self.on_delete_database)
         self.menu_delete_old_data.triggered.connect(self.on_delete_old_data)
+        self.menu_compare_mail_addresses.triggered.connect(self.on_compare_mail_addresses)
         # TODO Connect options check boxes with functions.
         #      (replace_classnames_checkbox, replace_characters_checkbox, store_in_db_checkbox)
 
@@ -309,6 +310,16 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                 self.progress.setRange(0, complete)
                 self.progress.setValue(current+1)
             bbss.delete_old_data(date.toString('yyyy-MM-dd'), callback=update_progressbar)
+
+    @QtCore.pyqtSlot()
+    def on_compare_mail_addresses(self):
+        logger.info('Comparing mail addresses from Moodle user list...')
+        moodle_user_list = QtWidgets.QFileDialog.getOpenFileName(self, 'Öffne Nutzerliste von Moodle...', '',
+                                                                 'Nutzerliste von Moodle (*.csv)')[0]
+        if moodle_user_list:
+            logger.info('Moodle user list file chosen: "{0}".'.format(moodle_user_list))
+            differences_export_file = 'Unterschiede_Mail-Adressen.csv'
+            bbss.compare_mail_addresses(moodle_user_list, differences_export_file)
 
     @QtCore.pyqtSlot(str)
     def on_import_filter(self, filter_string):

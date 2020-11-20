@@ -166,7 +166,7 @@ def get_imports_for_student(student):
     return student_database.get_imports_for_student(student.firstname, student.surname, student.birthday)
 
 
-def compare_mail_addresses(moodle_user_file):
+def compare_mail_addresses(moodle_user_file, differences_export_file):
     """
     Compare all current mail addresses, exported from Moodle, with the stored
     mail addresses coming from BBS-Verwaltung.
@@ -195,7 +195,7 @@ def compare_mail_addresses(moodle_user_file):
                 break
         if not found:
             logger.warning('Student {} not found in Moodle user list!'.format(s_db))
-    bbss.csv.export_differences_list('xxxtestxxx2.csv', differences_list)
+    bbss.csv.export_differences_list(differences_export_file, differences_list)
     logger.info('Same mail address: {}, different mail address: {}'.format(same, different))
 
 
@@ -212,12 +212,13 @@ def clear_database():
         student_database.close_connection()
         os.remove(bbss.db.DB_FILENAME)
         student_database = bbss.db.StudentDatabase()
-    except:
-        logger.info('No database file found.')
+    except FileNotFoundError as exception:
+        logger.info('No database file found: {}'.format(exception))
 
 
 def get_class_history(student_id):
     return student_database.get_class_history(student_id)
+
 
 def delete_old_data(retention_period, callback=None):
     return student_database.delete_old_data(retention_period, callback)
