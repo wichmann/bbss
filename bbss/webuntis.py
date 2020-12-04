@@ -54,14 +54,14 @@ def export_data(output_file, change_set):
 
 
 def _write_student_list_file(output_file, change_set, replace_illegal_characters=False):
-    whitelist =  ['STSE91', 'SME91', 'IFI02', 'STP84', 'IFA02', 'KFZ04', 'MZM01', 'MIP01']
+    whitelist =  ['STSE91', 'SME91', 'IFI02', 'STP84', 'IFA02', 'KFZ04', 'MZM01', 'MIP01', 'IFI81']
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students{}'.format(*output_file)
     if os.path.exists(output_file_students):
         logger.warn('Output file already exists, will be overwritten...')
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Nachname', 'Vorname', 'Geburtstag', 'Kurzname', 'Klasse', 'GUID'))
+        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse', 'Schlüssel (extern)'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
             class_of_student = student.get_class_name_for_class_id()
             if class_of_student not in whitelist:
