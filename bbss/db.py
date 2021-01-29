@@ -376,6 +376,10 @@ class StudentDatabase(object):
         for student in result_data:
             s = self.build_student(student)
             logger.debug('\t' + str(s))
+            # skip student, if already in list, because that can happen, if students are associated with multiple classes
+            if s in change_set.students_added:
+                logger.warn('Skipping added student that is already in list!')
+                continue
             change_set.students_added.append(s)
 
         # get removed students and store them in list
@@ -398,6 +402,10 @@ class StudentDatabase(object):
         for student in result_data:
             s = self.build_student(student)
             logger.debug('\t' + str(s))
+            # skip student, if already in list, because that can happen, if students are associated with multiple classes
+            if s in change_set.students_changed:
+                logger.warn('Skipping changed student that is already in list!')
+                continue
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
         return change_set
