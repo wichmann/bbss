@@ -132,6 +132,15 @@ def _write_student(student, output_file_writer, replace_illegal_characters):
 
 
 def import_user_list_from_moodle(import_file):
+    """
+    Imports a list of all student from Moodle to allow comparisions for mail address and other fields.
+
+    The list can be generated in Moodle by the user management feature:
+
+    * Website-Administration -> Nutzer/innen -> Nutzerkonten -> Nutzerverwaltung (Bulk)
+    * Filterergebnis: Alle verfügbaren -> Button "Alle hinzufügen"
+    * Dropdown-Feld "Für ausgewählte Nutzer/innen..." -> "Download" auswählen
+    """
     fieldnames = ['id', 'username', 'email', 'firstname', 'lastname', 'idnumber',
                   'institution', 'department', 'phone1', 'phone2', 'city',
                   'url', 'icq', 'skype', 'aim', 'yahoo', 'msn', 'country',
