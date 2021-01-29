@@ -10,20 +10,15 @@ Created on Mon Apr 15 10:51:47 2019
 """
 
 
-import csv
-import os
 import logging
 import datetime
 
-from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.lib.units import cm, mm
+from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.platypus.flowables import KeepTogether
-
-from bbss import data
 
 
 __all__ = ['export_data']
@@ -52,7 +47,7 @@ def create_first_page(canvas, doc):
     canvas.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-58, TITLE)
     canvas.setFont('Helvetica', 10)
     canvas.drawString(BORDER_HORIZONTAL, BORDER_VERTICAL, TITLE)
-    canvas.drawRightString(PAGE_WIDTH-BORDER_HORIZONTAL , BORDER_VERTICAL, "Seite 1")
+    canvas.drawRightString(PAGE_WIDTH-BORDER_HORIZONTAL, BORDER_VERTICAL, "Seite 1")
     canvas.restoreState()
 
 
@@ -69,7 +64,7 @@ def create_pdf_doc(output_file, students_added):
     # create PDF file
     link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
-    story = [Spacer(1,0.5*cm)]
+    story = [Spacer(1, 0.5*cm)]
 	# add page header
     story.append(Paragraph(INFO_TEXT, link_paragraph_style))
     story.append(Spacer(1, 0.5*cm))
@@ -77,30 +72,31 @@ def create_pdf_doc(output_file, students_added):
         # build inner table with class specific user account information
         inner_table_data = [['Benutzername: {}'.format(s.user_id), 'Passwort: {}'.format(s.password)]]
         inner_table = Table(inner_table_data)
-        inner_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Courier'),
-                                         ('FONTSIZE',(0,0),(-1,-1), 12),
-                                         ('VALIGN',(0,0),(-1,-1),'TOP'),
-                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('BOX', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('LEFTPADDING', (0,0), (-1,-1), 20),
-                                         ('RIGHTPADDING', (0,0), (-1,-1), 20),
-                                         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-                                         ('TOPPADDING', (0,0), (-1,-1), 5)]))
+        inner_table.setStyle(TableStyle([('FONT', (0, 0), (-1, -1), 'Courier'),
+                                         ('FONTSIZE', (0, 0), (-1, -1), 12),
+                                         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                                         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                                         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('BOX', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('LEFTPADDING', (0, 0), (-1, -1), 20),
+                                         ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+                                         ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                                         ('TOPPADDING', (0, 0), (-1, -1), 5)]))
         # build paragraphs for outer table
-        data = [[Paragraph('Benutzerdaten für {} {} aus der {}:'.format(s.firstname, s.surname, s.classname), link_paragraph_style)],
+        heading = 'Benutzerdaten für {} {} aus der {}:'
+        data = [[Paragraph(heading.format(s.firstname, s.surname, s.classname), link_paragraph_style)],
                 [inner_table]]
         outer_table = Table(data)
-        outer_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica'),
-                                         ('FONTSIZE',(0,0),(-1,-1), 14),
-                                         ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                                         ('LEFTPADDING', (0,0), (-1,-1), 15),
-                                         ('RIGHTPADDING', (0,0), (-1,-1), 15),
-                                         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-                                         ('TOPPADDING', (0,0), (-1,-1), 8)]))
+        outer_table.setStyle(TableStyle([('FONT', (0, 0), (-1, -1), 'Helvetica'),
+                                         ('FONTSIZE', (0, 0), (-1, -1), 14),
+                                         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                                         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                                         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                                         ('LEFTPADDING', (0, 0), (-1, -1), 15),
+                                         ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+                                         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                                         ('TOPPADDING', (0, 0), (-1, -1), 8)]))
         # append outer table for this class to document (without breaking table over multiple pages)
         story.append(KeepTogether(outer_table))
         story.append(Paragraph('<br/><br/>', ParagraphStyle(name='Normal')))

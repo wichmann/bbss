@@ -81,7 +81,8 @@ class StudentTableModel(QtCore.QAbstractTableModel):
                 return str(count+1)
 
     def setData(self, index, value, role=QtCore.Qt.DisplayRole):
-        logger.warn('Updating of student data (row={row}, column={column}) not yet implemented.'.format(row=index.row(), column=index.column()))
+        message = 'Updating of student data (row={row}, column={column}) not yet implemented.'
+        logger.warning(message.format(row=index.row(), column=index.column()))
 
     def flags(self, index):
         # TODO: Check whether data should be editable (QtCore.Qt.ItemIsEditable)?
@@ -393,10 +394,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         self.removed_students_tableview.setModel(
             self.removed_students_table_model)
         # update labels with student count
-        self.added_student_table_label.setText('Hinzugefügte Schüler ({}):'
-            .format(self.changeset.get_statistics().added))
-        self.removed_student_table_label.setText('Entfernte Schüler ({}):'
-            .format(self.changeset.get_statistics().removed))
+        self.added_student_table_label.setText('Hinzugefügte Schüler ({}):'.format(self.changeset.get_statistics().added))
+        self.removed_student_table_label.setText('Entfernte Schüler ({}):'.format(self.changeset.get_statistics().removed))
 
     @QtCore.pyqtSlot()
     def on_export_data(self):

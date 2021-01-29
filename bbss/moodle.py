@@ -38,15 +38,15 @@ def _write_class_list_file(output_file, change_set):
     classes will be represented by a global group each, containing all students
     of that class. Groups for classes that no longer exist, will not be deleted
     automatically.
-    
+
     :param output_file: file name to write class list to
     :param change_set: object representing all changes between given imports
-    
+
     TODO: Check how to delete no longer needed classes automatically.
-    
+
     Export globale gruppe Datei:
     name    idnumber   description
-    hl      HL2	       
+    hl      HL2
     """
     output_file += '.classes'
     if os.path.exists(output_file):
@@ -92,18 +92,18 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     Writes a file containing all data to import students into Moodle. All new
     students will be included. Each student no longer in the database, will be 
     included in the file with the "deleted" parameter set to "1".
-    
+
     :param output_file: file name to write student list to
     :param change_set: object representing all changes between given imports
     :param replace_illegal_characters: whether to replace illegal (non-ASCII)
                                        characters in class and student names
-    
+
     File format for importing users into Moodle:
     username,   password,   firstname, lastname, email, cohort1,   sysrole1,                        deleted
     ifa51.jone, verysecret, Tom,       Jones,    ,      IFA51,     Teilnehmer/in,                   0
     fse51.gege, geheim,     Hans,      Meyer,    ,      FSE61,     Teilnehmer/in,                   1
     wich,       fdlkj,      Christian, Wichmann, ,      Kollegium, Trainer/in und Kursersteller/in, 0
-    
+
     Other possible fields are: role1 (for students: 5), oldusername, deleted, suspended
 
     Possible roles in the Moodle system including their german names:
@@ -118,7 +118,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     output_file_removed_students = '{}.removed{}'.format(*output_file)
     output_file_log = '{}.log{}'.format(*output_file)
     if os.path.exists(output_file_added_students) or os.path.exists(output_file_removed_students) or os.path.exists(output_file_log):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     # create empty log file
     open(output_file_log, 'w').close()
     # export file with all added students
@@ -150,7 +150,7 @@ def _write_student(student, output_file_writer, replace_illegal_characters, dele
     """
     Writes the data of a single student to CSV file. The "deleted" parameter defines
     whether to delete the student in Moodle or to add it to the system.
-    
+
     :param student: object representing a single students data
     :param output_file_writer: CSV file to write to
     :param replace_illegal_characters: whether to replace illegal (non-ASCII)

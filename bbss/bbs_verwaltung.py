@@ -38,7 +38,7 @@ def import_data(import_file):
 
 def _read_student(row, student_list):
     """Reads a single student (her/his data) from a row of a csv file.
-	
+
 	Columns:
 	GUID, E-Mailadresse, Username im AD, Nachname, Vorname, Klasse, Kurse,
     Geb. Datum, Initial-Passwort, löschen, Neu, LK=-1/SuS=0, Gruppen-
@@ -84,10 +84,10 @@ def _read_student(row, student_list):
     # check if students name ends with a underscore, because this is an
     # entry for a student that participates in two classes at the same time
     if surname[-1:] == '_':
-        logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
+        logger.warning('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
         surname = surname[:-1]
     if surname[-1:] == '1':
-        logger.warn('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
+        logger.warning('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
         surname = surname[:-1]
     # skip teacher user
     if is_teacher_or_student == -1:
@@ -106,7 +106,7 @@ def _read_student(row, student_list):
         student_list.append(new_student)
         student_count = 1
     except:
-        logger.warn('Could not import student because data not valid.')
+        logger.warning('Could not import student because data not valid.')
     if courses:
         logger.debug('Courses for student {}: {}'.format(new_student, courses))
     return student_count

@@ -19,5 +19,5 @@ random.seed()
 
 
 # check whether the correct system encoding is given
-if sys.getfilesystemencoding().lower() not in ('utf-8'): #("ascii", "ansi_x3.4-1968"):
+if sys.getfilesystemencoding().lower() not in ('utf-8'):
     raise Exception("BBSS requires a UTF-8 locale.")

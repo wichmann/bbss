@@ -21,9 +21,12 @@ __all__ = ['export_data']
 logger = logging.getLogger('bbss.radius')
 
 
-def export_data(output_file, change_set, replace_illegal_characters=True):
+def export_data(output_file, change_set):
+    """
+    Exports a given change set into a configuration file for a Radius authentication server.
+    """
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w') as export_file:
         count = 0
         class_of_student = ''

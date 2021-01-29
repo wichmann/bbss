@@ -85,13 +85,13 @@ def _read_student(row, student_list):
                                          birthday_of_student))
         student_counts = 1
     except:
-        logger.warn('Could not import student because data not valid.')
+        logger.warning('Could not import student because data not valid.')
     return student_counts
 
 
 def export_data(output_file, change_set, replace_illegal_characters=True):
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Class', 'Name', 'Firstname', 'UserID',
@@ -149,13 +149,14 @@ def import_user_list_from_moodle(import_file):
     student_list = []
     with open(import_file, 'r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=',', fieldnames=fieldnames)
-        for i, row in enumerate(reader):
+        for row in reader:
             username = row['username']
             mail_adress = row['email']
             last_name = row['lastname']
             first_name = row['firstname']
             new_student = data.Student(last_name, first_name, '', '')
-            new_student.email = mail_adress  # no validation necessary, because Moodle only contains valid mail addresses
+            # no validation necessary, because Moodle only contains valid mail addresses
+            new_student.email = mail_adress
             new_student.user_id = username
             # append new student to list
             student_list.append(new_student)
@@ -163,8 +164,12 @@ def import_user_list_from_moodle(import_file):
 
 
 def export_differences_list(output_file, differences_list):
+    """
+    Exports a CSV file containing all users with differences in their mail
+    addresses between Moodle and BBS-Verwaltung.
+    """
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w', newline='', encoding='cp1252') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Nachname', 'Vorname', 'Mail in BBS-Verwaltung', 'Mail in Moodle'))

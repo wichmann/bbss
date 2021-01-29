@@ -27,7 +27,7 @@ import bbss.bbs_verwaltung
 __all__ = ['import_csv_file', 'import_excel_file',
            'import_bbs_verwaltung_csv_file', 'export_csv_file',
            'export_moodle_file', 'export_webuntis_file', 'export_labsoft_file',
-           'export_radius_file', 'export_pdf_file', 
+           'export_radius_file', 'export_pdf_file',
            'clear_database', 'store_students_db',
            'search_student_in_database', 'generate_changeset']
 
@@ -74,11 +74,10 @@ def export_csv_file(output_file, changes, replace_illegal_characters=True):
     logger.info('Student list written to file.')
 
 
-def export_radius_file(output_file, changes, replace_illegal_characters=True):
+def export_radius_file(output_file, changes):
     """Writes a file for use in FreeRadius server."""
     logger.info('Writing student data to radius file...')
-    bbss.radius.export_data(output_file, changes,
-                            replace_illegal_characters)
+    bbss.radius.export_data(output_file, changes)
     logger.info('Student list written to file.')
 
 
@@ -105,10 +104,10 @@ def export_labsoft_file(output_file, changes):
     logger.info('Student list written to file.')
 
 
-def export_pdf_file(output_file, student_list):
+def export_pdf_file(output_file, selected_students):
     """Writes a PDF file to be distributed to the students."""
     logger.info('Writing student list to PDF file...')
-    bbss.pdf.export_data(output_file, student_list)
+    bbss.pdf.export_data(output_file, selected_students)
     logger.info('Student list written to file.')
 
 
@@ -137,7 +136,7 @@ def store_students_db(importfile_name, callback=None):
     function a newly imported student list will be added to the database.
     In the database the name of the imported file is also stored for future
     reference.
-    
+
     :param importfile_name: name of the file from which the students were
                             imported
     :param callback: Function that is called after each of the students that

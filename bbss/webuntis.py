@@ -18,14 +18,12 @@ import datetime
 from itertools import chain
 
 import qrcode
-from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.lib.units import cm, mm
+from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.platypus.flowables import KeepTogether, Image
-from reportlab.lib.utils import ImageReader
 
 from bbss import data
 
@@ -57,7 +55,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students{}'.format(*output_file)
     if os.path.exists(output_file_students):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse', 'Schlüssel (extern)'))
@@ -69,16 +67,14 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
             if replace_illegal_characters:
                 class_of_student, surname_of_student, firstname_of_student =\
                     map(data.replace_illegal_characters,
-                        (class_of_student, surname_of_student,
-                        firstname_of_student))
+                        (class_of_student, surname_of_student, firstname_of_student))
                 # check for non ascii characters in string
                 try:
                     class_of_student.encode('ascii')
                     surname_of_student.encode('ascii')
                     firstname_of_student.encode('ascii')
                 except UnicodeEncodeError:
-                    logger.warning('Non ascii characters in %s %s in %s' %
-                                (firstname_of_student, surname_of_student, class_of_student))
+                    logger.warning('Non ascii characters in %s %s in %s' % (firstname_of_student, surname_of_student, class_of_student))
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
@@ -104,7 +100,7 @@ def _write_class_list_file(output_file, change_set):
     """
     list_of_passwords = {}
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=',')
         output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle', 'Benutzergruppe'))
@@ -128,7 +124,7 @@ def create_first_page(canvas, doc):
     canvas.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-58, TITLE)
     canvas.setFont('Helvetica', 10)
     canvas.drawString(BORDER_HORIZONTAL, BORDER_VERTICAL, TITLE)
-    canvas.drawRightString(PAGE_WIDTH-BORDER_HORIZONTAL , BORDER_VERTICAL, "Seite 1")
+    canvas.drawRightString(PAGE_WIDTH-BORDER_HORIZONTAL, BORDER_VERTICAL, "Seite 1")
     canvas.restoreState()
 
 
@@ -141,8 +137,8 @@ def create_later_pages(canvas, doc):
 
 
 def create_qr_code(user, password):
-    QR_URL_TEMPLATE = 'untis://setschool?url=asopo.webuntis.com&school=BBS Brinkstr-Osnabrück&user={}&key={}&schoolNumber=2042600'
-    img = qrcode.make(QR_URL_TEMPLATE.format(user, password))
+    url_template = 'untis://setschool?url=asopo.webuntis.com&school=BBS Brinkstr-Osnabrück&user={}&key={}&schoolNumber=2042600'
+    img = qrcode.make(url_template.format(user, password))
     #img.show()
     #img.save('qr.png')
     # get binary data for image to be inserted into PDF
@@ -161,7 +157,7 @@ def create_pdf_doc(output_file, list_of_passwords):
     main_paragraph_style = ParagraphStyle(name='Normal', fontSize=14, leading=18) #fontName='Inconsolata'
     link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
-    story = [Spacer(1,0.75*cm)]
+    story = [Spacer(1, 0.75*cm)]
     for k, v in sorted(list_of_passwords.items()):
         # build inner table with class specific user account information
         img = create_qr_code(k, v)
@@ -171,18 +167,18 @@ def create_pdf_doc(output_file, list_of_passwords):
         else:
             inner_table_data = [['Benutzername: {}'.format(k), 'Passwort: {}'.format(v)]]
             inner_table = Table(inner_table_data)
-        inner_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Courier'),
-                                         ('FONTSIZE',(0,0),(-1,-1), 12),
-                                         ('SPAN', (1,0), (1,-1)),
-                                         ('VALIGN',(0,0),(-1,-1),'TOP'),
-                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                                         ('ALIGN',(1,0),(1,-1),'RIGHT'),
-                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('BOX', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('LEFTPADDING', (0,0), (-1,-1), 15),
-                                         ('RIGHTPADDING', (0,0), (-1,-1), 15),
-                                         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-                                         ('TOPPADDING', (0,0), (-1,-1), 5)]))
+        inner_table.setStyle(TableStyle([('FONT', (0, 0), (-1, -1), 'Courier'),
+                                         ('FONTSIZE', (0, 0), (-1, -1), 12),
+                                         ('SPAN', (1, 0), (1, -1)),
+                                         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                                         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                                         ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+                                         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('BOX', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('LEFTPADDING', (0, 0), (-1, -1), 15),
+                                         ('RIGHTPADDING', (0, 0), (-1, -1), 15),
+                                         ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                                         ('TOPPADDING', (0, 0), (-1, -1), 5)]))
         # build paragraphs for outer table
         data = [[Paragraph('Benutzerdaten für den Zugriff auf den Stundenplan<br/>der Klasse {}'.format(k),
                            main_paragraph_style)],
@@ -190,16 +186,16 @@ def create_pdf_doc(output_file, list_of_passwords):
                 [Paragraph('Bitte die Benutzerdaten an die Klasse weitergeben. Danke!', main_paragraph_style)],
                 [Paragraph('Zugriff online unter: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)', link_paragraph_style)]]
         outer_table = Table(data)
-        outer_table.setStyle(TableStyle([('FONT',(0,0),(-1,-1),'Helvetica'),
-                                         ('FONTSIZE',(0,0),(-1,-1), 14),
-                                         ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                                         ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.white),
-                                         ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-                                         ('LEFTPADDING', (0,0), (-1,-1), 20),
-                                         ('RIGHTPADDING', (0,0), (-1,-1), 20),
-                                         ('BOTTOMPADDING', (0,0), (-1,-1), 10),
-                                         ('TOPPADDING', (0,0), (-1,-1), 10)]))
+        outer_table.setStyle(TableStyle([('FONT', (0, 0), (-1, -1), 'Helvetica'),
+                                         ('FONTSIZE', (0, 0), (-1, -1), 14),
+                                         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                                         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                                         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.white),
+                                         ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                                         ('LEFTPADDING', (0, 0), (-1, -1), 20),
+                                         ('RIGHTPADDING', (0, 0), (-1, -1), 20),
+                                         ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+                                         ('TOPPADDING', (0, 0), (-1, -1), 10)]))
         # append outer table for this class to document (without breaking table over multiple pages)
         story.append(KeepTogether(outer_table))
         story.append(Paragraph('<br/><br/><br/><br/>', ParagraphStyle(name='Normal')))

@@ -44,7 +44,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
                                        characters in class and student names
     """
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     # export file with all added and changed students (Windows default encoding for US and most of EU explicitly set!)
     with open(output_file, 'w', newline='', encoding='cp1252') as csvfile:
         count = 0
@@ -60,7 +60,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
 def _write_student(student, output_file_writer, replace_illegal_characters):
     """
     Writes the data of a single student to CSV file.
-    
+
     :param student: object representing a single students data
     :param output_file_writer: CSV file to write to
     :param replace_illegal_characters: whether to replace illegal (non-ASCII)

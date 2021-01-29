@@ -132,7 +132,7 @@ class StudentDatabase(object):
         Stores a new complete set of students in the database. Already imported
         students will only be referenced and their user name and password
         information will not be altered.
-        
+
         :param importfile_name: name of the file from which the students were
                                 imported
         :param student_list: list with the student data that should be imported
@@ -151,7 +151,7 @@ class StudentDatabase(object):
         # storing all students in database
         for i, student in enumerate(student_list):
             # call callback functions with number of current students
-            if callback != None and callable(callback):
+            if callback is not None and callable(callback):
                 callback(i, len(student_list))
             current_student = None
             # if imported student has already a GUID...
@@ -173,7 +173,7 @@ class StudentDatabase(object):
                 # classes)
                 if current_student and current_student['guid']:
                     logger.debug('Adding second database entry for student: {} {}'.format(
-					             current_student['firstname'], current_student['surname']))
+                        current_student['firstname'], current_student['surname']))
                     # allow to include student a second time with the new class assigned to him/her
                     current_student = None
             #
@@ -378,7 +378,7 @@ class StudentDatabase(object):
             logger.debug('\t' + str(s))
             # skip student, if already in list, because that can happen, if students are associated with multiple classes
             if s in change_set.students_added:
-                logger.warn('Skipping added student that is already in list!')
+                logger.warning('Skipping added student that is already in list!')
                 continue
             change_set.students_added.append(s)
 
@@ -404,7 +404,7 @@ class StudentDatabase(object):
             logger.debug('\t' + str(s))
             # skip student, if already in list, because that can happen, if students are associated with multiple classes
             if s in change_set.students_changed:
-                logger.warn('Skipping changed student that is already in list!')
+                logger.warning('Skipping changed student that is already in list!')
                 continue
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
@@ -413,7 +413,7 @@ class StudentDatabase(object):
     def _get_all_students_of_import(self, new_import_id):
         """
         Returns all students for a given import.
-        
+
         :param new_import_id: import ID for which to get students
         :return: ChangeSet object containing all students from the given import
         """
@@ -437,7 +437,7 @@ class StudentDatabase(object):
         """
         Compares two imports and returns lists of added/removed classes between
         the given imports.
-        
+
         :param old_import_id: import ID for earlier import of comparison
         :param new_import_id: import ID for later import of comparison
         :return: two lists with the classes that were added and removed between given imports
@@ -482,7 +482,7 @@ class StudentDatabase(object):
                       ( SELECT * FROM students JOIN StudentsInImports
 	                  ON StudentsInImports.student_id = Students.id ORDER BY Students.id )
                       WHERE username = ? GROUP BY class_in_import ORDER BY import_id;"""
-        query_dates = """SELECT classname, I1.date as min_date, I2.date as max_date FROM 
+        query_dates = """SELECT classname, I1.date as min_date, I2.date as max_date FROM
                          ( SELECT class_in_import as classname, min(import_id) as min_import,
                          max(import_id) as max_import FROM
                          ( SELECT * FROM students JOIN StudentsInImports
@@ -530,7 +530,7 @@ class StudentDatabase(object):
             # delete all students that appear only in older imports
             for i, r in enumerate(result_data):
                 # call callback functions with number of current students
-                if callback != None and callable(callback):
+                if callback is not None and callable(callback):
                     callback(i, len(result_data))
                 student_id = r['student_id']
                 logger.debug('Deleting student no. {} with last import no. {}.'.format(*tuple(r)))

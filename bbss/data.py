@@ -21,7 +21,7 @@ from bbss import ad
 
 
 #
-# Alternatives for generating better passwords: 
+# Alternatives for generating better passwords:
 # pronounceable passwords in Python: https://www.ibisc.univ-evry.fr/~fpommereau/blog/2015-05-07-generating-pronounceable-passwords-in-python.html
 # and: https://exyr.org/2011/random-pronounceable-passwords/
 #
@@ -60,7 +60,7 @@ class Student(object):
                                            self.classname)
 
     def __eq__(self, other):
-        if other == None:
+        if other is None:
             return False
         return ((self.surname, self.firstname, self.birthday) ==
                 (other.surname, other.firstname, other.birthday))
@@ -98,7 +98,7 @@ class Student(object):
         Generates a user id for a student if it does not exist already.
         Otherwise the existing user id is returned! The default user id is
         returned as all caps string.
-        
+
         Currently the existing user id is NEVER replaced even when an existing
         student is in the database and her class name changed! The database
         functions call this method to get the user id. Changing user ids when
@@ -177,7 +177,7 @@ def generate_good_readable_password():
     are exempt from passwords.
 
     Source: https://stackoverflow.com/questions/55556/characters-to-avoid-in-automatically-generated-passwords
-   
+
     :return: string containing random password of good quality
     """
     password = []
@@ -198,17 +198,19 @@ def generate_good_readable_password():
     return ''.join(password)
 
 
-def replace_illegal_characters(string):
+def replace_illegal_characters(input_string):
     """Replaces illegal characters from a given string with values from char
        map. (See bbss.config)"""
-    characters = list(string)
+    characters = list(input_string)
     return ''.join([config.char_map[char] if char in config.char_map
-                   else char for char in characters])
+                    else char for char in characters])
 
 
-def replace_class_name(old_class_name, exceptions=list()):
+def replace_class_name(old_class_name, exceptions=None):
     """Replaces class names that have to be changed for generating user
        names. (See bbss.config)"""
+    if exceptions is None:
+        exceptions = list()
     new_class_name = old_class_name
     for old, new in config.class_map.items():
         if old not in exceptions:
@@ -221,8 +223,8 @@ def replace_class_name(old_class_name, exceptions=list()):
 
 def is_class_blacklisted(class_name):
     for blacklisted_class in config.class_blacklist:
-            if blacklisted_class in class_name:
-                return True
+        if blacklisted_class in class_name:
+            return True
     return False
 
 
@@ -274,8 +276,8 @@ class ChangeSet(object):
         self.classes_removed = []
 
     def __str__(self):
-        t = "<ChangeSet: {0} added, {1} removed, {2} changed>"
-        return t.format(len(self.students_added), len(self.students_removed), len(self.students_changed))
+        template = "<ChangeSet: {0} added, {1} removed, {2} changed>"
+        return template.format(len(self.students_added), len(self.students_removed), len(self.students_changed))
 
     def get_statistics(self):
         return ChangeSetStatistics(len(self.students_added), len(self.students_changed), len(self.students_removed))

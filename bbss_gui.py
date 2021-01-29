@@ -26,10 +26,8 @@ if __name__ == '__main__':
     LOG_FILENAME = 'bbss.log'
     logger = logging.getLogger('bbss')
     logger.setLevel(logging.DEBUG)
-    log_to_file = logging.handlers.RotatingFileHandler(LOG_FILENAME,
-                                                       maxBytes=262144,
-                                                       backupCount=5,
-													   encoding='utf-8')
+    log_to_file = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=262144,
+                                                       backupCount=5, encoding='utf-8')
     log_to_file.setLevel(logging.DEBUG)
     logger.addHandler(log_to_file)
     log_to_screen = logging.StreamHandler(sys.stdout)
