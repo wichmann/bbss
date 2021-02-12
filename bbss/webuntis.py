@@ -51,7 +51,7 @@ def export_data(output_file, change_set):
     create_pdf_doc(output_file, list_of_passwords)
 
 
-def _write_student_list_file(output_file, change_set, replace_illegal_characters=False):
+def _write_student_list_file(output_file, change_set):
     blacklist = ['BFS0X', 'ZABI0X']
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students{}'.format(*output_file)
@@ -59,37 +59,33 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
         logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse', 'Schlüssel (extern)'))
+        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
+                                     'Schlüssel (extern)', 'Eintrittsdatum', 'Austrittsdatum'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
-            class_of_student = student.get_class_name_for_class_id()
+            class_of_student = student.classname
             if class_of_student in blacklist:
                 continue
             surname_of_student = student.surname
             firstname_of_student = student.firstname
-            # replace illegal characters if needed
-            if replace_illegal_characters:
-                class_of_student, surname_of_student, firstname_of_student =\
-                    map(data.replace_illegal_characters,
-                        (class_of_student, surname_of_student, firstname_of_student))
-                # check for non ascii characters in string
-                try:
-                    class_of_student.encode('ascii')
-                    surname_of_student.encode('ascii')
-                    firstname_of_student.encode('ascii')
-                except UnicodeEncodeError:
-                    logger.warning('Non ascii characters in %s %s in %s' % (firstname_of_student, surname_of_student, class_of_student))
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
-            output_file_writer.writerow((surname_of_student,
-                                         firstname_of_student,
-                                         birthday,
-                                         user_id,
-                                         class_of_student,
-                                         student.guid))
+            output_file_writer.writerow((surname_of_student, firstname_of_student,
+                                         birthday, user_id, class_of_student,
+                                         student.guid, '01.02.2021', ''))
         for student in sorted(change_set.students_removed):
             # removed students should be included in the export file, with the exit date set to the date of the export
-            pass
+            class_of_student = student.classname
+            if class_of_student in blacklist:
+                continue
+            surname_of_student = student.surname
+            firstname_of_student = student.firstname
+            # output student data for change set into file
+            user_id = student.generate_user_id().lower()
+            birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            output_file_writer.writerow((surname_of_student, firstname_of_student,
+                                         birthday, user_id, class_of_student,
+                                         student.guid, '01.02.2021', datetime.date.today().strftime('%d.%m.%Y')))
 
 
 def _write_class_list_file(output_file, change_set):
@@ -183,12 +179,11 @@ def create_pdf_doc(output_file, list_of_passwords):
                                          ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
                                          ('TOPPADDING', (0, 0), (-1, -1), 5)]))
         # build paragraphs for outer table
-        data = [[Paragraph('Benutzerdaten für den Zugriff auf den Stundenplan<br/>der Klasse {}'.format(k),
-                           main_paragraph_style)],
-                [inner_table],
-                [Paragraph('Bitte die Benutzerdaten an die Klasse weitergeben. Danke!', main_paragraph_style)],
-                [Paragraph('Zugriff online unter: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)', link_paragraph_style)]]
-        outer_table = Table(data)
+        elements = [[Paragraph('Benutzerdaten für den Zugriff auf den Stundenplan<br/>der Klasse {}'.format(k), main_paragraph_style)],
+                    [inner_table],
+                    [Paragraph('Bitte die Benutzerdaten an die Klasse weitergeben. Danke!', main_paragraph_style)],
+                    [Paragraph('Zugriff online unter: https://asopo.webuntis.com/WebUntis/ oder als App: Untis Mobile (Schulname: BBS Brinkstr-Osnabrück)', link_paragraph_style)]]
+        outer_table = Table(elements)
         outer_table.setStyle(TableStyle([('FONT', (0, 0), (-1, -1), 'Helvetica'),
                                          ('FONTSIZE', (0, 0), (-1, -1), 14),
                                          ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
