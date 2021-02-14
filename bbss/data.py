@@ -30,7 +30,7 @@ from bbss import ad
 logger = logging.getLogger('bbss.data')
 
 
-PASSWORD_LENGTH = 8
+PASSWORD_LENGTH = 9
 
 
 @total_ordering
