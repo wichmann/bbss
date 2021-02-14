@@ -26,7 +26,7 @@ logger = logging.getLogger('bbss.csv')
 
 # TODO: Import mail adresses from CSV file like the XLS import does!!!
 
-### correlation between columns in the csv file and their attributes
+# correlation between columns in the csv file and their attributes
 column_map = {'surname': 0,
               'firstname': 0,
               'classname': 0,
@@ -77,8 +77,7 @@ def _read_student(row, student_list):
         return student_counts
     # convert date of birth
     try:
-        birthday_of_student = datetime.datetime.strptime(
-            birthday_of_student, '%d.%m.%Y').date()
+        birthday_of_student = datetime.datetime.strptime(birthday_of_student, '%d.%m.%Y').date()
         student_list.append(data.Student(name_of_student,
                                          firstname_of_student,
                                          class_of_student,

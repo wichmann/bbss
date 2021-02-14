@@ -27,7 +27,7 @@ logger = logging.getLogger('bbss.moodle')
 def export_data(output_file, change_set, replace_illegal_characters=False):
     # class list file not necessary, because cohorts will be created by uploading
     # user list (source: https://docs.moodle.org/33/en/Cohorts#Uploading_users_to_a_cohort)
-    #_write_class_list_file(output_file, change_set)
+    # _write_class_list_file(output_file, change_set)
     _write_student_list_file(output_file, change_set, replace_illegal_characters)
     _write_cohorts_file(output_file, change_set)
 
@@ -50,7 +50,7 @@ def _write_class_list_file(output_file, change_set):
     """
     output_file += '.classes'
     if os.path.exists(output_file):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('name', 'idnumber', 'description'))
@@ -61,7 +61,7 @@ def _write_class_list_file(output_file, change_set):
 def _write_cohorts_file(output_file, change_set):
     """
     Writes a file containing all assignments between students and cohorts.
-    
+
     :param output_file: file name to write cohorts list to
     :param change_set: object representing all changes between given imports
 
@@ -74,7 +74,7 @@ def _write_cohorts_file(output_file, change_set):
     output_file = os.path.splitext(output_file)
     output_file_cohorts = '{}.cohorts{}'.format(*output_file)
     if os.path.exists(output_file_cohorts):
-        logger.warn('Output file already exists, will be overwritten...')
+        logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_cohorts, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('username', 'cohort1', 'cohort2', 'cohort3', 'cohort4',
@@ -90,7 +90,7 @@ def _write_cohorts_file(output_file, change_set):
 def _write_student_list_file(output_file, change_set, replace_illegal_characters):
     """
     Writes a file containing all data to import students into Moodle. All new
-    students will be included. Each student no longer in the database, will be 
+    students will be included. Each student no longer in the database, will be
     included in the file with the "deleted" parameter set to "1".
 
     :param output_file: file name to write student list to
@@ -125,7 +125,6 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     with open(output_file_added_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        # FIXME: Check whether "role1" field is necessary.
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
                                      'password', 'email', 'deleted'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
@@ -136,7 +135,6 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
     with open(output_file_removed_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        # FIXME: Check whether "role1" field is necessary.
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
                                      'password', 'email', 'deleted'))
         for student in sorted(change_set.students_removed):

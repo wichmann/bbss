@@ -259,6 +259,7 @@ def verify_mail_address(mail_address):
 
 ChangeSetStatistics = namedtuple('ChangeSetStatistics', 'added changed removed')
 
+
 class ChangeSet(object):
     """
     Defines all changes between two imports of student data.

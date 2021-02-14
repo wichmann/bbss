@@ -11,19 +11,19 @@ Created on Mon Feb  3 15:08:56 2013
 """
 
 
-### option whether to overwrite username and password at each import
+# option whether to overwrite username and password at each import
 ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
 
 
-### option whether to import email addresses every time even if the student was already in the database
+# option whether to import email addresses every time even if the student was already in the database
 ALWAYS_IMPORT_EMAIL_ADDRESSES = False
 
 
-### black list of classes not to load
+# black list of classes not to load
 class_blacklist = ('OWS', 'OWH')
 
 
-### map translating all illegal characters into legal (ascii) characters
+# map translating all illegal characters into legal (ascii) characters
 char_map = {'ä': 'ae',
             'à': 'a',
             'á': 'a',
@@ -69,8 +69,7 @@ char_map = {'ä': 'ae',
             ' ': ''}
 
 
-### map translating class names as used to class names a necessary for
-### generating user names
+# map translating class names as used to class names a necessary for generating user names
 class_map = {'SGOX': 'SGO',
              'SGSX': 'SGO',
              'STEX': 'STE',
@@ -94,8 +93,8 @@ class_map = {'SGOX': 'SGO',
              'TG13': 'TG'}
 
 
-### map translating a class determinator (without the identifier for a
-### specific class) to a department to which this class belongs to
+# map translating a class determinator (without the identifier for a specific class)
+# to a department to which this class belongs to
 department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
                   ('BGT', 'BGTA', 'BGTB', 'BGTC', 'BGT12', 'BGT13',
                    'TG', 'TG11A', 'TG11B', 'TG11C', 'TG11D', 'TG12', 'TG13'): 'Berufliches Gymnasium',
@@ -111,7 +110,7 @@ department_map = {('BFSE', 'EIE', 'ELH', 'ELI', 'EIEX'): 'Elektrotechnik',
                   ('OWS', 'OWH'): 'Osnabrücker Werkstätten'}
 
 
-### list containing blicklisted strings when importing mail addresses from BBS-Planung
+# list containing blicklisted strings when importing mail addresses from BBS-Planung
 mail_address_blacklist = ['unbekannt', 'nicht bekannt', 'keine bekannt', 'nicht vorhanden',
                           'keine angabe', 'ohne angabe', 'ohne angaben', 'wird nachgereicht',
                           'keine', 'nicht angegeben', 'k.a.', 'n.n.', 'n.a.', 'o.a.',

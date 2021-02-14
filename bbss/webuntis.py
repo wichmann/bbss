@@ -107,7 +107,7 @@ def _write_class_list_file(output_file, change_set):
             new_password = data.generate_good_password()
             list_of_passwords[c] = new_password
             output_file_writer.writerow((c, c, new_password, 'Klasse', 'Klassen'))
-	# write file with classes that can be deleted from WebUntis (does not work automatically!)
+    # write file with classes that can be deleted from WebUntis (does not work automatically!)
     output_file = os.path.splitext(output_file)
     output_file = '{}.removed{}'.format(*output_file)
     with open(output_file, 'w', newline='', encoding='utf8') as removedlistfile:
@@ -117,7 +117,7 @@ def _write_class_list_file(output_file, change_set):
     return list_of_passwords
 
 
-def create_first_page(canvas, doc):
+def create_first_page(canvas, _):
     canvas.saveState()
     canvas.setFont('Helvetica', 16)
     canvas.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-58, TITLE)
@@ -138,8 +138,6 @@ def create_later_pages(canvas, doc):
 def create_qr_code(user, password):
     url_template = 'untis://setschool?url=asopo.webuntis.com&school=BBS Brinkstr-Osnabrück&user={}&key={}&schoolNumber=2042600'
     img = qrcode.make(url_template.format(user, password))
-    #img.show()
-    #img.save('qr.png')
     # get binary data for image to be inserted into PDF
     output = io.BytesIO()
     img.save(output, format=img.format)
@@ -153,8 +151,8 @@ def create_pdf_doc(output_file, list_of_passwords):
         logger.debug('User: {} Password: {}'.format(k, v))
     logger.debug('Finished creating new passwords for WebUntis.')
     # create PDF file
-    main_paragraph_style = ParagraphStyle(name='Normal', fontSize=14, leading=18) #fontName='Inconsolata'
-    link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
+    main_paragraph_style = ParagraphStyle(name='Normal', fontSize=14, leading=18)
+    link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11)
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
     story = [Spacer(1, 0.75*cm)]
     for k, v in sorted(list_of_passwords.items()):

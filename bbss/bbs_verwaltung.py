@@ -27,7 +27,7 @@ logger = logging.getLogger('bbss.bbs_verwaltung')
 def import_data(import_file):
     student_count = 0
     student_list = []
-	# open CSV file with strange encoding because otherwise BOM markers show up
+    # open CSV file with strange encoding because otherwise BOM markers show up
     with open(import_file, 'r', encoding='utf-8-sig') as csvfile:
         student_file_reader = csv.reader(csvfile, delimiter=';')
         for row in student_file_reader:
@@ -39,11 +39,11 @@ def import_data(import_file):
 def _read_student(row, student_list):
     """Reads a single student (her/his data) from a row of a csv file.
 
-	Columns:
-	GUID, E-Mailadresse, Username im AD, Nachname, Vorname, Klasse, Kurse,
+    Columns:
+    GUID, E-Mailadresse, Username im AD, Nachname, Vorname, Klasse, Kurse,
     Geb. Datum, Initial-Passwort, löschen, Neu, LK=-1/SuS=0, Gruppen-
     zugehörigkeit z.B. für E-Mail
-	"""
+    """
     student_count = 0
     try:
         # parse GUID as validation, although it is stored as string in the database
@@ -110,4 +110,3 @@ def _read_student(row, student_list):
     if courses:
         logger.debug('Courses for student {}: {}'.format(new_student, courses))
     return student_count
-

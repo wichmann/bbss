@@ -41,7 +41,7 @@ def export_data(output_file, student_list):
     create_pdf_doc(output_file, student_list)
 
 
-def create_first_page(canvas, doc):
+def create_first_page(canvas, _):
     canvas.saveState()
     canvas.setFont('Helvetica', 16)
     canvas.drawCentredString(PAGE_WIDTH/2.0, PAGE_HEIGHT-58, TITLE)
@@ -62,10 +62,10 @@ def create_later_pages(canvas, doc):
 def create_pdf_doc(output_file, students_added):
     logger.debug('Exporting students to PDF file...')
     # create PDF file
-    link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11) #fontName='Inconsolata'
+    link_paragraph_style = ParagraphStyle(name='Normal', fontSize=11)
     doc = SimpleDocTemplate(output_file, author=AUTHOR, title=TITLE)
     story = [Spacer(1, 0.5*cm)]
-	# add page header
+    # add page header
     story.append(Paragraph(INFO_TEXT, link_paragraph_style))
     story.append(Spacer(1, 0.5*cm))
     for s in sorted(students_added):
