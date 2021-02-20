@@ -32,14 +32,28 @@ if __name__ == '__main__':
     log_to_screen.setLevel(logging.INFO)
     logger.addHandler(log_to_screen)
 
-    # create all necessary data structures and fill in the account data
-    s = data.Student('surname', 'firstname', 'classname', '01.01.1980')
-    s.user_id = 'username'
-    s.password = 'passwort'
-    s.email = 'user@domain.com'
-    student_list = [s]
+    student_list = []
+
+    s1 = data.Student('surname', 'firstname', 'classname', '01.01.1980')
+    s1.user_id = 'username'
+    s1.password = 'passwort'
+    s1.email = 'user@domain.com'
+    student_list.append(s1)
+
+    s2 = data.Student('surname', 'firstname', 'classname', '01.01.1980')
+    s2.user_id = 'username'
+    s2.password = 'passwort'
+    s2.email = 'user@domain.com'
+    student_list.append(s2)
+
+    s3 = data.Student('surname', 'firstname', 'classname', '01.01.1980')
+    s3.user_id = 'username'
+    s3.password = 'passwort'
+    s3.email = 'user@domain.com'
+    student_list.append(s3)
+
     changeset = data.ChangeSet()
-    changeset.students_added.append(s)
+    changeset.students_added.extend(student_list)
 
     # write file for Moodle import and PDF with account data
     now = datetime.datetime.now().strftime('%Y-%m-%d')
