@@ -126,7 +126,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
-                                     'password', 'email', 'deleted'))
+                                     'password', 'email', 'suspended'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
             _write_student(student, output_file_writer, replace_illegal_characters, False)
             count += 1
@@ -136,7 +136,7 @@ def _write_student_list_file(output_file, change_set, replace_illegal_characters
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('cohort1', 'lastname', 'firstname', 'username',
-                                     'password', 'email', 'deleted'))
+                                     'password', 'email', 'suspended'))
         for student in sorted(change_set.students_removed):
             # set delete column for removed students
             _write_student(student, output_file_writer, replace_illegal_characters, True)
