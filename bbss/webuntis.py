@@ -52,6 +52,11 @@ def export_data(output_file, change_set):
 
 
 def _write_student_list_file(output_file, change_set):
+    """
+    Write all added and changed students into a CSV file to be imported into
+    Webuntis. Removed students will not be updated in Webuntis, the exit date
+    should be set manually by the teachers.
+    """
     blacklist = ['BFS0X', 'ZABI0X']
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students{}'.format(*output_file)
@@ -72,20 +77,7 @@ def _write_student_list_file(output_file, change_set):
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
             output_file_writer.writerow((surname_of_student, firstname_of_student,
                                          birthday, user_id, class_of_student,
-                                         student.guid, '01.02.2021', ''))
-        for student in sorted(change_set.students_removed):
-            # removed students should be included in the export file, with the exit date set to the date of the export
-            class_of_student = student.classname
-            if class_of_student in blacklist:
-                continue
-            surname_of_student = student.surname
-            firstname_of_student = student.firstname
-            # output student data for change set into file
-            user_id = student.generate_user_id().lower()
-            birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
-            output_file_writer.writerow((surname_of_student, firstname_of_student,
-                                         birthday, user_id, class_of_student,
-                                         student.guid, '01.02.2021', datetime.date.today().strftime('%d.%m.%Y')))
+                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'), ''))
 
 
 def _write_class_list_file(output_file, change_set):
