@@ -85,10 +85,11 @@ def _read_student(row, student_list):
     # entry for a student that participates in two classes at the same time
     if surname[-1:] == '_':
         logger.warning('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
-        surname = surname[:-1]
     if surname[-1:] == '1':
         logger.warning('Found second user for student: {} {} ({})'.format(firstname, surname, classname))
-        surname = surname[:-1]
+        # NOTE: Since July 2021 the tailling number will not be removed from
+        # students name. So all students that are enrolled in two classes at
+        # once will have to separate users!
     # skip teacher user
     if is_teacher_or_student == -1:
         return student_count

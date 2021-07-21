@@ -16,7 +16,7 @@ ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
 
 
 # option whether to import email addresses every time even if the student was already in the database
-ALWAYS_IMPORT_EMAIL_ADDRESSES = False
+ALWAYS_IMPORT_EMAIL_ADDRESSES = True
 
 
 # black list of classes not to load
