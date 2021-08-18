@@ -66,6 +66,19 @@ def _write_student_list_file(output_file, change_set):
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
                                      'Schlüssel (extern)', 'Eintrittsdatum', 'Austrittsdatum'))
+        for student in sorted(change_set.students_added):
+            class_of_student = student.classname
+            if class_of_student in blacklist:
+                continue
+            surname_of_student = student.surname
+            firstname_of_student = student.firstname
+            # output student data for change set into file
+            user_id = student.generate_user_id().lower()
+            birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            # add new student with entry date, so that he/she will not be shown for dates before that!
+            output_file_writer.writerow((surname_of_student, firstname_of_student,
+                                         birthday, user_id, class_of_student,
+                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'), ''))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
             class_of_student = student.classname
             if class_of_student in blacklist:
@@ -75,9 +88,11 @@ def _write_student_list_file(output_file, change_set):
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            # add changed student without entry date, because that would overwrite an existing date;
+            # class change will take effect depending on the given date for that when importing the data!
             output_file_writer.writerow((surname_of_student, firstname_of_student,
                                          birthday, user_id, class_of_student,
-                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'), ''))
+                                         student.guid, '', ''))
 
 
 def _write_class_list_file(output_file, change_set):
