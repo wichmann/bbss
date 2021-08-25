@@ -26,6 +26,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.platypus.flowables import KeepTogether, Image
 
 from bbss import data
+from bbss import config
 
 
 __all__ = ['export_data']
@@ -59,40 +60,60 @@ def _write_student_list_file(output_file, change_set):
     """
     blacklist = ['BFS0X', 'ZABI0X']
     output_file = os.path.splitext(output_file)
-    output_file_students = '{}.students{}'.format(*output_file)
+    output_file_students = '{}.students_added{}'.format(*output_file)
     if os.path.exists(output_file_students):
         logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                     'Schlüssel (extern)', 'Eintrittsdatum', 'Austrittsdatum'))
+                                     'Schlüssel (extern)', 'Eintrittsdatum'))
         for student in sorted(change_set.students_added):
-            class_of_student = student.classname
-            if class_of_student in blacklist:
+            if student.classname in blacklist:
                 continue
-            surname_of_student = student.surname
-            firstname_of_student = student.firstname
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
             # add new student with entry date, so that he/she will not be shown for dates before that!
-            output_file_writer.writerow((surname_of_student, firstname_of_student,
-                                         birthday, user_id, class_of_student,
-                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'), ''))
-        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
-            class_of_student = student.classname
-            if class_of_student in blacklist:
+            output_file_writer.writerow((student.surname, student.firstname,
+                                         birthday, user_id, student.classname,
+                                         student.guid, datetime.date.today().strftime('%d.%m.%Y')))
+    # put students that changed classes into separate file because their entry date should not be changed!
+    output_file_students = '{}.students_changed{}'.format(*output_file)
+    if os.path.exists(output_file_students):
+        logger.warning('Output file already exists, will be overwritten...')
+    with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
+                                     'Schlüssel (extern)'))
+        for student in sorted(change_set.students_changed):
+            if student.classname in blacklist:
                 continue
-            surname_of_student = student.surname
-            firstname_of_student = student.firstname
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
             # add changed student without entry date, because that would overwrite an existing date;
             # class change will take effect depending on the given date for that when importing the data!
-            output_file_writer.writerow((surname_of_student, firstname_of_student,
-                                         birthday, user_id, class_of_student,
-                                         student.guid, '', ''))
+            output_file_writer.writerow((student.surname, student.firstname,
+                                         birthday, user_id, student.classname, student.guid))
+    # only export removed students if config option is set, otherwise ignore them
+    if config.SHOULD_SET_REMOVE_DATE_FROM_WEBUNTIS:
+        output_file_students = '{}.students_removed{}'.format(*output_file)
+        if os.path.exists(output_file_students):
+            logger.warning('Output file already exists, will be overwritten...')
+        with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
+            output_file_writer = csv.writer(csvfile, delimiter=';')
+            output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
+                                        'Schlüssel (extern)', 'Austrittsdatum'))
+            for student in sorted(change_set.students_removed):
+                if student.classname in blacklist:
+                    continue
+                # output student data for change set into file
+                user_id = student.generate_user_id().lower()
+                birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+                # add changed student without entry date, because that would overwrite an existing date;
+                # class change will take effect depending on the given date for that when importing the data!
+                output_file_writer.writerow((student.surname, student.firstname, birthday, user_id,
+                                             student.classname, student.guid, datetime.date.today().strftime('%d.%m.%Y')))
 
 
 def _write_class_list_file(output_file, change_set):

@@ -19,6 +19,10 @@ ALWAYS_OVERWRITE_USERNAME_AND_PASSWORD = False
 ALWAYS_IMPORT_EMAIL_ADDRESSES = True
 
 
+# option whether to set remove date for students, otherwise deleted students will be ignored!
+SHOULD_SET_REMOVE_DATE_FROM_WEBUNTIS = False
+
+
 # black list of classes not to load
 class_blacklist = ('OWS', 'OWH')
 

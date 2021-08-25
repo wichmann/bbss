@@ -77,14 +77,16 @@ def _write_cohorts_file(output_file, change_set):
         logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_cohorts, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('username', 'cohort1', 'cohort2', 'cohort3', 'cohort4',
+        output_file_writer.writerow(('username', 'lastname', 'firstname', 'email',
+                                     'cohort1', 'cohort2', 'cohort3', 'cohort4',
                                      'cohort5', 'cohort6', 'cohort7', 'cohort8', 'cohort9',
                                      'cohort10', 'cohort11', 'cohort12', 'cohort13', 'cohort14'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
             if student.courses:
                 c = student.courses.split(',')
                 course_names = ['Kurs-{}'.format(x.lower()) for x in c] + [''] * (14 - len(c))
-                output_file_writer.writerow((student.user_id, *course_names))
+                mail_address = student.email if student.email else '{}@example.com'.format(student.user_id)
+                output_file_writer.writerow((student.user_id, student.surname,student.firstname,mail_address,*course_names))
 
 
 def _write_student_list_file(output_file, change_set, replace_illegal_characters):
