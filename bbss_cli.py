@@ -61,7 +61,7 @@ Options:
   --dric                 Do not replace illegal characters in student names.
   --dsdb                 Do not store imported student data in database.
 """
-    options = docopt(docopt_string, version='bbss 0.4')
+    options = docopt(docopt_string, version='bbss 0.5')
 
     # use default config file (config.py) or a given file in directory
     # where this file lies
