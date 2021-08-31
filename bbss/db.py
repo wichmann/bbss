@@ -258,8 +258,13 @@ class StudentDatabase(object):
         """
         Builds a new Student object from result given by the database.
         """
+        ###
+        # It is importent to get class from table StudentsInImport instead of table Student,
+        # because some students are enrolled in multiple classes and the field classname in
+        # table Students does only contain a single class name!
+        ###
         s = data.Student(student['surname'], student['firstname'],
-                         student['classname'], student['birthday'])
+                         student['class_in_import'], student['birthday'])
         s.user_id = student['username']
         s.password = student['password']
         s.email = student['email']
@@ -268,9 +273,12 @@ class StudentDatabase(object):
         return s
 
     def search_for_student(self, search_string):
-        select_stmt = """SELECT * FROM Students
+        # TODO: Check whether this search gets last class, student is/was in?!
+        select_stmt = """SELECT surname, firstname, birthday, username, password, email, guid, courses, class_in_import, MAX(import_id)
+                         FROM (SELECT * FROM Students
                          WHERE surname LIKE ? OR firstname LIKE ?
-                         OR classname LIKE ? OR birthday LIKE ?"""
+                         OR classname LIKE ? OR birthday LIKE ?
+                         ) JOIN StudentsInImports ON student_id = id GROUP BY student_id"""
         student_list = []
         search_string = ('%{}%'.format(search_string), ) * 4
         self.cur.execute(select_stmt, search_string)
@@ -360,7 +368,8 @@ class StudentDatabase(object):
 
     def _get_difference_between_imports(self, old_import_id, new_import_id):
         # TODO handle changed students
-        sql = """SELECT * FROM (
+        sql = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, classname as class_in_import
+                 FROM (
                      SELECT student_id FROM StudentsInImports
                      WHERE import_id=?
                      EXCEPT
@@ -392,10 +401,16 @@ class StudentDatabase(object):
             change_set.students_removed.append(s)
 
         # get changed students from database and store them in list
-        changed_student_stmt = """SELECT * FROM (
-                                  SELECT student_id FROM ClassChanges
-                                  WHERE import_id BETWEEN ? AND ?
-                                  ) JOIN Students ON student_id = id"""
+        # TODO: Get changed students without relying on the table ClassChanges!
+        changed_student_stmt = """
+                               SELECT * FROM (
+                                 SELECT Students.id, Students.surname, Students.firstname, Students.classname, Students.birthday,
+                                       Students.username, Students.password, Students.email, Students.guid, Students.courses
+                                 FROM (
+                                    SELECT student_id, import_id FROM ClassChanges WHERE import_id BETWEEN ? AND ?
+                                 ) JOIN Students ON student_id = id
+                               ) JOIN StudentsInImports ON StudentsInImports.import_id = import_id AND StudentsInImports.student_id = id
+                               """ 
         self.cur.execute(changed_student_stmt, (old_import_id + 1, new_import_id))
         result_data = self.cur.fetchall()
         logger.debug('Changed students are: ')
@@ -418,8 +433,8 @@ class StudentDatabase(object):
         :return: ChangeSet object containing all students from the given import
         """
         sql_for_all_students = """SELECT import_id,
-            student_id, firstname, surname, classname,
-            birthday, username, password, email, guid, courses
+            student_id, firstname, surname, classname, birthday, username,
+            password, email, guid, courses, class_in_import
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
             AND import_id = ?; """
