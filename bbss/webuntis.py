@@ -58,7 +58,7 @@ def _write_student_list_file(output_file, change_set):
     Webuntis. Removed students will not be updated in Webuntis, the exit date
     should be set manually by the teachers.
     """
-    blacklist = ['BFS0X', 'ZABI0X']
+    blacklist = ['BFS0X', 'ZABI0X', 'AAK31']
     output_file = os.path.splitext(output_file)
     output_file_students = '{}.students_added{}'.format(*output_file)
     if os.path.exists(output_file_students):
@@ -66,7 +66,7 @@ def _write_student_list_file(output_file, change_set):
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                     'Schlüssel (extern)', 'Eintrittsdatum'))
+                                     'Schlüssel (extern)', 'Eintrittsdatum', 'Austrittsdatum'))
         for student in sorted(change_set.students_added):
             if student.classname in blacklist:
                 continue
@@ -76,7 +76,7 @@ def _write_student_list_file(output_file, change_set):
             # add new student with entry date, so that he/she will not be shown for dates before that!
             output_file_writer.writerow((student.surname, student.firstname,
                                          birthday, user_id, student.classname,
-                                         student.guid, datetime.date.today().strftime('%d.%m.%Y')))
+                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'),''))
     # put students that changed classes into separate file because their entry date should not be changed!
     output_file_students = '{}.students_changed{}'.format(*output_file)
     if os.path.exists(output_file_students):
@@ -84,7 +84,7 @@ def _write_student_list_file(output_file, change_set):
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                     'Schlüssel (extern)'))
+                                     'Schlüssel (extern)',  'Austrittsdatum'))
         for student in sorted(change_set.students_changed):
             if student.classname in blacklist:
                 continue
@@ -94,7 +94,7 @@ def _write_student_list_file(output_file, change_set):
             # add changed student without entry date, because that would overwrite an existing date;
             # class change will take effect depending on the given date for that when importing the data!
             output_file_writer.writerow((student.surname, student.firstname,
-                                         birthday, user_id, student.classname, student.guid))
+                                         birthday, user_id, student.classname, student.guid, ''))
     # only export removed students if config option is set, otherwise ignore them
     if config.SHOULD_SET_REMOVE_DATE_FROM_WEBUNTIS:
         output_file_students = '{}.students_removed{}'.format(*output_file)
