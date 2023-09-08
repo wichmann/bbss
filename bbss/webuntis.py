@@ -132,7 +132,7 @@ def _write_class_list_file(output_file, change_set):
         output_file_writer = csv.writer(csvfile, delimiter=',')
         output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle', 'Benutzergruppe'))
         for c in change_set.classes_added:
-            new_password = data.generate_good_password()
+            new_password = data.generate_good_readable_password()
             list_of_passwords[c] = new_password
             output_file_writer.writerow((c, c, new_password, 'Klasse', 'Klassen'))
     # write file with classes that can be deleted from WebUntis (does not work automatically!)
