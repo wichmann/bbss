@@ -43,6 +43,9 @@ class Student(object):
     it is first needed, e.g. for exporting or storing in the database.
     """
     def __init__(self, surname, firstname, classname, birthday):
+        # filter numbers from surname if there is any (this is used sometimes
+        # for students who participate in multiple classes!)
+        surname = ''.join(i for i in surname if not i.isdigit())
         self.surname = surname
         self.firstname = firstname
         self.classname = classname
@@ -62,12 +65,16 @@ class Student(object):
     def __eq__(self, other):
         if other is None:
             return False
+        if self.guid and other.guid:
+            return self.guid == other.guid
         return ((self.surname, self.firstname, self.birthday) ==
                 (other.surname, other.firstname, other.birthday))
 
     def __lt__(self, other):
         # FIXME Check if different implementations of __eq__ and __lt__ result
         #       in problematic effects when sorting lists of students!
+        if self.guid and other.guid:
+            return self.guid > other.guid
         return ((self.classname, self.surname, self.firstname, self.birthday) <
                 (other.classname, other.surname, other.firstname, other.birthday))
 
