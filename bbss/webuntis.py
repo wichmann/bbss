@@ -45,6 +45,9 @@ INCLUDE_QR_CODE = False
 
 
 def export_data(output_file, change_set):
+    # generate import file for importing users for all students
+    _write_student_user_list_file(output_file, change_set)
+    # generate import file for importing students into base data (Stammdaten)
     _write_student_list_file(output_file, change_set)
     list_of_passwords = _write_class_list_file(output_file, change_set)
     # create a PDF file with every new class including its password
@@ -143,6 +146,30 @@ def _write_class_list_file(output_file, change_set):
         for c in change_set.classes_removed:
             removedlistfile.write(' - {}\n'.format(c))
     return list_of_passwords
+
+
+def _write_student_user_list_file(output_file, change_set):
+    """
+    Writes a file containing all data to import new student users into WebUntis.
+    Each student will be imported into the base data ("Stammdaten") and gets a
+    user for accessing the schedule. This function ONLY produces the user data!
+
+    :param output_file: file name to write student user list to
+    :param change_set: object representing all changes between given imports
+    """
+    output_file = os.path.splitext(output_file)
+    output_file_students = '{}.student_users{}'.format(*output_file)
+    if os.path.exists(output_file_students):
+        logger.warning('Output file already exists, will be overwritten...')
+    # export file with all student users
+    with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
+        count = 0
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle', 'Benutzergruppe', 'Fremdbenutzername', 'E-Mail Adresse'))
+        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+            output_file_writer.writerow((student.classname, student.user_id, student.password, 'Schüler*innen', 'Schüler*innen (Schüler)', student.guid, student.email))
+            count += 1
+        logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
 
 
 def create_first_page(canvas, _):
