@@ -32,7 +32,7 @@ def export_data(output_file, change_set):
         class_of_student = ''
         line = '{:20}\t\tCleartext-Password := "{}"\n'
         last_exported_student = None
-        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+        for student in sorted(chain(change_set.students_added, change_set.students_changed),  key=lambda s: s.classname):
             if student == last_exported_student:
                 continue
             last_exported_student = student
