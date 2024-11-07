@@ -504,7 +504,7 @@ class StudentDatabase(object):
 	                     ON StudentsInImports.student_id = Students.id ORDER BY Students.id )
                          WHERE username = ? GROUP BY class_in_import ORDER BY import_id )
                          JOIN Imports as I1 ON min_import = I1.id
-                         JOIN Imports as I2 ON (max_import+1) = I2.id;"""
+                         JOIN Imports as I2 ON (max_import) = I2.id;"""
         self.cur.execute(query_dates, (student_id, ))
         result_data = self.cur.fetchall()
         history = []
