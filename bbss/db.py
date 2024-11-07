@@ -558,6 +558,10 @@ class StudentDatabase(object):
         with self.conn:
             self.conn.execute('VACUUM;')
 
+    def get_usernames_and_ids(self):
+        cs = self.generate_changeset(old_import_id=0, new_import_id=0)
+        return [(s.guid, s.user_id) for s in cs.students_added]
+
     def close_connection(self):
         """Closes connection to database."""
         self.conn.close()
