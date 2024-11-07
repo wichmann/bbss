@@ -165,9 +165,12 @@ def _write_student_user_list_file(output_file, change_set):
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle', 'Benutzergruppe', 'Fremdbenutzername', 'E-Mail Adresse'))
+        output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle',
+                                     'Benutzergruppe', 'Schlüssel (extern)', 'E-Mail Adresse'))
         for student in sorted(chain(change_set.students_added, change_set.students_changed)):
-            output_file_writer.writerow((student.classname, student.user_id, student.password, 'Schüler*innen', 'Schüler*innen (Schüler)', student.guid, student.email))
+            output_file_writer.writerow((student.classname, student.user_id.lower(),
+                                         student.password, 'Schüler*innen', 'Schüler',
+                                         student.guid, student.email))
             count += 1
         logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
 
