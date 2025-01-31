@@ -4,3 +4,4 @@ docopt
 reportlab
 qrcode
 Pillow
+authentik_client
