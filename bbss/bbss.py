@@ -15,6 +15,7 @@ import os
 
 import bbss.db
 import bbss.csv
+import bbss.sso
 import bbss.pdf
 import bbss.radius
 import bbss.xls
@@ -109,6 +110,13 @@ def export_pdf_file(output_file, selected_students):
     logger.info('Writing student list to PDF file...')
     bbss.pdf.export_data(output_file, selected_students)
     logger.info('Student list written to file.')
+
+
+def upload_students_to_school_server(selected_students):
+    """Writes a PDF file to be distributed to the students."""
+    logger.info('Upload following students to school server: "{0}".'.format(selected_students))
+    bbss.sso.upload_data(selected_students)
+    logger.info('Upload complete.')
 
 
 def generate_changeset(old_import_id=0, new_import_id=0):

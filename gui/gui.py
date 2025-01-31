@@ -154,6 +154,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         menu.addAction(history_action)
         export_action = QtWidgets.QAction(QtGui.QIcon(), 'Exportieren...', self)
         menu.addAction(export_action)
+        upload_action = QtWidgets.QAction(QtGui.QIcon(), 'Upload zum Schul-Server...', self)
+        menu.addAction(upload_action)
         global_coordinates = self.search_students_tableView.mapToGlobal(pos)
         # show menu and wait synchronous for click (asynchronous call: menu.popup)
         action = menu.exec_(global_coordinates)
@@ -182,6 +184,11 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Wähle PDF-Datei zum Export...', '', 'PDF-Datei (*.pdf)')[0]
             if output_file:
                 bbss.export_pdf_file(output_file, selected_students)
+        elif action == upload_action:
+            model = self.search_students_tableView.model()
+            selected_rows = self.search_students_tableView.selectionModel().selectedRows()
+            selected_students = [model.student_data(r) for r in selected_rows]
+            bbss.upload_students_to_school_server(selected_students)
 
     def setup_table_models(self):
         """Sets up table view and its models."""
