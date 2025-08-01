@@ -49,10 +49,10 @@ def export_data(output_file, change_set):
     _write_student_user_list_file(output_file, change_set)
     # generate import file for importing students into base data (Stammdaten)
     _write_student_list_file(output_file, change_set)
-    list_of_passwords = _write_class_list_file(output_file, change_set)
+    #list_of_passwords = _write_class_list_file(output_file, change_set)
     # create a PDF file with every new class including its password
-    output_file += '.pdf'
-    create_pdf_doc(output_file, list_of_passwords)
+    #output_file += '.pdf'
+    #create_pdf_doc(output_file, list_of_passwords)
 
 
 def _write_student_list_file(output_file, change_set):
@@ -167,7 +167,8 @@ def _write_student_user_list_file(output_file, change_set):
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle',
                                      'Benutzergruppe', 'Schlüssel (extern)', 'E-Mail Adresse'))
-        for student in sorted(chain(change_set.students_added, change_set.students_changed)):
+        # only write user accounts for *new* students
+        for student in sorted(change_set.students_added):
             output_file_writer.writerow((student.classname, student.user_id.lower(),
                                          student.password, 'Schüler*innen', 'Schüler',
                                          student.guid, student.email))
