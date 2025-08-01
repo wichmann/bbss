@@ -419,8 +419,11 @@ class StudentDatabase(object):
             logger.debug('\t' + str(s))
             # skip student, if already in list, because that can happen, if students are associated with multiple classes
             if s in change_set.students_changed:
+                # delete student entry that is already in list and add new student entry
+                # (should pretend wrong class information in exports, because multiple entries
+                # are returned from database and only the last one has the correct class info!!!)
+                change_set.students_changed.remove(s)
                 logger.warning('Skipping changed student that is already in list: {}'.format(s))
-                continue
             change_set.students_changed.append(s)
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
         return change_set
