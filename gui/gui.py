@@ -231,8 +231,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         """Centers the window on the screen."""
         screen = QtWidgets.QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.move((screen.width() - size.width()) / 2,
-                  (screen.height() - size.height()) / 2)
+        self.move(int((screen.width() - size.width()) / 2),
+                  int((screen.height() - size.height()) / 2))
 
     def set_signals_and_slots(self):
         """Sets all signals and slots for main window."""
