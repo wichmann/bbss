@@ -119,10 +119,10 @@ def upload_students_to_school_server(selected_students):
     logger.info('Upload complete.')
 
 
-def generate_changeset(old_import_id=0, new_import_id=0):
+def generate_changeset(old_import_id=0, new_import_id=0, include_dates=False):
     """Generates a changeset between two given imports."""
     global student_database
-    changes = student_database.generate_changeset(old_import_id, new_import_id)
+    changes = student_database.generate_changeset(old_import_id, new_import_id, include_dates=include_dates)
     return changes
 
 

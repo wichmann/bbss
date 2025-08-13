@@ -254,7 +254,7 @@ class StudentDatabase(object):
                     .format(result_data['count(*)']))
         self.conn.commit()
 
-    def build_student(self, student):
+    def build_student(self, student, include_dates=False):
         """
         Builds a new Student object from result given by the database.
         """
@@ -270,11 +270,54 @@ class StudentDatabase(object):
         s.email = student['email']
         s.guid = student['guid']
         s.courses = student['courses']
+        if include_dates:
+            s.entry_date, s.exit_date = self._get_entry_and_exit_date_for_student(student['id'])
         return s
+
+    def _get_entry_and_exit_date_for_student(self, student_id):
+        """
+        Gets entry and exit date for student in the school. It finds the last
+        import which contains the student and searches all imports in reverse
+        order for the first one. This gives the last consecutive duration were
+        the student visited the school.
+        """
+        latest_import = self.get_last_import_id()
+        sql_for_entry_and_exit_date = """
+            SELECT Imports.id as import_id, Imports.date as import_date, StudentsInImports.class_in_import
+            FROM StudentsInImports
+            JOIN Imports ON StudentsInImports.import_id = Imports.id
+            WHERE student_id = ? ORDER BY Imports.id DESC;"""
+        self.cur.execute(sql_for_entry_and_exit_date, (student_id, ))
+        result_data = list(self.cur.fetchall())
+        
+        #entry_date = None
+        #for i, import_data in enumerate(result_data):
+        #    current_import = import_data['import_id']
+        #    current_date = import_data['import_date']
+        #    if i == 0:
+        #        # take first date for exit date because descending order by SQL
+        #        exit_date = import_data['import_date']
+        #    else:
+        #        # search for first entry that is not consecutively anymore
+        #        if int(import_data['import_id']) < int(current_import)-1:
+        #            entry_date = current_date
+        #            break
+        # just set earliest date if student was consecutively at the school
+        #if not entry_date:
+        #    entry_date = result_data[-1]['import_date']
+
+        # always set earliest entry as entry date
+        entry_date = result_data[-1]['import_date']
+        # set exit date if last import for student was not the latest import executed
+        if result_data[0]['import_id'] == latest_import:
+            exit_date = ''
+        else:
+            exit_date = result_data[0]['import_date']
+        return entry_date, exit_date
 
     def search_for_student(self, search_string):
         # TODO: Check whether this search gets last class, student is/was in?!
-        select_stmt = """SELECT surname, firstname, birthday, username, password, email, guid, courses, class_in_import, MAX(import_id)
+        select_stmt = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, class_in_import, MAX(import_id)
                          FROM (SELECT * FROM Students
                          WHERE surname LIKE ? OR firstname LIKE ?
                          OR classname LIKE ? OR birthday LIKE ?
@@ -311,7 +354,7 @@ class StudentDatabase(object):
         else:
             return []
 
-    def generate_changeset(self, old_import_id=-1, new_import_id=0):
+    def generate_changeset(self, old_import_id=-1, new_import_id=0, include_dates=False):
         """Generates a changeset with all added, deleted and changed student
            data between two specific imports.
 
@@ -356,17 +399,17 @@ class StudentDatabase(object):
         logger.debug('Getting student data between imports no. {0} and no. {1}'
                      .format(old_import_id, new_import_id))
         if old_import_id == 0:
-            return self._get_all_students_of_import(new_import_id)
+            return self._get_all_students_of_import(new_import_id, include_dates=include_dates)
         else:
-            return self._get_difference_between_imports(old_import_id,
-                                                        new_import_id)
+            return self._get_difference_between_imports(old_import_id, new_import_id,
+                                                        include_dates=include_dates)
 
     def _import_ids_are_wrong(self, old_import_id, new_import_id):
         return (old_import_id >= new_import_id or
                 new_import_id > self.get_last_import_id() or
                 old_import_id > self.get_last_import_id())
 
-    def _get_difference_between_imports(self, old_import_id, new_import_id):
+    def _get_difference_between_imports(self, old_import_id, new_import_id, include_dates=False):
         # TODO handle changed students
         sql = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, classname as class_in_import
                  FROM (
@@ -383,7 +426,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Added students are: ')
         for student in result_data:
-            s = self.build_student(student)
+            s = self.build_student(student, include_dates=include_dates)
             logger.debug('\t' + str(s))
             # skip student, if already in list, because that can happen, if students are associated with multiple classes
             if s in change_set.students_added:
@@ -396,7 +439,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Removed students are: ')
         for student in result_data:
-            s = self.build_student(student)
+            s = self.build_student(student, include_dates=include_dates)
             logger.debug('\t' + str(s))
             change_set.students_removed.append(s)
 
@@ -415,7 +458,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         logger.debug('Changed students are: ')
         for student in result_data:
-            s = self.build_student(student)
+            s = self.build_student(student, include_dates=include_dates)
             logger.debug('\t' + str(s))
             # skip student, if already in list, because that can happen, if students are associated with multiple classes
             if s in change_set.students_changed:
@@ -428,14 +471,14 @@ class StudentDatabase(object):
         change_set.classes_added, change_set.classes_removed = self._get_class_changes(old_import_id, new_import_id)
         return change_set
 
-    def _get_all_students_of_import(self, new_import_id):
+    def _get_all_students_of_import(self, new_import_id, include_dates=False):
         """
         Returns all students for a given import.
 
         :param new_import_id: import ID for which to get students
         :return: ChangeSet object containing all students from the given import
         """
-        sql_for_all_students = """SELECT import_id,
+        sql_for_all_students = """SELECT id, import_id,
             student_id, firstname, surname, classname, birthday, username,
             password, email, guid, courses, class_in_import
             FROM StudentsInImports, Students
@@ -446,7 +489,7 @@ class StudentDatabase(object):
         # build change set and return it
         change_set = data.ChangeSet()
         for student in result_data:
-            s = self.build_student(student)
+            s = self.build_student(student, include_dates=include_dates)
             change_set.students_added.append(s)
         change_set.classes_added = self._get_all_classes(new_import_id)
         return change_set
