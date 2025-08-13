@@ -271,7 +271,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
         elif ext == '.xls' or ext == '.xlsx':
             bbss.import_excel_file(self.FILENAME)
         else:
-            logger.warn('Given file format can not be imported.')
+            logger.warning('Given file format can not be imported.')
         self.import_table_model.update(bbss.student_list)
         self.proxy_import_table_model.setSourceModel(self.import_table_model)
         self.import_data_tableview.resizeColumnsToContents()
@@ -374,21 +374,21 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
     def on_update_export_changeset(self):
         self.update_changeset_from_database()
 
-    def update_changeset_from_database(self):
+    def update_changeset_from_database(self, include_dates=False):
         """Updates import IDs and changeset based on currently set values in
            user interface."""
         try:
             old_id = int(self.old_import_number.text())
         except:
-            logger.warn('Import IDs must be integer values.')
+            logger.warning('Import IDs must be integer values.')
             old_id = 0
         try:
             new_id = int(self.new_import_number.text())
         except:
-            logger.warn('Import IDs must be integer values.')
+            logger.warning('Import IDs must be integer values.')
             new_id = 0
-        self.changeset = bbss.generate_changeset(old_import_id=old_id,
-                                                 new_import_id=new_id)
+        self.changeset = bbss.generate_changeset(old_import_id=old_id, new_import_id=new_id,
+                                                 include_dates=include_dates)
         logger.debug('{} added, {} changed, {} removed'
                      .format(*self.changeset.get_statistics()))
         # update tables for added and removed students
@@ -406,7 +406,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
 
     @QtCore.pyqtSlot()
     def on_export_data(self):
-        self.update_changeset_from_database()
+        self.update_changeset_from_database(include_dates=True)
         export_format = self.export_format_combobox.currentText()
         # TODO: Ask for file name after evaluating export format!
         export_file = self.get_filename_for_export()
@@ -422,7 +422,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
             elif export_format == 'LabSoft Classroom Manager':
                 bbss.export_labsoft_file(export_file, self.changeset)
             else:
-                logger.warn('Export format not yet implemented.')
+                logger.warning('Export format not yet implemented.')
                 message = 'Gewünschtes Exportformat noch nicht implementiert.'
                 QtWidgets.QMessageBox.information(self, 'Fehler bei Export',
                                                   message, QtWidgets.QMessageBox.Ok)

@@ -69,35 +69,38 @@ def _write_student_list_file(output_file, change_set):
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
         output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                     'Schlüssel (extern)', 'Eintrittsdatum', 'Austrittsdatum'))
+                                     'Fremdbenutzername', 'Eintrittsdatum', 'Austrittsdatum'))
         for student in sorted(change_set.students_added):
             if student.classname in blacklist:
                 continue
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            entry = datetime.datetime.strptime(student.entry_date, '%Y-%m-%d').strftime('%d.%m.%Y')
             # add new student with entry date, so that he/she will not be shown for dates before that!
             output_file_writer.writerow((student.surname, student.firstname,
                                          birthday, user_id, student.classname,
-                                         student.guid, datetime.date.today().strftime('%d.%m.%Y'),''))
+                                         student.guid, entry ,''))
     # put students that changed classes into separate file because their entry date should not be changed!
     output_file_students = '{}.students_changed{}'.format(*output_file)
     if os.path.exists(output_file_students):
         logger.warning('Output file already exists, will be overwritten...')
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                     'Schlüssel (extern)',  'Austrittsdatum'))
+        output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Benutzername', 'Klasse',
+                                     'Fremdbenutzername',  'Eintrittsdatum', 'Austrittsdatum'))
         for student in sorted(change_set.students_changed):
             if student.classname in blacklist:
                 continue
             # output student data for change set into file
             user_id = student.generate_user_id().lower()
             birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+            entry = datetime.datetime.strptime(student.entry_date, '%Y-%m-%d').strftime('%d.%m.%Y')
             # add changed student without entry date, because that would overwrite an existing date;
             # class change will take effect depending on the given date for that when importing the data!
             output_file_writer.writerow((student.surname, student.firstname,
-                                         birthday, user_id, student.classname, student.guid, ''))
+                                         birthday, user_id, student.classname,
+                                         student.guid, entry, ''))
     # only export removed students if config option is set, otherwise ignore them
     if config.SHOULD_SET_REMOVE_DATE_FROM_WEBUNTIS:
         output_file_students = '{}.students_removed{}'.format(*output_file)
@@ -105,18 +108,20 @@ def _write_student_list_file(output_file, change_set):
             logger.warning('Output file already exists, will be overwritten...')
         with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
             output_file_writer = csv.writer(csvfile, delimiter=';')
-            output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Kurzname', 'Klasse',
-                                        'Schlüssel (extern)', 'Austrittsdatum'))
+            output_file_writer.writerow(('Familienname', 'Vorname', 'Geburtsdatum', 'Benutzername', 'Klasse',
+                                        'Fremdbenutzername', 'Eintrittsdatum', 'Austrittsdatum'))
             for student in sorted(change_set.students_removed):
                 if student.classname in blacklist:
                     continue
                 # output student data for change set into file
                 user_id = student.generate_user_id().lower()
                 birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+                entry = datetime.datetime.strptime(student.entry_date, '%Y-%m-%d').strftime('%d.%m.%Y')
+                exit = datetime.datetime.strptime(student.exit_date, '%Y-%m-%d').strftime('%d.%m.%Y')
                 # add changed student without entry date, because that would overwrite an existing date;
                 # class change will take effect depending on the given date for that when importing the data!
                 output_file_writer.writerow((student.surname, student.firstname, birthday, user_id,
-                                             student.classname, student.guid, datetime.date.today().strftime('%d.%m.%Y')))
+                                             student.classname, student.guid, entry, exit))
 
 
 def _write_class_list_file(output_file, change_set):
@@ -133,7 +138,7 @@ def _write_class_list_file(output_file, change_set):
         logger.warning('Output file already exists, will be overwritten...')
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         output_file_writer = csv.writer(csvfile, delimiter=',')
-        output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle', 'Benutzergruppe'))
+        output_file_writer.writerow(('Klassenname', 'Benutzername', 'Passwort', 'Personenrolle', 'Benutzergruppe'))
         for c in change_set.classes_added:
             new_password = data.generate_good_readable_password()
             list_of_passwords[c] = new_password
@@ -165,13 +170,10 @@ def _write_student_user_list_file(output_file, change_set):
     with open(output_file_students, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Klassenname', 'Kurzname', 'Passwort', 'Personenrolle',
-                                     'Benutzergruppe', 'Schlüssel (extern)', 'E-Mail Adresse'))
+        output_file_writer.writerow(('Benutzername', 'Passwort', 'Benutzergruppe', 'Fremdbenutzername', 'E-Mail Adresse'))
         # only write user accounts for *new* students
         for student in sorted(change_set.students_added):
-            output_file_writer.writerow((student.classname, student.user_id.lower(),
-                                         student.password, 'Schüler*innen', 'Schüler',
-                                         student.guid, student.email))
+            output_file_writer.writerow((student.user_id.lower(), student.password, 'Schüler', student.guid, student.email))
             count += 1
         logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
 
