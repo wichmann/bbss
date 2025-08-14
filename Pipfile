@@ -9,7 +9,7 @@ docopt = "*"
 reportlab = "*"
 qrcode = "*"
 Pillow = "*"
-PyQt5 = "*"
+PyQt6 = "*"
 authentik_client = "*"
 
 [dev-packages]
