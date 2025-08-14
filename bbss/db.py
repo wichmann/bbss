@@ -589,6 +589,7 @@ class StudentDatabase(object):
         result_data = self.cur.fetchall()
         with self.conn:
             # delete all students that appear only in older imports
+            i = 0
             for i, r in enumerate(result_data):
                 # call callback functions with number of current students
                 if callback is not None and callable(callback):
