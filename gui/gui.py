@@ -405,11 +405,15 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
 
     @QtCore.pyqtSlot()
     def on_export_data(self):
-        self.update_changeset_from_database(include_dates=True)
         export_format = self.export_format_combobox.currentText()
         # TODO: Ask for file name after evaluating export format!
         export_file = self.get_filename_for_export()
         if export_file:
+            # include only dates when absolutely necessary
+            if export_format == 'WebUntis':
+                self.update_changeset_from_database(include_dates=True)
+            else:
+                self.update_changeset_from_database(include_dates=False)
             if export_format == 'LogoDidact':
                 bbss.export_csv_file(export_file, self.changeset)
             elif export_format == 'Radius-Server':
