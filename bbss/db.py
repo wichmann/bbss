@@ -104,6 +104,10 @@ class StudentDatabase(object):
         if user_version <= 4:
             self.cur.execute("""ALTER TABLE Students ADD COLUMN courses TEXT DEFAULT ""; """)
             self.set_database_version(5)
+        if user_version <= 5:
+            self.cur.execute("""ALTER TABLE Students ADD COLUMN initial_username TEXT DEFAULT ""; """)
+            self.cur.execute("""ALTER TABLE Students ADD COLUMN initial_password TEXT DEFAULT ""; """)
+            self.set_database_version(6)
         self.conn.commit()
 
     def set_database_version(self, new_version):
@@ -181,13 +185,14 @@ class StudentDatabase(object):
             if not current_student:
                 # insert student in database
                 logger.debug('Added new student to database: {}'.format(student))
-                self.cur.execute('INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?,?)',
+                self.cur.execute('INSERT INTO Students VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?)',
                                  (student.surname, student.firstname,
                                   student.classname, student.birthday,
                                   student.generate_user_id(),
                                   student.generate_password(),
                                   student.email, str(student.guid),
-                                  student.courses))
+                                  student.courses, student.initial_username,
+                                  student.initial_password))
                 # insert connection between new student and this import
                 student_id = self.cur.lastrowid
                 self.cur.execute('INSERT INTO StudentsInImports VALUES (?,?,?)',
@@ -270,6 +275,9 @@ class StudentDatabase(object):
         s.email = student['email']
         s.guid = student['guid']
         s.courses = student['courses']
+        # always read initial username and password from database, even if it is empty
+        s.initial_username = student['initial_username']
+        s.initial_password = student['initial_password']
         if include_dates:
             s.entry_date, s.exit_date = self._get_entry_and_exit_date_for_student(student['id'])
         return s
@@ -317,7 +325,7 @@ class StudentDatabase(object):
 
     def search_for_student(self, search_string):
         # TODO: Check whether this search gets last class, student is/was in?!
-        select_stmt = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, class_in_import, MAX(import_id)
+        select_stmt = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, initial_username, initial_password, class_in_import, MAX(import_id)
                          FROM (SELECT * FROM Students
                          WHERE surname LIKE ? OR firstname LIKE ?
                          OR classname LIKE ? OR birthday LIKE ?
@@ -411,7 +419,7 @@ class StudentDatabase(object):
 
     def _get_difference_between_imports(self, old_import_id, new_import_id, include_dates=False):
         # TODO handle changed students
-        sql = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, classname as class_in_import
+        sql = """SELECT id, surname, firstname, birthday, username, password, email, guid, courses, initial_username, initial_password, classname as class_in_import
                  FROM (
                      SELECT student_id FROM StudentsInImports
                      WHERE import_id=?
@@ -448,7 +456,8 @@ class StudentDatabase(object):
         changed_student_stmt = """
                                SELECT * FROM (
                                  SELECT Students.id, Students.surname, Students.firstname, Students.classname, Students.birthday,
-                                       Students.username, Students.password, Students.email, Students.guid, Students.courses
+                                       Students.username, Students.password, Students.email, Students.guid, Students.courses,
+                                       Students.initial_username, Students.initial_password
                                  FROM (
                                     SELECT student_id, import_id FROM ClassChanges WHERE import_id BETWEEN ? AND ?
                                  ) JOIN Students ON student_id = id
@@ -480,7 +489,8 @@ class StudentDatabase(object):
         """
         sql_for_all_students = """SELECT id, import_id,
             student_id, firstname, surname, classname, birthday, username,
-            password, email, guid, courses, class_in_import
+            password, email, guid, courses, initial_username, initial_password,
+            class_in_import
             FROM StudentsInImports, Students
             WHERE StudentsInImports.student_id = Students.id
             AND import_id = ?; """

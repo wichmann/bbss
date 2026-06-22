@@ -56,6 +56,9 @@ class Student(object):
         self.user_id = None
         self.password = None
         self.courses = ''
+        # store initial user account data if it was imported
+        self.initial_username = ''
+        self.initial_password = ''
 
     def __str__(self):
         return "<{0} {1} from {2}>".format(self.firstname,
@@ -117,12 +120,38 @@ class Student(object):
                                         replace_illegal_characters(self.firstname)[0:4].upper())
         return self.user_id
 
+    def get_user_id_full_name(self):
+        """
+        Returns initial username that was imported or generates a user id for a
+        student based on the whole first and last name, if it is missing.
+        
+        The usernae is returned as lower characters string.
+        """
+        if not self.user_id:
+            if self.initial_username:
+                self.user_id = self.initial_username.lower()
+            else:
+                self.user_id = '%s.%s' % (replace_illegal_characters(self.surname),
+                                          replace_illegal_characters(self.firstname))
+        return self.user_id.lower()
+
     def generate_password(self, regenerate=False):
         """Generates a password for a student if it does not exist already.
         Otherwise the existing password is returned!
         """
         if not self.password or regenerate:
             self.password = generate_good_readable_password()
+        return self.password
+
+    def get_initial_password(self):
+        """Returns initial password or generates one for a student if it does
+        not exist already.
+        """
+        if not self.password:
+            if self.initial_password:
+                self.password = self.initial_password
+            else:
+                self.password = generate_good_readable_password()
         return self.password
 
     def generate_ou(self):

@@ -75,7 +75,8 @@ char_map = {'ä': 'ae',
             'ă': 'a',
             '`': '\'',
             '–': '-',
-            "'": ''}
+            "'": '',
+            ' ': ''}
 
 
 # map translating class names as used to class names a necessary for generating user names
