@@ -222,8 +222,9 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
 
     def setup_combo_boxes(self):
         # TODO get values from bbss package
-        export_formats = ('LogoDidact', 'Radius-Server', 'Active Directory',
-                          'Moodle', 'WebUntis', 'LabSoft Classroom Manager', 'iServ')
+        export_formats = ('iServ', 'LogoDidact', 'Radius-Server',
+                          'Active Directory', 'Moodle', 'WebUntis',
+                          'LabSoft Classroom Manager')
         self.export_format_combobox.addItems(export_formats)
 
     def center_on_screen(self):
