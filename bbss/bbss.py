@@ -105,6 +105,13 @@ def export_labsoft_file(output_file, changes):
     logger.info('Student list written to file.')
 
 
+def export_iserv_file(output_file, changes):
+    """Writes a file for use in iServ school server."""
+    logger.info('Writing student data to iServ file...')
+    bbss.iserv.export_data(output_file, changes)
+    logger.info('Student list written to file.')
+
+
 def export_pdf_file(output_file, selected_students):
     """Writes a PDF file to be distributed to the students."""
     logger.info('Writing student list to PDF file...')

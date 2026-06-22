@@ -223,7 +223,7 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
     def setup_combo_boxes(self):
         # TODO get values from bbss package
         export_formats = ('LogoDidact', 'Radius-Server', 'Active Directory',
-                          'Moodle', 'WebUntis', 'LabSoft Classroom Manager')
+                          'Moodle', 'WebUntis', 'LabSoft Classroom Manager', 'iServ')
         self.export_format_combobox.addItems(export_formats)
 
     def center_on_screen(self):
@@ -424,6 +424,8 @@ class BbssGui(QtWidgets.QMainWindow, Ui_BBSS_Main_Window):
                 bbss.export_webuntis_file(export_file, self.changeset)
             elif export_format == 'LabSoft Classroom Manager':
                 bbss.export_labsoft_file(export_file, self.changeset)
+            elif export_format == 'iServ':
+                bbss.export_iserv_file(export_file, self.changeset)
             else:
                 logger.warning('Export format not yet implemented.')
                 message = 'Gewünschtes Exportformat noch nicht implementiert.'
