@@ -120,20 +120,18 @@ class Student(object):
                                         replace_illegal_characters(self.firstname)[0:4].upper())
         return self.user_id
 
-    def get_user_id_full_name(self):
+    def get_initial_username(self):
         """
         Returns initial username that was imported or generates a user id for a
         student based on the whole first and last name, if it is missing.
         
-        The usernae is returned as lower characters string.
+        The username is returned as lower characters string.
         """
-        if not self.user_id:
-            if self.initial_username:
-                self.user_id = self.initial_username.lower()
-            else:
-                self.user_id = '%s.%s' % (replace_illegal_characters(self.surname),
-                                          replace_illegal_characters(self.firstname))
-        return self.user_id.lower()
+        if self.initial_username:
+            return self.initial_username.lower()
+        else:
+            return '%s.%s' % (replace_illegal_characters(self.firstname),
+                              replace_illegal_characters(self.surname))
 
     def generate_password(self, regenerate=False):
         """Generates a password for a student if it does not exist already.
@@ -147,12 +145,10 @@ class Student(object):
         """Returns initial password or generates one for a student if it does
         not exist already.
         """
-        if not self.password:
-            if self.initial_password:
-                self.password = self.initial_password
-            else:
-                self.password = generate_good_readable_password()
-        return self.password
+        if self.initial_password:
+            return self.initial_password
+        else:
+            return generate_good_readable_password()
 
     def generate_ou(self):
         # TODO move to bbss.ad

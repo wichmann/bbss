@@ -47,7 +47,7 @@ def _write_student_list_file(output_file, change_set):
         output_file_writer.writerow(('Import-ID', 'Vorname', 'Nachname', 'Klasse/Information',
                                      'Account', 'Passwort', 'Email', 'Geburtsdatum', 'Gruppen'))
         for student in sorted(change_set.students_added)[::10]:
-            _write_student(student, output_file_writer, False)
+            _write_student(student, output_file_writer)
             count += 1
         logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
 
@@ -60,9 +60,8 @@ def _write_student(student, output_file_writer):
     :param output_file_writer: CSV file to write to
     """
     # get data from change set
-    user_id = student.get_user_id_full_name()
-    mail_address = student.email if student.email else '{}@example.com'.format(user_id)
-    birthday = datetime.datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
+    mail_address = student.email if student.email else '{}@example.com'.format(student.get_initial_username())
+    birthday = datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
     output_file_writer.writerow((student.guid, student.firstname, student.surname, student.classname,
-                                 user_id, student.get_initial_password(), mail_address, birthday,
-                                 student.courses))
+                                 student.get_initial_username(), student.get_initial_password(),
+                                 mail_address, birthday, student.courses))

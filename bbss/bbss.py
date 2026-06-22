@@ -22,6 +22,7 @@ import bbss.xls
 import bbss.moodle
 import bbss.webuntis
 import bbss.labsoft
+import bbss.iserv
 import bbss.bbs_verwaltung
 
 
