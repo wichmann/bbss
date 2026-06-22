@@ -130,8 +130,7 @@ class Student(object):
         if self.initial_username:
             return self.initial_username.lower()
         else:
-            return '%s.%s' % (replace_illegal_characters(self.firstname),
-                              replace_illegal_characters(self.surname))
+            return f'{replace_illegal_characters(self.firstname)}.{replace_illegal_characters(self.surname)}'.lower()
 
     def generate_password(self, regenerate=False):
         """Generates a password for a student if it does not exist already.
