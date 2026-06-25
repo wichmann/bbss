@@ -9,7 +9,7 @@ Created on Mon Jun  22 10:47:46 2026
 @author: Christian Wichmann
 """
 
-
+import os
 import csv
 import logging
 from datetime import datetime
@@ -23,6 +23,7 @@ logger = logging.getLogger('bbss.iserv')
 
 def export_data(output_file, change_set):
     _write_student_list_file(output_file, change_set)
+    _write_comparison_list_file(output_file, change_set)
 
 
 def _write_student_list_file(output_file, change_set):
@@ -65,3 +66,30 @@ def _write_student(student, output_file_writer):
     output_file_writer.writerow((student.guid, student.firstname, student.surname, student.classname,
                                  student.get_initial_username(), student.get_initial_password(),
                                  mail_address, birthday, student.courses))
+
+def _write_comparison_list_file(output_file, change_set):
+    """
+    Writes a file containing the GUID of all students and their old user-id
+    (ifa77.muelkai) and the new username based on their first and last name.
+    All students will be included. Each student no longer in the database, will
+    not be included.
+
+    :param output_file: file name to write student list to
+    :param change_set: object representing all changes between given imports
+
+    File format:
+    Import-ID;OldAccount;Account
+    0075098C-A904-4F48-B6E8-29802C45A0AB;ifa77.jonetom;tom.jones
+    """
+    output_file = os.path.splitext(output_file)
+    output_file_comparison = '{}.comparison{}'.format(*output_file)
+    if os.path.exists(output_file_comparison):
+        logger.warning('Output file already exists, will be overwritten...')
+    with open(output_file_comparison, 'w', newline='', encoding='utf8') as csvfile:
+        count = 0
+        output_file_writer = csv.writer(csvfile, delimiter=';')
+        output_file_writer.writerow(('Import-ID', 'OldAccount', 'Account'))
+        for student in sorted(change_set.students_added)[::10]:
+            output_file_writer.writerow((student.guid, student.generate_user_id().lower(), student.get_initial_username(regenerate=True)))
+            count += 1
+        logger.debug('{0} students (added) exported to comparison file.'.format(count))

@@ -120,17 +120,19 @@ class Student(object):
                                         replace_illegal_characters(self.firstname)[0:4].upper())
         return self.user_id
 
-    def get_initial_username(self):
+    def get_initial_username(self, regenerate=False):
         """
         Returns initial username that was imported or generates a user id for a
         student based on the whole first and last name, if it is missing.
         
         The username is returned as lower characters string.
         """
-        if self.initial_username:
+        if self.initial_username and not regenerate:
             return self.initial_username.lower()
         else:
-            return f'{replace_illegal_characters(self.firstname)}.{replace_illegal_characters(self.surname)}'.lower()
+            firstname = self.firstname.replace(' ', '.')
+            surname = self.surname.replace(' ', '.')
+            return f'{replace_illegal_characters(firstname)}.{replace_illegal_characters(surname)}'.lower()
 
     def generate_password(self, regenerate=False):
         """Generates a password for a student if it does not exist already.
