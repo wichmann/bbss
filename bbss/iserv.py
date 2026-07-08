@@ -44,28 +44,39 @@ def _write_student_list_file(output_file, change_set):
     # export file with all added students
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
-        output_file_writer = csv.writer(csvfile, delimiter=';')
-        output_file_writer.writerow(('Import-ID', 'Vorname', 'Nachname', 'Klasse/Information',
-                                     'Account', 'Passwort', 'Email', 'Geburtsdatum', 'Gruppen'))
-        for student in sorted(change_set.students_added)[::10]:
-            _write_student(student, output_file_writer)
+        csvfile.write('Import-ID;Vorname;Nachname;Klasse/Information;Gruppen\r\n')
+        for student in sorted(change_set.students_added):
+            _write_student(student, csvfile)
             count += 1
         logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
 
 
-def _write_student(student, output_file_writer):
+def _write_student(student, csvfile):
     """
     Writes the data of a single student to CSV file.
 
     :param student: object representing a single students data
-    :param output_file_writer: CSV file to write to
+    :param csvfile: opened CSV file handle to write to
     """
-    # get data from change set
-    mail_address = student.email if student.email else '{}@example.com'.format(student.get_initial_username())
-    birthday = datetime.strptime(student.birthday, '%Y-%m-%d').strftime('%d.%m.%Y')
-    output_file_writer.writerow((student.guid, student.firstname, student.surname, student.classname,
-                                 student.get_initial_username(), student.get_initial_password(),
-                                 mail_address, birthday, student.courses))
+    guid = _escape_csv_value(student.guid)
+    firstname = _escape_csv_value(student.firstname)
+    surname = _escape_csv_value(student.surname)
+    classname = _escape_csv_value(student.classname)
+    courses = _format_courses_field(student.courses)
+    csvfile.write(f'{guid};{firstname};{surname};{classname};{courses}\r\n')
+
+
+def _escape_csv_value(value):
+    text = '' if value is None else str(value)
+    if any(c in text for c in (';', '"', '\n', '\r')):
+        return '"{}"'.format(text.replace('"', '""'))
+    return text
+
+
+def _format_courses_field(courses):
+    text = '' if courses is None else str(courses)
+    return '"{}"'.format(text.replace('"', '""'))
+
 
 def _write_comparison_list_file(output_file, change_set):
     """
