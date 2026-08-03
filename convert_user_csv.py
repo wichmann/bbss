@@ -15,7 +15,7 @@ import secrets
 import string
 from pathlib import Path
 
-OUTPUT_HEADER = ["lastname", "firstname", "cohort1", "username", "email", "password"]
+OUTPUT_HEADER = ["lastname", "firstname", "cohort1", "username", "email", "password", "profile_field_source"]
 PASSWORD_ALPHABET = string.ascii_letters + string.digits
 
 
@@ -42,6 +42,8 @@ def convert_csv(input_path: Path, output_path: Path, domain: str, password_lengt
                     "username": username,
                     "email": f"{username}@{domain}" if username else "",
                     "password": password,
+                    # mark all students as imported from iServ!
+                    "profile_field_source": "iServ"
                 }
             )
 
@@ -51,7 +53,6 @@ def parse_args() -> argparse.Namespace:
         description="Convert a user CSV file from German source format to target format."
     )
     parser.add_argument("input_csv", type=Path, help="Path to the input CSV file")
-    parser.add_argument("output_csv", type=Path, help="Path to the output CSV file")
     parser.add_argument(
         "--domain",
         default="bbs-brinkstrasse.net",
@@ -68,7 +69,9 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    convert_csv(args.input_csv, args.output_csv, args.domain, args.password_length)
+    input_path = args.input_csv
+    output_path = input_path.with_name(f"{input_path.stem}.converted{input_path.suffix}")
+    convert_csv(input_path, output_path, args.domain, args.password_length)
 
 
 if __name__ == "__main__":
