@@ -74,8 +74,11 @@ def _escape_csv_value(value):
 
 
 def _format_courses_field(courses):
-    text = '' if courses is None else str(courses)
-    return '"{}"'.format(text.replace('"', '""'))
+    if not courses:
+        return '""'
+    else:
+        text = [f'Kurs {c}' for c in str(courses).split(',')]
+        return '"{}"'.format(';'.join(text))
 
 
 def _write_comparison_list_file(output_file, change_set):
