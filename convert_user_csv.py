@@ -15,7 +15,7 @@ import secrets
 import string
 from pathlib import Path
 
-OUTPUT_HEADER = ["lastname", "firstname", "cohort1", "username", "email", "password", "profile_field_source"]
+OUTPUT_HEADER = ["lastname", "firstname", "cohort1", "username", "email", "password", "profile_field_source", "auth"]
 PASSWORD_ALPHABET = string.ascii_letters + string.digits
 
 
@@ -43,7 +43,9 @@ def convert_csv(input_path: Path, output_path: Path, domain: str, password_lengt
                     "email": f"{username}@{domain}" if username else "",
                     "password": password,
                     # mark all students as imported from iServ!
-                    "profile_field_source": "iServ"
+                    "profile_field_source": "iServ",
+                    # mark all accounts as using OAuth2 authentication
+                    "auth": "oauth2"
                 }
             )
 
