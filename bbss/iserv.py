@@ -14,6 +14,8 @@ import csv
 import logging
 from datetime import datetime
 
+from bbss import data
+
 
 __all__ = ['export_data']
 
@@ -45,7 +47,17 @@ def _write_student_list_file(output_file, change_set):
     with open(output_file, 'w', newline='', encoding='utf8') as csvfile:
         count = 0
         csvfile.write('Import-ID;Vorname;Nachname;Klasse/Information;Gruppen\r\n')
-        for student in sorted(change_set.students_added):
+        # create a test student to be included in the export file for testing purposes
+        teststudent = data.Student('Schüler', 'Test', 'IFA42', '')
+        teststudent.user_id = 'test.schueler'
+        teststudent.password = 'schueler1234'
+        teststudent.email = 'testschueler@ichmann.de'
+        teststudent.guid = 'b49003286ad97d2fdc5e1a8be290ebcc'
+        teststudent.initial_username = 'test.schueler'
+        teststudent.initial_password = 'schueler1234'
+        student_list = change_set.students_added
+        student_list.append(teststudent)
+        for student in sorted(student_list):
             _write_student(student, csvfile)
             count += 1
         logger.debug('{0} students (added) exported to Moodle file format.'.format(count))
