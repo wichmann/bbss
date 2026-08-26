@@ -24,8 +24,7 @@ SHOULD_SET_REMOVE_DATE_FROM_WEBUNTIS = True
 
 
 # black list of classes not to load
-class_blacklist = ('OWH', 'OWSMO', 'OWSDI', 'OWSMI', 'OWSDO')
-
+class_blacklist = ()
 
 # map translating all illegal characters into legal (ascii) characters
 char_map = {'ä': 'ae',
@@ -76,7 +75,8 @@ char_map = {'ä': 'ae',
             '`': '\'',
             '–': '-',
             "'": '',
-            ' ': ''}
+            ' ': '',
+            '`': ''}
 
 
 # map translating class names as used to class names a necessary for generating user names
